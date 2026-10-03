@@ -17,7 +17,7 @@ import {
 } from '@hugeicons/core-free-icons'
 import { OfficeView } from './office-view'
 import { CostTracker  } from './cost-tracker'
-import { AGENT_NAMES, getAgentPersona } from './agent-avatar'
+import { useOfficeState } from '../office/state/use-office-state'
 import type {CostWorker} from './cost-tracker';
 import type { AgentWorkingRow } from './office-view'
 import type {
@@ -84,7 +84,6 @@ const QUICK_ACTIONS: Array<{
   },
 ]
 
-const OFFICE_NAMES = AGENT_NAMES.slice(0, 6)
 const ACTIVITY_PAGE_SIZE = 3
 
 // ---------------------------------------------------------------------------
@@ -178,100 +177,11 @@ export function ConductorHome({
   const selectedHistoryEntry = conductor.selectedHistoryEntry
   const hasMissionHistory = conductor.missionHistory.length > 0
 
-  // Build office rows for idle home view
-  const homeOfficeRows = useMemo<Array<AgentWorkingRow>>(() => {
-    const isEZityStaff = conductor.conductorSettings.staffOrchestrated !== false
-    const sessions = conductor.recentSessions
-    if (sessions.length === 0) {
-      if (isEZityStaff) {
-        return [
-          {
-            id: 'ezity-chief-of-staff',
-            name: 'Chief of Staff',
-            emoji: '👔',
-            avatarEmoji: '👔',
-            agentId: 'ezity-chief-of-staff',
-            modelId: conductor.conductorSettings.orchestratorModel || 'auto',
-            status: 'idle' as const,
-            lastLine: 'Ready to coordinate missions...',
-            taskCount: 0,
-            roleDescription: 'Executive Orchestrator',
-          },
-          {
-            id: 'ezity-accountant',
-            name: 'Accountant',
-            emoji: '📊',
-            avatarEmoji: '📊',
-            agentId: 'ezity-accountant',
-            modelId: conductor.conductorSettings.workerModel || 'auto',
-            status: 'idle' as const,
-            lastLine: 'Standing by for finance and reporting...',
-            taskCount: 0,
-            roleDescription: 'Financial Analysis & Planning',
-          },
-          {
-            id: 'ezity-developer',
-            name: 'Developer',
-            emoji: '💻',
-            avatarEmoji: '💻',
-            agentId: 'ezity-developer',
-            modelId: conductor.conductorSettings.workerModel || 'auto',
-            status: 'idle' as const,
-            lastLine: 'Standing by for engineering tasks...',
-            taskCount: 0,
-            roleDescription: 'Engineering & Automation',
-          },
-        ]
-      }
-      return OFFICE_NAMES.slice(0, 3).map((name, i) => ({
-        id: `placeholder-${i}`,
-        name,
-        modelId: 'auto',
-        status: 'idle' as const,
-        lastLine: 'Waiting for work...',
-        taskCount: 0,
-        roleDescription: 'Worker',
-      }))
-    }
-    return sessions.slice(0, 6).map((session, i) => {
-      const s = session
-      const updatedAt =
-        typeof s.updatedAt === 'string' ? new Date(s.updatedAt).getTime() : 0
-      const statusText = `${s.status ?? ''} ${s.kind ?? ''}`.toLowerCase()
-      const status: AgentWorkingRow['status'] = /error|failed/.test(statusText)
-        ? 'error'
-        : /pause/.test(statusText)
-          ? 'paused'
-          : Date.now() - updatedAt < 120_000
-            ? 'active'
-            : 'idle'
-      const agentName = typeof s.agentName === 'string' ? s.agentName : null
-      const agentEmoji = typeof s.agentEmoji === 'string' ? s.agentEmoji : null
-      const agentRole = typeof s.agentRole === 'string' ? s.agentRole : null
-      const agentId = typeof s.agentId === 'string' ? s.agentId : undefined
-
-      return {
-        id: s.key ?? `session-${i}`,
-        name: agentName ?? OFFICE_NAMES[i % OFFICE_NAMES.length],
-        emoji: agentEmoji ?? undefined,
-        avatarEmoji: agentEmoji ?? undefined,
-        agentId,
-        modelId: s.model ?? 'auto',
-        status,
-        lastLine:
-          s.task ?? s.label ?? s.title ?? s.derivedTitle ?? 'Working...',
-        lastAt: updatedAt || undefined,
-        taskCount: 0,
-        roleDescription: agentRole ?? s.label ?? 'Worker',
-        sessionKey: s.key ?? undefined,
-      }
-    })
-  }, [
-    conductor.recentSessions,
-    conductor.conductorSettings.staffOrchestrated,
-    conductor.conductorSettings.orchestratorModel,
-    conductor.conductorSettings.workerModel,
-  ])
+  // Canonical office scene state and legacy rows adapter
+  const { legacyRows: homeOfficeRows } = useOfficeState({
+    conductor,
+    companyName: '',
+  })
 
   // Activity list (history or recent sessions)
   const filteredHistory = useMemo(() => {

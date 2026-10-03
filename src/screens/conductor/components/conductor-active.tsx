@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { OfficeView } from './office-view'
 import { CyclingStatus, WorkingIndicator } from './mission-event-log'
 import { getAgentPersona } from './agent-avatar'
+import { useOfficeState } from '../office/state/use-office-state'
 import type { AgentWorkingRow } from './office-view'
 import type { useConductorGateway } from '../hooks/use-conductor-gateway'
 import { cn } from '@/lib/utils'
@@ -122,97 +123,11 @@ export function ConductorActive({ conductor }: ConductorActiveProps) {
   const missionProgress =
     totalWorkers > 0 ? Math.round((completedWorkers / totalWorkers) * 100) : 0
 
-  // Build office agent rows
-  const officeAgentRows = useMemo<Array<AgentWorkingRow>>(() => {
-    if (conductor.workers.length > 0) {
-      return conductor.workers.map((worker, index) => {
-        const persona = getAgentPersona(index)
-        const currentTask = conductor.tasks.find(
-          (t) => t.workerKey === worker.key && t.status === 'running',
-        )?.title
-        const lastLine = conductor.workerOutputs[worker.key] ?? ''
-        const isWorkerPaused =
-          conductor.isPaused &&
-          (worker.status === 'running' || worker.status === 'idle')
-
-        return {
-          id: worker.key,
-          name: worker.agentName ?? persona.name,
-          emoji: worker.agentEmoji ?? persona.emoji,
-          avatarEmoji: worker.agentEmoji ?? persona.emoji,
-          agentId: worker.agentId ?? undefined,
-          modelId: worker.model || 'auto',
-          roleDescription: worker.agentRole ?? worker.displayName,
-          status: isWorkerPaused
-            ? ('paused' as const)
-            : worker.status === 'complete'
-              ? ('idle' as const)
-              : worker.status === 'stale'
-                ? ('error' as const)
-                : ('active' as const),
-          lastLine: isWorkerPaused ? 'Paused' : lastLine || undefined,
-          lastAt: worker.updatedAt
-            ? new Date(worker.updatedAt).getTime()
-            : undefined,
-          taskCount: conductor.tasks.filter((t) => t.workerKey === worker.key)
-            .length,
-          currentTask: isWorkerPaused ? 'Paused' : currentTask,
-          sessionKey: worker.key,
-        }
-      })
-    }
-
-    if (conductor.isEZityStaff) {
-      return [
-        {
-          id: conductor.orchestratorSessionKey || 'conductor-chief-of-staff',
-          name: 'Chief of Staff',
-          emoji: '👔',
-          avatarEmoji: '👔',
-          agentId: 'ezity-chief-of-staff',
-          modelId: conductor.conductorSettings.orchestratorModel || 'auto',
-          roleDescription: 'Executive Orchestrator',
-          status: conductor.isPaused
-            ? ('paused' as const)
-            : ('spawning' as const),
-          lastLine: conductor.isPaused
-            ? 'Paused'
-            : conductor.streamText
-              ? 'Chief of Staff analyzing mission...'
-              : 'Chief of Staff preparing staff team...',
-          taskCount: conductor.tasks.length,
-          currentTask: conductor.goal || 'Coordinating mission...',
-          sessionKey:
-            conductor.orchestratorSessionKey || 'conductor-chief-of-staff',
-        },
-      ]
-    }
-
-    return [
-      {
-        id: 'conductor-placeholder-agent',
-        name: 'Nova',
-        modelId: conductor.conductorSettings.workerModel || 'auto',
-        roleDescription: 'Waiting for workers',
-        status: 'spawning' as const,
-        lastLine: conductor.goal || 'Preparing the office...',
-        taskCount: 0,
-        currentTask: conductor.goal || 'Preparing the office...',
-        sessionKey: 'conductor-placeholder-agent',
-      },
-    ]
-  }, [
-    conductor.workers,
-    conductor.tasks,
-    conductor.workerOutputs,
-    conductor.isPaused,
-    conductor.goal,
-    conductor.isEZityStaff,
-    conductor.orchestratorSessionKey,
-    conductor.streamText,
-    conductor.conductorSettings.orchestratorModel,
-    conductor.conductorSettings.workerModel,
-  ])
+  // Canonical office scene state and legacy rows adapter
+  const { legacyRows: officeAgentRows } = useOfficeState({
+    conductor,
+    companyName: 'EZity AI Office',
+  })
 
   // Clear stale selected task
   useEffect(() => {
