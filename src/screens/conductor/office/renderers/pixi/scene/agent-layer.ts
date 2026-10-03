@@ -43,6 +43,7 @@ export class AgentLayer extends Container {
     private app: Application,
     private movementController: SpriteMovementController,
     private handlers: AgentLayerHandlers,
+    private parentEntitiesContainer?: Container,
   ) {
     super()
     this.sortableChildren = true
@@ -56,6 +57,7 @@ export class AgentLayer extends Container {
     camera: CameraState,
     selectedAgentId?: string,
   ): void {
+    const host = this.parentEntitiesContainer || this
     const presentAgentIds = new Set<string>()
 
     for (const agent of agents) {
@@ -65,7 +67,7 @@ export class AgentLayer extends Container {
       if (!obj) {
         obj = this.createAgentObject(agent, camera)
         this.agentObjects.set(agent.id, obj)
-        this.addChild(obj.container)
+        host.addChild(obj.container)
       }
 
       obj.sessionKey = agent.sessionKey
@@ -77,7 +79,7 @@ export class AgentLayer extends Container {
     // Remove any agents no longer present
     for (const [id, obj] of this.agentObjects.entries()) {
       if (!presentAgentIds.has(id)) {
-        this.removeChild(obj.container)
+        host.removeChild(obj.container)
         obj.container.destroy({ children: true })
         this.agentObjects.delete(id)
       }
@@ -164,13 +166,13 @@ export class AgentLayer extends Container {
 
     // Ground Shadow
     const shadow = new Graphics()
-    shadow.ellipse(0, 4, 14, 5)
+    shadow.ellipse(0, 2, 18, 6)
     shadow.fill({ color: 0x422006, alpha: 0.25 })
     container.addChild(shadow)
 
     // Selection Halo
     const halo = new Graphics()
-    halo.ellipse(0, 0, 22, 10)
+    halo.ellipse(0, 0, 26, 12)
     halo.stroke({ color: 0x38bdf8, width: 2.5, alpha: 0.9 })
     halo.fill({ color: 0x38bdf8, alpha: 0.15 })
     halo.visible = false
@@ -180,7 +182,7 @@ export class AgentLayer extends Container {
     const textureKey = this.getTextureKeyForRole(agent.id, 'sit')
     const texture = getOfficeTexture(textureKey, this.app)
     const sprite = new Sprite(texture)
-    sprite.anchor.set(0.5, 0.88)
+    sprite.anchor.set(0.5, 0.95)
     container.addChild(sprite)
 
     // Interactivity

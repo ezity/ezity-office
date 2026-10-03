@@ -43,6 +43,7 @@ export class OfficeScene {
 
   // Scene Layers
   private worldContainer = new Container()
+  private entitiesContainer = new Container()
   private roomLayer!: RoomLayer
   private furnitureLayer!: FurnitureLayer
   private agentLayer!: AgentLayer
@@ -229,20 +230,25 @@ export class OfficeScene {
 
     // Layer 1: Floor & Architecture
     this.roomLayer = new RoomLayer(this.app)
+    this.roomLayer.zIndex = 10
     this.roomLayer.buildEnvironment(this.camera)
     this.worldContainer.addChild(this.roomLayer)
 
-    // Layer 2: Furniture
-    this.furnitureLayer = new FurnitureLayer(this.app, handlers)
+    // Layer 2: Entities (Desks + Agents unified for 2.5D depth sorting)
+    this.entitiesContainer.zIndex = 100
+    this.entitiesContainer.sortableChildren = true
+    this.worldContainer.addChild(this.entitiesContainer)
+
+    this.furnitureLayer = new FurnitureLayer(this.app, handlers, this.entitiesContainer)
     this.furnitureLayer.buildFurniture(this.camera)
     this.worldContainer.addChild(this.furnitureLayer)
 
-    // Layer 3: Agents
-    this.agentLayer = new AgentLayer(this.app, this.movementController, handlers)
+    this.agentLayer = new AgentLayer(this.app, this.movementController, handlers, this.entitiesContainer)
     this.worldContainer.addChild(this.agentLayer)
 
-    // Layer 4: Overlays & Selection Highlights
+    // Layer 3: Overlays & Selection Highlights
     this.overlayLayer = new OverlayLayer(this.app)
+    this.overlayLayer.zIndex = 200
     this.worldContainer.addChild(this.overlayLayer)
   }
 

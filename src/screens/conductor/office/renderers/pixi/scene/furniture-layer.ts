@@ -1,18 +1,19 @@
 /**
  * Pixi Virtual Office Furniture & Interactive Zones Layer
  *
- * Provides interactive hitboxes, hover highlights, and click handlers
- * for operational fixtures (Operations Board, Review Counter, Conference Table, Workstations)
- * seamlessly aligned with the master office environment.
+ * Provides illustrated desk sprites, interactive hitboxes, hover highlights,
+ * and click handlers for operational stations. Seamlessly integrated into
+ * 2.5D depth sorting with seated and walking agents.
  */
 
-import { Container, Graphics, type Application } from 'pixi.js'
+import { Container, Graphics, Sprite, type Application } from 'pixi.js'
 import {
   worldToScreen,
   ZONE_DEFINITIONS,
   type CameraState,
   type WorldPoint,
 } from '../movement/navigation'
+import { getOfficeTexture } from '../assets/asset-manifest'
 
 export interface FurnitureClickHandlers {
   onWorkItemClick?: (workItemId: string) => void
@@ -27,6 +28,7 @@ interface InteractiveZoneDef {
   radiusX: number
   radiusY: number
   color: number
+  deskAsset?: string
   onClickType?: 'inbox' | 'approval' | 'mission'
 }
 
@@ -36,14 +38,21 @@ export class FurnitureLayer extends Container {
   constructor(
     private app: Application,
     private handlers: FurnitureClickHandlers,
+    private parentEntitiesContainer?: Container,
   ) {
     super()
     this.sortableChildren = true
   }
 
   public buildFurniture(camera: CameraState): void {
-    this.removeChildren()
+    // Clear previously registered items
+    const host = this.parentEntitiesContainer || this
+    for (const item of this.items.values()) {
+      host.removeChild(item)
+      item.destroy({ children: true })
+    }
     this.items.clear()
+    this.removeChildren()
 
     const interactiveZones: InteractiveZoneDef[] = [
       // 1. Operations Board (Top-Right Room)
@@ -60,9 +69,10 @@ export class FurnitureLayer extends Container {
       {
         id: 'rev_desk',
         name: 'Approval & Verification Desk',
-        worldPos: ZONE_DEFINITIONS.review_station.primaryAnchor,
-        radiusX: 40,
-        radiusY: 20,
+        worldPos: { x: 5.38, y: 6.88 },
+        deskAsset: 'desk_review',
+        radiusX: 42,
+        radiusY: 22,
         color: 0xf59e0b,
         onClickType: 'approval',
       },
@@ -70,9 +80,10 @@ export class FurnitureLayer extends Container {
       {
         id: 'conf_table',
         name: 'Strategic Conference Table',
-        worldPos: ZONE_DEFINITIONS.meeting_room.primaryAnchor,
-        radiusX: 52,
-        radiusY: 26,
+        worldPos: { x: -4.0, y: -6.88 },
+        deskAsset: 'table_meeting',
+        radiusX: 56,
+        radiusY: 28,
         color: 0x60a5fa,
         onClickType: 'mission',
       },
@@ -80,27 +91,30 @@ export class FurnitureLayer extends Container {
       {
         id: 'exec_desk',
         name: 'Executive Orchestrator Desk',
-        worldPos: ZONE_DEFINITIONS.executive.primaryAnchor,
-        radiusX: 48,
-        radiusY: 24,
+        worldPos: { x: -9.94, y: 2.19 },
+        deskAsset: 'desk_executive',
+        radiusX: 52,
+        radiusY: 26,
         color: 0x818cf8,
       },
       // 5. Finance Desk (Bottom-Left Wing)
       {
         id: 'fin_desk',
         name: 'Financial Ledger Station',
-        worldPos: ZONE_DEFINITIONS.finance.primaryAnchor,
-        radiusX: 45,
-        radiusY: 22,
+        worldPos: { x: -0.72, y: 9.22 },
+        deskAsset: 'desk_finance',
+        radiusX: 54,
+        radiusY: 28,
         color: 0x10b981,
       },
       // 6. Engineering Workstation (Bottom-Right Bay)
       {
         id: 'eng_desk',
         name: 'Engineering Bay Workstation',
-        worldPos: ZONE_DEFINITIONS.engineering.primaryAnchor,
-        radiusX: 46,
-        radiusY: 23,
+        worldPos: { x: 12.56, y: -0.94 },
+        deskAsset: 'desk_engineering',
+        radiusX: 50,
+        radiusY: 26,
         color: 0x0ea5e9,
       },
       // 7. Staff Lounge (Center-Right Area)
@@ -118,20 +132,32 @@ export class FurnitureLayer extends Container {
       const zoneContainer = new Container()
       const screenPos = worldToScreen(def.worldPos.x, def.worldPos.y, 0, camera)
       zoneContainer.position.set(screenPos.x, screenPos.y)
+      zoneContainer.scale.set(camera.zoom)
+      // Depth sorting: desk renders at screenPos.y
       zoneContainer.zIndex = screenPos.y
 
       // Subtle ambient interaction plate
       const plate = new Graphics()
       plate.ellipse(0, 0, def.radiusX, def.radiusY)
-      plate.stroke({ color: def.color, width: 1.5, alpha: 0.25 })
+      plate.stroke({ color: def.color, width: 1.5, alpha: 0.2 })
       plate.fill({ color: def.color, alpha: 0.04 })
       zoneContainer.addChild(plate)
 
+      // Desk Sprite (if available)
+      let deskSprite: Sprite | undefined
+      if (def.deskAsset) {
+        const texture = getOfficeTexture(def.deskAsset, this.app)
+        deskSprite = new Sprite(texture)
+        deskSprite.anchor.set(0.5, 0.5)
+        deskSprite.position.set(0, 0)
+        zoneContainer.addChild(deskSprite)
+      }
+
       // Hover glow highlight
       const hoverGlow = new Graphics()
-      hoverGlow.ellipse(0, 0, def.radiusX + 4, def.radiusY + 2)
+      hoverGlow.ellipse(0, 0, def.radiusX + 6, def.radiusY + 3)
       hoverGlow.stroke({ color: def.color, width: 2, alpha: 0.85 })
-      hoverGlow.fill({ color: def.color, alpha: 0.18 })
+      hoverGlow.fill({ color: def.color, alpha: 0.12 })
       hoverGlow.visible = false
       zoneContainer.addChild(hoverGlow)
 
@@ -141,9 +167,11 @@ export class FurnitureLayer extends Container {
 
       zoneContainer.on('pointerover', () => {
         hoverGlow.visible = true
+        if (deskSprite) deskSprite.tint = 0xfff3d6
       })
       zoneContainer.on('pointerout', () => {
         hoverGlow.visible = false
+        if (deskSprite) deskSprite.tint = 0xffffff
       })
       zoneContainer.on('pointerdown', () => {
         if (def.onClickType === 'inbox') {
@@ -156,7 +184,7 @@ export class FurnitureLayer extends Container {
       })
 
       this.items.set(def.id, zoneContainer)
-      this.addChild(zoneContainer)
+      host.addChild(zoneContainer)
     }
   }
 

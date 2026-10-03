@@ -72,7 +72,7 @@ export function PixiOfficeRenderer({
           el.style.opacity = '0'
         } else {
           el.style.opacity = '1'
-          el.style.transform = `translate3d(${Math.round(pos.x)}px, ${Math.round(pos.y - 48)}px, 0) translate(-50%, -100%)`
+          el.style.transform = `translate3d(${Math.round(pos.x)}px, ${Math.round(pos.y - 74)}px, 0) translate(-50%, -100%)`
         }
       }
     }
