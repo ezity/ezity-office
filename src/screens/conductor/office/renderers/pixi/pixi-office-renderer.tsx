@@ -4,12 +4,12 @@
  * Implements Phase I-D prototype:
  * - 2.5D Isometric sprite-based office renderer
  * - Real-time state-driven movement integration
- * - DOM projected operational overlays (crisp typography, accessible badges)
+ * - Direct DOM projected operational overlays (zero React re-renders on ticker)
  * - Strict SSR-safe client boundary
  */
 
 import 'pixi.js/unsafe-eval'
-import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
 import type { OfficeSceneState, OfficeZoneId } from '@/types/office-scene'
 import type { OfficeRendererProps } from '../../types'
 import { OfficeScene } from './scene/office-scene'
@@ -34,45 +34,71 @@ export function PixiOfficeRenderer({
   onFallbackToSvg,
 }: PixiOfficeRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const canvasMountRef = useRef<HTMLDivElement>(null)
+  const overlaysContainerRef = useRef<HTMLDivElement>(null)
   const officeSceneRef = useRef<OfficeScene | null>(null)
 
   const [isClient, setIsClient] = useState(false)
   const [initError, setInitError] = useState<string | null>(null)
-  const [agentPositions, setAgentPositions] = useState<Map<string, ScreenPoint>>(new Map())
+
+  // Keep latest handlers in a ref so the main Pixi initialization effect never re-runs
+  const handlersRef = useRef({
+    onAgentClick,
+    onWorkItemClick,
+    onApprovalClick,
+    onMissionClick,
+  })
+  handlersRef.current = {
+    onAgentClick,
+    onWorkItemClick,
+    onApprovalClick,
+    onMissionClick,
+  }
 
   // SSR Boundary Check
   useEffect(() => {
     setIsClient(true)
   }, [])
 
-  // Dynamic RAF-throttled position update from Pixi Ticker
+  // Direct DOM overlay updates: ZERO React re-renders during 60 FPS animation ticker!
   const handleOverlayPositionsUpdate = useCallback((positions: Map<string, ScreenPoint>) => {
-    setAgentPositions(new Map(positions))
+    const root = overlaysContainerRef.current
+    if (!root) return
+
+    for (const [agentId, pos] of positions.entries()) {
+      const el = root.querySelector<HTMLDivElement>(`[data-agent-overlay="${agentId}"]`)
+      if (el) {
+        if (!pos || (pos.x === 0 && pos.y === 0)) {
+          el.style.opacity = '0'
+        } else {
+          el.style.opacity = '1'
+          el.style.transform = `translate3d(${Math.round(pos.x)}px, ${Math.round(pos.y - 48)}px, 0) translate(-50%, -100%)`
+        }
+      }
+    }
   }, [])
 
-  // Initialize Pixi Application
+  // Initialize Pixi Application ONCE on mount
   useEffect(() => {
     if (!isClient) return
-    const canvas = canvasRef.current
-    const container = containerRef.current
-    if (!canvas || !container) return
+    const mountEl = canvasMountRef.current
+    if (!mountEl) return
 
     let isCancelled = false
 
-    const width = container.clientWidth || 1200
-    const height = container.clientHeight || 750
+    const width = mountEl.clientWidth || 1200
+    const height = mountEl.clientHeight || 750
 
     OfficeScene.create({
-      canvas,
+      container: mountEl,
       width,
       height,
       enableReducedMotion,
       handlers: {
-        onAgentClick,
-        onWorkItemClick,
-        onApprovalClick,
-        onMissionClick,
+        onAgentClick: (agentId, sessionKey) => handlersRef.current.onAgentClick?.(agentId, sessionKey),
+        onWorkItemClick: (id) => handlersRef.current.onWorkItemClick?.(id),
+        onApprovalClick: (id) => handlersRef.current.onApprovalClick?.(id),
+        onMissionClick: () => handlersRef.current.onMissionClick?.(),
       },
       onOverlayPositionsUpdate: handleOverlayPositionsUpdate,
     })
@@ -101,7 +127,7 @@ export function PixiOfficeRenderer({
           }
         }
       })
-      resizeObserver.observe(container)
+      resizeObserver.observe(mountEl)
     }
 
     return () => {
@@ -112,7 +138,7 @@ export function PixiOfficeRenderer({
         officeSceneRef.current = null
       }
     }
-  }, [isClient, enableReducedMotion, onAgentClick, onWorkItemClick, onApprovalClick, onMissionClick, handleOverlayPositionsUpdate])
+  }, [isClient]) // Runs once when client mounts
 
   // Sync state updates without rebuilding canvas
   useEffect(() => {
@@ -126,14 +152,14 @@ export function PixiOfficeRenderer({
     }
   }, [scene, selectedAgentId, selectedZoneId, enableReducedMotion])
 
-  // Update handlers
+  // Update handlers without rebuilding scene
   useEffect(() => {
     if (officeSceneRef.current) {
       officeSceneRef.current.updateHandlers({
-        onAgentClick,
-        onWorkItemClick,
-        onApprovalClick,
-        onMissionClick,
+        onAgentClick: (agentId, sessionKey) => handlersRef.current.onAgentClick?.(agentId, sessionKey),
+        onWorkItemClick: (id) => handlersRef.current.onWorkItemClick?.(id),
+        onApprovalClick: (id) => handlersRef.current.onApprovalClick?.(id),
+        onMissionClick: () => handlersRef.current.onMissionClick?.(),
       })
     }
   }, [onAgentClick, onWorkItemClick, onApprovalClick, onMissionClick])
@@ -169,19 +195,15 @@ export function PixiOfficeRenderer({
       ref={containerRef}
       className={`relative h-full w-full select-none overflow-hidden bg-[#faf7ef] ${className}`}
     >
-      {/* Pixi Canvas */}
-      <canvas ref={canvasRef} className="block h-full w-full" />
+      {/* Pixi Canvas Mount Target */}
+      <div ref={canvasMountRef} className="absolute inset-0 block h-full w-full" />
 
       {/* ─────────────────────────────────────────────────────────────
           HTML OPERATIONAL OVERLAYS (Section 15)
-          Projected from world coordinates to crisp DOM elements
+          Direct DOM translation with ZERO React re-renders on ticker
       ───────────────────────────────────────────────────────────── */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div ref={overlaysContainerRef} className="pointer-events-none absolute inset-0 overflow-hidden">
         {scene.agents.map((agent) => {
-          const pos = agentPositions.get(agent.id)
-          if (!pos || pos.x === 0) return null
-
-          const isMoving = Boolean(agent.targetZoneId && agent.targetZoneId !== agent.currentZoneId)
           const statusText =
             agent.movementReason === 'approval_required'
               ? '⚠️ Reviewing Approval'
@@ -196,12 +218,9 @@ export function PixiOfficeRenderer({
           return (
             <div
               key={agent.id}
-              className="absolute transition-transform duration-75 ease-out"
-              style={{
-                left: `${pos.x}px`,
-                top: `${pos.y - 48}px`,
-                transform: 'translate(-50%, -100%)',
-              }}
+              data-agent-overlay={agent.id}
+              className="absolute top-0 left-0 transition-opacity duration-150 will-change-transform"
+              style={{ opacity: 0 }}
             >
               {/* Game-style speech bubble overlay */}
               <div

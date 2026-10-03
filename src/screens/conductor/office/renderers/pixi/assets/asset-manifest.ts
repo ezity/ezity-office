@@ -327,11 +327,9 @@ export async function preloadOfficeAssets(app?: Application): Promise<void> {
         textureCache.set(key, texture)
       }
     } catch {
-      // Fallback texture generation if network fetch fails (e.g. in test or offline)
-      if (app?.renderer) {
-        const fallback = generateFallbackTexture(app, descriptor)
-        textureCache.set(key, fallback)
-      }
+      // Safe 2D canvas fallback if network fetch fails (e.g. in test or offline)
+      const fallback = generateFallbackTexture(descriptor)
+      textureCache.set(key, fallback)
     }
   })
 
@@ -340,9 +338,9 @@ export async function preloadOfficeAssets(app?: Application): Promise<void> {
 
 /**
  * Synchronous texture retrieval.
- * Returns the cached texture, or a fallback graphics texture if not yet loaded.
+ * Returns the cached texture, or a safe 2D canvas fallback texture if not yet loaded.
  */
-export function getOfficeTexture(id: string, app?: Application): Texture {
+export function getOfficeTexture(id: string, _app?: Application): Texture {
   if (textureCache.has(id)) {
     return textureCache.get(id)!
   }
@@ -352,52 +350,87 @@ export function getOfficeTexture(id: string, app?: Application): Texture {
     return Texture.WHITE
   }
 
-  if (app?.renderer) {
-    const fallback = generateFallbackTexture(app, descriptor)
-    textureCache.set(id, fallback)
-    return fallback
-  }
-
-  return Texture.WHITE
+  const fallback = generateFallbackTexture(descriptor)
+  textureCache.set(id, fallback)
+  return fallback
 }
 
 /**
- * Generates an aesthetic geometric placeholder texture for an asset descriptor.
+ * Generates an aesthetic geometric placeholder texture using standard 2D Canvas.
+ * Crucial: Does NOT invoke WebGL shader compilation, preventing context lost errors under strict CSP.
  */
-function generateFallbackTexture(app: Application, descriptor: AssetDescriptor): Texture {
-  const g = new Graphics()
-  const w = descriptor.width
-  const h = descriptor.height
+function generateFallbackTexture(descriptor: AssetDescriptor): Texture {
+  if (typeof document === 'undefined') return Texture.WHITE
 
-  if (descriptor.category === 'environment') {
-    if (descriptor.id.startsWith('rug_')) {
-      g.ellipse(w / 2, h / 2, w / 2 - 4, h / 2 - 4)
-      g.fill({ color: 0x3b82f6, alpha: 0.25 })
-      g.stroke({ color: 0x60a5fa, width: 2 })
+  try {
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.max(16, descriptor.width)
+    canvas.height = Math.max(16, descriptor.height)
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return Texture.WHITE
+
+    const w = canvas.width
+    const h = canvas.height
+
+    if (descriptor.category === 'environment') {
+      if (descriptor.id.startsWith('rug_')) {
+        ctx.fillStyle = 'rgba(59, 130, 246, 0.3)'
+        ctx.beginPath()
+        ctx.ellipse(w / 2, h / 2, w / 2 - 4, h / 2 - 4, 0, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.strokeStyle = '#60a5fa'
+        ctx.lineWidth = 2
+        ctx.stroke()
+      } else {
+        // Floor diamond
+        ctx.fillStyle = '#f8f5ee'
+        ctx.beginPath()
+        ctx.moveTo(w / 2, 0)
+        ctx.lineTo(w, h / 2)
+        ctx.lineTo(w / 2, h)
+        ctx.lineTo(0, h / 2)
+        ctx.closePath()
+        ctx.fill()
+        ctx.strokeStyle = '#e6decb'
+        ctx.lineWidth = 1
+        ctx.stroke()
+      }
+    } else if (descriptor.category === 'characters') {
+      // Ground shadow
+      ctx.fillStyle = 'rgba(66, 32, 6, 0.25)'
+      ctx.beginPath()
+      ctx.ellipse(w / 2, h - 6, 12, 4, 0, 0, Math.PI * 2)
+      ctx.fill()
+
+      // Body & head
+      ctx.fillStyle = descriptor.id.includes('cos')
+        ? '#1e3a8a'
+        : descriptor.id.includes('accountant')
+          ? '#065f46'
+          : '#0284c7'
+      ctx.beginPath()
+      ctx.roundRect(w / 2 - 8, h / 2, 16, 20, 4)
+      ctx.fill()
+
+      ctx.fillStyle = '#fbd5b5'
+      ctx.beginPath()
+      ctx.arc(w / 2, h / 2 - 8, 12, 0, Math.PI * 2)
+      ctx.fill()
     } else {
-      // Floor diamond
-      g.poly([w / 2, 0, w, h / 2, w / 2, h, 0, h / 2])
-      g.fill({ color: 0xf8f5ee })
-      g.stroke({ color: 0xe6decb, width: 1 })
+      // Furniture box
+      ctx.fillStyle = '#dfbe99'
+      ctx.beginPath()
+      ctx.roundRect(4, 4, w - 8, h - 8, 4)
+      ctx.fill()
+      ctx.strokeStyle = '#b08b5e'
+      ctx.lineWidth = 1.5
+      ctx.stroke()
     }
-  } else if (descriptor.category === 'characters') {
-    // Ground shadow
-    g.ellipse(w / 2, h - 6, 12, 4)
-    g.fill({ color: 0x000000, alpha: 0.2 })
-    // Body capsule
-    g.roundRect(w / 2 - 8, h / 2, 16, 20, 4)
-    g.fill({ color: 0x2563eb })
-    // Head circle
-    g.circle(w / 2, h / 2 - 8, 12)
-    g.fill({ color: 0xfcd34d })
-  } else {
-    // Isometric box for furniture
-    g.roundRect(4, 4, w - 8, h - 8, 4)
-    g.fill({ color: 0xa87349 })
-    g.stroke({ color: 0x784a22, width: 1 })
-  }
 
-  return app.renderer.generateTexture(g)
+    return Texture.from(canvas)
+  } catch {
+    return Texture.WHITE
+  }
 }
 
 /**

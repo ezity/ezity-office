@@ -27,7 +27,8 @@ import { AgentLayer, type AgentLayerHandlers } from './agent-layer'
 import { OverlayLayer } from './overlay-layer'
 
 export interface OfficeSceneOptions {
-  canvas: HTMLCanvasElement
+  container?: HTMLElement
+  canvas?: HTMLCanvasElement
   width: number
   height: number
   handlers: FurnitureClickHandlers & AgentLayerHandlers
@@ -64,8 +65,7 @@ export class OfficeScene {
   public static async create(options: OfficeSceneOptions): Promise<OfficeScene> {
     const app = new Application()
 
-    await app.init({
-      canvas: options.canvas,
+    const initOptions: Record<string, unknown> = {
       width: options.width,
       height: options.height,
       backgroundAlpha: 0,
@@ -73,7 +73,21 @@ export class OfficeScene {
       antialias: true,
       autoDensity: true,
       resolution: typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1,
-    })
+    }
+
+    if (options.canvas) {
+      initOptions.canvas = options.canvas
+    }
+
+    await app.init(initOptions)
+
+    // Mount canvas into container if provided
+    if (options.container && app.canvas) {
+      app.canvas.style.display = 'block'
+      app.canvas.style.width = '100%'
+      app.canvas.style.height = '100%'
+      options.container.appendChild(app.canvas)
+    }
 
     // Compute initial camera offset centered around grid (7.5, 7.5)
     const camera: CameraState = {
@@ -183,9 +197,23 @@ export class OfficeScene {
   }
 
   public destroy(): void {
+    if (this.isDestroyed) return
     this.isDestroyed = true
-    this.app.ticker.stop()
-    this.app.destroy(true, { children: true, texture: false })
+
+    try {
+      this.app.ticker?.stop()
+    } catch {}
+
+    try {
+      if (this.app.canvas && this.app.canvas.parentNode) {
+        this.app.canvas.parentNode.removeChild(this.app.canvas)
+      }
+    } catch {}
+
+    try {
+      this.app.destroy(true, { children: true, texture: false })
+    } catch {}
+
     clearOfficeTextureCache()
   }
 

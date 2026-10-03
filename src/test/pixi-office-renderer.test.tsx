@@ -359,8 +359,8 @@ describe('Phase I-D: PixiJS Game-Style Virtual Office Renderer Prototype', () =>
         <PixiOfficeRenderer scene={baseScene} onAgentClick={handleAgentClick} />,
       )
 
-      const cosButton = screen.getByRole('button', { name: /Chief of Staff/i })
-      fireEvent.click(cosButton)
+      const cosButtons = screen.getAllByRole('button', { name: /Chief of Staff/i })
+      fireEvent.click(cosButtons[0])
 
       expect(handleAgentClick).toHaveBeenCalledWith('ezity-cos', undefined)
     })
