@@ -33,9 +33,25 @@ async function main() {
   )
 }
 
-main().catch((err) => {
-  process.stderr.write(
-    `[ezityhub-mcp] Fatal error: ${err instanceof Error ? err.stack : String(err)}\n`,
-  )
-  process.exit(1)
-})
+export * from './types.js'
+export * from './client.js'
+export * from './config.js'
+export * from './audit.js'
+export * from './events.js'
+export * from './tools/index.js'
+
+// Only run CLI entrypoint if executed directly
+const isDirectExecution =
+  process.argv[1] &&
+  (process.argv[1].endsWith('index.ts') ||
+    process.argv[1].endsWith('index.js') ||
+    process.argv[1].endsWith('ezityhub-mcp'))
+
+if (isDirectExecution) {
+  main().catch((err) => {
+    process.stderr.write(
+      `[ezityhub-mcp] Fatal error: ${err instanceof Error ? err.stack : String(err)}\n`,
+    )
+    process.exit(1)
+  })
+}

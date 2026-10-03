@@ -16,6 +16,7 @@ import {
   File01Icon,
   Flag01Icon,
   HelpCircleIcon,
+  Mail01Icon,
   MessageMultiple01Icon,
   Moon02Icon,
   PencilEdit02Icon,
@@ -533,6 +534,7 @@ function ChatSidebarComponent({
   const isCrewsActive = pathname === '/crews' || pathname.startsWith('/crews/')
   const isConductorActive = pathname === '/conductor'
   const isOperationsActive = pathname === '/operations'
+  const isInboxActive = pathname === '/inbox'
   const isTasksActive = pathname === '/tasks'
   const isAgentsActive = pathname === '/agents'
   const isPatternsActive = pathname === '/patterns'
@@ -800,6 +802,13 @@ function ChatSidebarComponent({
       icon: Radar01Icon,
       label: 'Operations',
       active: isOperationsActive,
+    },
+    {
+      kind: 'link',
+      to: '/inbox',
+      icon: Mail01Icon,
+      label: 'Work Inbox',
+      active: isInboxActive,
     },
     {
       kind: 'link',

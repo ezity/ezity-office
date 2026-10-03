@@ -20,6 +20,7 @@ import { Route as OperationsRouteImport } from './routes/operations'
 import { Route as MemoryRouteImport } from './routes/memory'
 import { Route as LogsRouteImport } from './routes/logs'
 import { Route as JobsRouteImport } from './routes/jobs'
+import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as FilesRouteImport } from './routes/files'
 import { Route as DocsRouteImport } from './routes/docs'
@@ -38,6 +39,7 @@ import { Route as SettingsMcpRouteImport } from './routes/settings/mcp'
 import { Route as CrewsCrewIdRouteImport } from './routes/crews/$crewId'
 import { Route as ChatSessionKeyRouteImport } from './routes/chat/$sessionKey'
 import { Route as ApiWorkspaceRouteImport } from './routes/api/workspace'
+import { Route as ApiWorkItemsRouteImport } from './routes/api/work-items'
 import { Route as ApiTerminalStreamRouteImport } from './routes/api/terminal-stream'
 import { Route as ApiTerminalResizeRouteImport } from './routes/api/terminal-resize'
 import { Route as ApiTerminalInputRouteImport } from './routes/api/terminal-input'
@@ -103,6 +105,7 @@ import { Route as ApiKnowledgeListRouteImport } from './routes/api/knowledge/lis
 import { Route as ApiKnowledgeGraphRouteImport } from './routes/api/knowledge/graph'
 import { Route as ApiHermesProxySplatRouteImport } from './routes/api/hermes-proxy/$'
 import { Route as ApiHermesJobsJobIdRouteImport } from './routes/api/hermes-jobs.$jobId'
+import { Route as ApiFinanceEventsRouteImport } from './routes/api/finance.events'
 import { Route as ApiEventsReplayRouteImport } from './routes/api/events/replay'
 import { Route as ApiCrewsCrewIdRouteImport } from './routes/api/crews/$crewId'
 import { Route as ApiAgentsAgentIdRouteImport } from './routes/api/agents/$agentId'
@@ -172,6 +175,11 @@ const LogsRoute = LogsRouteImport.update({
 const JobsRoute = JobsRouteImport.update({
   id: '/jobs',
   path: '/jobs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InboxRoute = InboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HelpRoute = HelpRouteImport.update({
@@ -262,6 +270,11 @@ const ChatSessionKeyRoute = ChatSessionKeyRouteImport.update({
 const ApiWorkspaceRoute = ApiWorkspaceRouteImport.update({
   id: '/api/workspace',
   path: '/api/workspace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWorkItemsRoute = ApiWorkItemsRouteImport.update({
+  id: '/api/work-items',
+  path: '/api/work-items',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTerminalStreamRoute = ApiTerminalStreamRouteImport.update({
@@ -589,6 +602,11 @@ const ApiHermesJobsJobIdRoute = ApiHermesJobsJobIdRouteImport.update({
   path: '/$jobId',
   getParentRoute: () => ApiHermesJobsRoute,
 } as any)
+const ApiFinanceEventsRoute = ApiFinanceEventsRouteImport.update({
+  id: '/api/finance/events',
+  path: '/api/finance/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiEventsReplayRoute = ApiEventsReplayRouteImport.update({
   id: '/replay',
   path: '/replay',
@@ -681,6 +699,7 @@ export interface FileRoutesByFullPath {
   '/docs': typeof DocsRoute
   '/files': typeof FilesRoute
   '/help': typeof HelpRoute
+  '/inbox': typeof InboxRoute
   '/jobs': typeof JobsRoute
   '/logs': typeof LogsRoute
   '/memory': typeof MemoryRoute
@@ -726,6 +745,7 @@ export interface FileRoutesByFullPath {
   '/api/terminal-input': typeof ApiTerminalInputRoute
   '/api/terminal-resize': typeof ApiTerminalResizeRoute
   '/api/terminal-stream': typeof ApiTerminalStreamRoute
+  '/api/work-items': typeof ApiWorkItemsRoute
   '/api/workspace': typeof ApiWorkspaceRoute
   '/chat/$sessionKey': typeof ChatSessionKeyRoute
   '/crews/$crewId': typeof CrewsCrewIdRoute
@@ -737,6 +757,7 @@ export interface FileRoutesByFullPath {
   '/api/agents/$agentId': typeof ApiAgentsAgentIdRoute
   '/api/crews/$crewId': typeof ApiCrewsCrewIdRouteWithChildren
   '/api/events/replay': typeof ApiEventsReplayRoute
+  '/api/finance/events': typeof ApiFinanceEventsRoute
   '/api/hermes-jobs/$jobId': typeof ApiHermesJobsJobIdRoute
   '/api/hermes-proxy/$': typeof ApiHermesProxySplatRoute
   '/api/knowledge/graph': typeof ApiKnowledgeGraphRoute
@@ -792,6 +813,7 @@ export interface FileRoutesByTo {
   '/docs': typeof DocsRoute
   '/files': typeof FilesRoute
   '/help': typeof HelpRoute
+  '/inbox': typeof InboxRoute
   '/jobs': typeof JobsRoute
   '/logs': typeof LogsRoute
   '/memory': typeof MemoryRoute
@@ -836,6 +858,7 @@ export interface FileRoutesByTo {
   '/api/terminal-input': typeof ApiTerminalInputRoute
   '/api/terminal-resize': typeof ApiTerminalResizeRoute
   '/api/terminal-stream': typeof ApiTerminalStreamRoute
+  '/api/work-items': typeof ApiWorkItemsRoute
   '/api/workspace': typeof ApiWorkspaceRoute
   '/chat/$sessionKey': typeof ChatSessionKeyRoute
   '/crews/$crewId': typeof CrewsCrewIdRoute
@@ -847,6 +870,7 @@ export interface FileRoutesByTo {
   '/api/agents/$agentId': typeof ApiAgentsAgentIdRoute
   '/api/crews/$crewId': typeof ApiCrewsCrewIdRouteWithChildren
   '/api/events/replay': typeof ApiEventsReplayRoute
+  '/api/finance/events': typeof ApiFinanceEventsRoute
   '/api/hermes-jobs/$jobId': typeof ApiHermesJobsJobIdRoute
   '/api/hermes-proxy/$': typeof ApiHermesProxySplatRoute
   '/api/knowledge/graph': typeof ApiKnowledgeGraphRoute
@@ -903,6 +927,7 @@ export interface FileRoutesById {
   '/docs': typeof DocsRoute
   '/files': typeof FilesRoute
   '/help': typeof HelpRoute
+  '/inbox': typeof InboxRoute
   '/jobs': typeof JobsRoute
   '/logs': typeof LogsRoute
   '/memory': typeof MemoryRoute
@@ -948,6 +973,7 @@ export interface FileRoutesById {
   '/api/terminal-input': typeof ApiTerminalInputRoute
   '/api/terminal-resize': typeof ApiTerminalResizeRoute
   '/api/terminal-stream': typeof ApiTerminalStreamRoute
+  '/api/work-items': typeof ApiWorkItemsRoute
   '/api/workspace': typeof ApiWorkspaceRoute
   '/chat/$sessionKey': typeof ChatSessionKeyRoute
   '/crews/$crewId': typeof CrewsCrewIdRoute
@@ -959,6 +985,7 @@ export interface FileRoutesById {
   '/api/agents/$agentId': typeof ApiAgentsAgentIdRoute
   '/api/crews/$crewId': typeof ApiCrewsCrewIdRouteWithChildren
   '/api/events/replay': typeof ApiEventsReplayRoute
+  '/api/finance/events': typeof ApiFinanceEventsRoute
   '/api/hermes-jobs/$jobId': typeof ApiHermesJobsJobIdRoute
   '/api/hermes-proxy/$': typeof ApiHermesProxySplatRoute
   '/api/knowledge/graph': typeof ApiKnowledgeGraphRoute
@@ -1016,6 +1043,7 @@ export interface FileRouteTypes {
     | '/docs'
     | '/files'
     | '/help'
+    | '/inbox'
     | '/jobs'
     | '/logs'
     | '/memory'
@@ -1061,6 +1089,7 @@ export interface FileRouteTypes {
     | '/api/terminal-input'
     | '/api/terminal-resize'
     | '/api/terminal-stream'
+    | '/api/work-items'
     | '/api/workspace'
     | '/chat/$sessionKey'
     | '/crews/$crewId'
@@ -1072,6 +1101,7 @@ export interface FileRouteTypes {
     | '/api/agents/$agentId'
     | '/api/crews/$crewId'
     | '/api/events/replay'
+    | '/api/finance/events'
     | '/api/hermes-jobs/$jobId'
     | '/api/hermes-proxy/$'
     | '/api/knowledge/graph'
@@ -1127,6 +1157,7 @@ export interface FileRouteTypes {
     | '/docs'
     | '/files'
     | '/help'
+    | '/inbox'
     | '/jobs'
     | '/logs'
     | '/memory'
@@ -1171,6 +1202,7 @@ export interface FileRouteTypes {
     | '/api/terminal-input'
     | '/api/terminal-resize'
     | '/api/terminal-stream'
+    | '/api/work-items'
     | '/api/workspace'
     | '/chat/$sessionKey'
     | '/crews/$crewId'
@@ -1182,6 +1214,7 @@ export interface FileRouteTypes {
     | '/api/agents/$agentId'
     | '/api/crews/$crewId'
     | '/api/events/replay'
+    | '/api/finance/events'
     | '/api/hermes-jobs/$jobId'
     | '/api/hermes-proxy/$'
     | '/api/knowledge/graph'
@@ -1237,6 +1270,7 @@ export interface FileRouteTypes {
     | '/docs'
     | '/files'
     | '/help'
+    | '/inbox'
     | '/jobs'
     | '/logs'
     | '/memory'
@@ -1282,6 +1316,7 @@ export interface FileRouteTypes {
     | '/api/terminal-input'
     | '/api/terminal-resize'
     | '/api/terminal-stream'
+    | '/api/work-items'
     | '/api/workspace'
     | '/chat/$sessionKey'
     | '/crews/$crewId'
@@ -1293,6 +1328,7 @@ export interface FileRouteTypes {
     | '/api/agents/$agentId'
     | '/api/crews/$crewId'
     | '/api/events/replay'
+    | '/api/finance/events'
     | '/api/hermes-jobs/$jobId'
     | '/api/hermes-proxy/$'
     | '/api/knowledge/graph'
@@ -1349,6 +1385,7 @@ export interface RootRouteChildren {
   DocsRoute: typeof DocsRoute
   FilesRoute: typeof FilesRoute
   HelpRoute: typeof HelpRoute
+  InboxRoute: typeof InboxRoute
   JobsRoute: typeof JobsRoute
   LogsRoute: typeof LogsRoute
   MemoryRoute: typeof MemoryRoute
@@ -1394,6 +1431,7 @@ export interface RootRouteChildren {
   ApiTerminalInputRoute: typeof ApiTerminalInputRoute
   ApiTerminalResizeRoute: typeof ApiTerminalResizeRoute
   ApiTerminalStreamRoute: typeof ApiTerminalStreamRoute
+  ApiWorkItemsRoute: typeof ApiWorkItemsRoute
   ApiWorkspaceRoute: typeof ApiWorkspaceRoute
   ChatSessionKeyRoute: typeof ChatSessionKeyRoute
   CrewsCrewIdRoute: typeof CrewsCrewIdRoute
@@ -1401,6 +1439,7 @@ export interface RootRouteChildren {
   CrewsIndexRoute: typeof CrewsIndexRoute
   ApiAgentsAgentIdRoute: typeof ApiAgentsAgentIdRoute
   ApiCrewsCrewIdRoute: typeof ApiCrewsCrewIdRouteWithChildren
+  ApiFinanceEventsRoute: typeof ApiFinanceEventsRoute
   ApiHermesProxySplatRoute: typeof ApiHermesProxySplatRoute
   ApiKnowledgeGraphRoute: typeof ApiKnowledgeGraphRoute
   ApiKnowledgeListRoute: typeof ApiKnowledgeListRoute
@@ -1505,6 +1544,13 @@ declare module '@tanstack/react-router' {
       path: '/jobs'
       fullPath: '/jobs'
       preLoaderRoute: typeof JobsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inbox': {
+      id: '/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof InboxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/help': {
@@ -1631,6 +1677,13 @@ declare module '@tanstack/react-router' {
       path: '/api/workspace'
       fullPath: '/api/workspace'
       preLoaderRoute: typeof ApiWorkspaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/work-items': {
+      id: '/api/work-items'
+      path: '/api/work-items'
+      fullPath: '/api/work-items'
+      preLoaderRoute: typeof ApiWorkItemsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/terminal-stream': {
@@ -2088,6 +2141,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiHermesJobsJobIdRouteImport
       parentRoute: typeof ApiHermesJobsRoute
     }
+    '/api/finance/events': {
+      id: '/api/finance/events'
+      path: '/api/finance/events'
+      fullPath: '/api/finance/events'
+      preLoaderRoute: typeof ApiFinanceEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/events/replay': {
       id: '/api/events/replay'
       path: '/replay'
@@ -2341,6 +2401,7 @@ const rootRouteChildren: RootRouteChildren = {
   DocsRoute: DocsRoute,
   FilesRoute: FilesRoute,
   HelpRoute: HelpRoute,
+  InboxRoute: InboxRoute,
   JobsRoute: JobsRoute,
   LogsRoute: LogsRoute,
   MemoryRoute: MemoryRoute,
@@ -2386,6 +2447,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTerminalInputRoute: ApiTerminalInputRoute,
   ApiTerminalResizeRoute: ApiTerminalResizeRoute,
   ApiTerminalStreamRoute: ApiTerminalStreamRoute,
+  ApiWorkItemsRoute: ApiWorkItemsRoute,
   ApiWorkspaceRoute: ApiWorkspaceRoute,
   ChatSessionKeyRoute: ChatSessionKeyRoute,
   CrewsCrewIdRoute: CrewsCrewIdRoute,
@@ -2393,6 +2455,7 @@ const rootRouteChildren: RootRouteChildren = {
   CrewsIndexRoute: CrewsIndexRoute,
   ApiAgentsAgentIdRoute: ApiAgentsAgentIdRoute,
   ApiCrewsCrewIdRoute: ApiCrewsCrewIdRouteWithChildren,
+  ApiFinanceEventsRoute: ApiFinanceEventsRoute,
   ApiHermesProxySplatRoute: ApiHermesProxySplatRoute,
   ApiKnowledgeGraphRoute: ApiKnowledgeGraphRoute,
   ApiKnowledgeListRoute: ApiKnowledgeListRoute,

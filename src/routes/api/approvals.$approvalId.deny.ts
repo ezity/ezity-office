@@ -15,6 +15,7 @@ import {
   getGatewayCapabilities,
   sendChat,
 } from '../../server/hermes-api'
+import { updateApprovalWorkItem } from '../../server/task-store'
 
 export const Route = createFileRoute('/api/approvals/$approvalId/deny')({
   server: {
@@ -45,6 +46,7 @@ export const Route = createFileRoute('/api/approvals/$approvalId/deny')({
               },
             )
             if (res.ok) {
+              updateApprovalWorkItem(approvalId, 'denied')
               return json({ ok: true, method: 'gateway-endpoint' })
             }
           } catch {
@@ -55,6 +57,7 @@ export const Route = createFileRoute('/api/approvals/$approvalId/deny')({
         // Strategy 2: chat command
         try {
           await sendChat(sessionKey, { message: '/deny' })
+          updateApprovalWorkItem(approvalId, 'denied')
           return json({ ok: true, method: 'chat-command' })
         } catch (err) {
           return json(

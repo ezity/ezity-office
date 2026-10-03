@@ -537,4 +537,24 @@ export class EzityHubClient {
       afterState: { invoiceId, status: 'submitted' },
     })
   }
+
+  async acknowledgeEvent(notificationId: string) {
+    return this.request<{
+      success: boolean
+      read_at?: string
+    }>('/api/v1/agent/events', {
+      method: 'POST',
+      body: { notification_id: notificationId },
+      toolName: 'finance_acknowledge_event',
+    })
+  }
+
+  async getJournal(journalId: string) {
+    return this.request<{
+      success: boolean
+      journal?: any
+    }>(`/api/v1/accounting/journals?id=${journalId}`, {
+      toolName: 'finance_get_journal',
+    })
+  }
 }

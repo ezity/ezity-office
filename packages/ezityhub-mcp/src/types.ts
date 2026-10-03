@@ -173,3 +173,69 @@ export interface CreateInvoiceDraftInput {
   auto_submit?: boolean
   lines: Array<InvoiceLineDraftInput>
 }
+
+// ─── Phase G Real-Time Event Streaming Types ─────────────────────────
+
+export type EzityHubEventType =
+  | 'connected'
+  | 'accounting.journal.submitted.v1'
+  | 'accounting.journal.resolved.v1'
+  | 'sales.quotation.submitted.v1'
+  | 'sales.quotation.resolved.v1'
+  | 'identity.access.requested.v1'
+  | 'identity.access.resolved.v1'
+  | (string & {})
+
+export interface EzityHubConnectedData {
+  status: 'connected'
+  agent: {
+    membership_id: string
+    name: string
+    organization_id: string
+  }
+  server_time: string
+}
+
+export interface EzityHubJournalSubmittedData {
+  journal_id: string
+  entry_number?: string
+  status?: string
+  submitted_by?: string
+}
+
+export interface EzityHubJournalResolvedData {
+  journal_id: string
+  state: 'posted' | 'rejected'
+  decision: 'approved' | 'rejected'
+  reason?: string | null
+  decided_at: string
+  decided_by: string
+}
+
+export interface EzityHubEventNotification<T = Record<string, any>> {
+  id: string
+  event_id?: string
+  event_type: EzityHubEventType
+  category?: string
+  title?: string
+  subtitle?: string
+  link?: string
+  source_document_id?: string
+  created_at: string
+  read_at?: string | null
+  organization_id?: string
+  data: T
+}
+
+export interface CorrelatedFinancialLifecycleEvent {
+  eventId: string
+  eventType: string
+  recordId: string // e.g. journal_id
+  workflowState: WorkflowState
+  actor?: string
+  reason?: string | null
+  timestamp: string
+  organizationId?: string
+  correlationId?: string
+  rawEvent?: EzityHubEventNotification
+}

@@ -615,6 +615,29 @@ export function DashboardScreen() {
     refetchInterval: 30_000,
   })
 
+  const workItemsQuery = useQuery({
+    queryKey: ['dashboard', 'work-items-summary'],
+    queryFn: async () => {
+      const res = await fetch('/api/work-items')
+      if (!res.ok) return null
+      const data = await res.json()
+      return data.summary as {
+        needsAttention: number
+        inProgress: number
+        waiting: number
+        completedToday: number
+      }
+    },
+    refetchInterval: 5_000,
+  })
+
+  const inboxSummary = workItemsQuery.data ?? {
+    needsAttention: 0,
+    inProgress: 0,
+    waiting: 0,
+    completedToday: 0,
+  }
+
   const sessions = sessionsQuery.data ?? []
 
   const stats = useMemo(() => {
@@ -725,6 +748,58 @@ export function DashboardScreen() {
           accentColor="#a855f7"
         />
       </div>
+
+      {/* ── Work Inbox Department Widget (Phase H) ── */}
+      <GlassCard
+        title="AI Work Inbox & Department Operations"
+        titleRight={
+          <button
+            onClick={() => navigate({ to: '/inbox' })}
+            className="text-xs text-indigo-400 hover:underline flex items-center gap-1 font-medium cursor-pointer"
+          >
+            Open Inbox &rarr;
+          </button>
+        }
+        accentColor="#6366f1"
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+          <div
+            onClick={() => navigate({ to: '/inbox' })}
+            className="flex flex-col p-3 rounded-lg border border-rose-900/40 bg-rose-950/20 cursor-pointer hover:border-rose-700/60 transition-colors"
+          >
+            <span className="text-[11px] font-semibold text-rose-400 uppercase tracking-wider">
+              Needs Attention
+            </span>
+            <span className="text-2xl font-bold text-rose-300 mt-1">
+              {inboxSummary.needsAttention}
+            </span>
+          </div>
+
+          <div
+            onClick={() => navigate({ to: '/inbox' })}
+            className="flex flex-col p-3 rounded-lg border border-amber-900/40 bg-amber-950/20 cursor-pointer hover:border-amber-700/60 transition-colors"
+          >
+            <span className="text-[11px] font-semibold text-amber-400 uppercase tracking-wider">
+              Waiting / Review
+            </span>
+            <span className="text-2xl font-bold text-amber-300 mt-1">
+              {inboxSummary.waiting}
+            </span>
+          </div>
+
+          <div
+            onClick={() => navigate({ to: '/inbox' })}
+            className="flex flex-col p-3 rounded-lg border border-emerald-900/40 bg-emerald-950/20 cursor-pointer hover:border-emerald-700/60 transition-colors"
+          >
+            <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">
+              Completed Today
+            </span>
+            <span className="text-2xl font-bold text-emerald-300 mt-1">
+              {inboxSummary.completedToday}
+            </span>
+          </div>
+        </div>
+      </GlassCard>
 
       {/* ── Charts + Model + Skills ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">

@@ -14,6 +14,7 @@ import {
 } from '../../server/gateway-capabilities'
 import { getAgent } from '../../server/agent-definitions-store'
 import { setSessionAgent } from '../../server/session-agent-store'
+import { getWorkItemSummary, listWorkItems } from '../../server/task-store'
 import type { AgentDefinition } from '../../types/agent'
 
 let cachedSkill: string | null = null
@@ -189,6 +190,7 @@ export function buildEZityOrchestratorPrompt(
     '- **Engineering, Code, Architecture, Technical, or Systems tasks**: Delegate explicitly to **Developer** (`ezity-developer`).',
     '  Use worker label: `worker-developer-<task-slug>`.',
     '  Include in the task description: `[Assigned Staff: Developer (ezity-developer)]` with clean architecture and implementation expectations.',
+    '- **Authoritative Financial State Rule (Phase G)**: When missions involve financial drafts or accounting operations, Chief of Staff must never mark financial workflows as complete or posted based on assumptions. Only recognize a journal or invoice as posted when confirmed by EzityHub events or verified API status.',
     "- **Persona & Model Propagation**: Embed the staff member's role and core responsibilities directly into each worker prompt, along with any designated model requirements.",
     '- **General or Uncategorized tasks**: If a task does not fit Accountant or Developer, delegate to a general worker labeled `worker-<task-slug>`.',
     '- **Multi-domain missions**: Decompose the goal across your staff (e.g. Accountant handles financial/budget analysis while Developer handles technical implementation), collect all worker outputs, and synthesize a cohesive executive briefing.',
@@ -229,7 +231,38 @@ export function buildEZityOrchestratorPrompt(
     `- Workers should write output to ${outputPrefix} directories`,
     '- After spawning all workers, report your plan summary and finish. The UI tracks worker completion automatically.',
     '- Report an executive synthesis summary when all tasks are complete',
+    ...formatInboxSummaryForPrompt(),
   ].join('\n')
+}
+
+function formatInboxSummaryForPrompt(): string[] {
+  try {
+    const summary = getWorkItemSummary()
+    if (
+      summary.needsAttention === 0 &&
+      summary.waiting === 0 &&
+      summary.inProgress === 0
+    ) {
+      return []
+    }
+    const lines = [
+      '',
+      '## Current Department Work Inbox Status',
+      `- Needs Attention: ${summary.needsAttention} item(s)`,
+      `- Waiting / Blocked: ${summary.waiting} item(s)`,
+      `- In Progress: ${summary.inProgress} item(s)`,
+    ]
+    const attentionItems = listWorkItems({ status: 'needs_attention' }).slice(0, 3)
+    if (attentionItems.length > 0) {
+      lines.push('Key items requiring attention:')
+      for (const item of attentionItems) {
+        lines.push(`  • [${item.assignedAgentId}] ${item.title}`)
+      }
+    }
+    return lines
+  } catch {
+    return []
+  }
 }
 
 function authHeaders(): Record<string, string> {

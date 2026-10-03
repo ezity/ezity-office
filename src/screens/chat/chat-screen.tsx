@@ -480,6 +480,15 @@ export function ChatScreen({
   const [displayApprovals, setDisplayApprovals] = useState<
     Array<ApprovalRequest>
   >([])
+  const [financeNotices, setFinanceNotices] = useState<
+    Array<{
+      id: string
+      title: string
+      workflowState: string
+      recordId: string
+      timestamp: number
+    }>
+  >([])
   const [isCompacting, setIsCompacting] = useState(false)
   const [researchResetKey, setResearchResetKey] = useState(0)
   // Per-session thinking level — stored in sessionStorage keyed by session
@@ -663,8 +672,51 @@ export function ChatScreen({
       }
     }
     events.addEventListener('activity', onActivity)
+
+    const onFinanceLifecycle = (event: MessageEvent) => {
+      try {
+        const payload = JSON.parse(event.data) as {
+          eventId?: string
+          recordId?: string
+          workflowState?: string
+          reason?: string
+          entryNumber?: string
+        }
+        if (!payload?.recordId || !payload?.workflowState) return
+
+        const isPosted = payload.workflowState === 'Posted'
+        const isRejected = payload.workflowState === 'Rejected'
+        const isApproved = payload.workflowState === 'Approved'
+        const icon = isRejected ? '⚠️' : '📊'
+        const label =
+          payload.entryNumber || `Journal ${payload.recordId.slice(0, 8)}`
+        const text = isPosted
+          ? `${icon} ${label} was posted`
+          : isApproved
+            ? `${icon} ${label} was approved`
+            : isRejected
+              ? `${icon} ${label} was rejected${payload.reason ? `: ${payload.reason}` : ''}`
+              : `📝 ${label} is pending approval`
+
+        setFinanceNotices((prev) => [
+          {
+            id: payload.eventId || `${Date.now()}`,
+            title: text,
+            workflowState: payload.workflowState || 'Updated',
+            recordId: payload.recordId,
+            timestamp: Date.now(),
+          },
+          ...prev.filter((n) => n.recordId !== payload.recordId).slice(0, 4),
+        ])
+      } catch {
+        // Ignore malformed event
+      }
+    }
+    events.addEventListener('finance.lifecycle', onFinanceLifecycle)
+
     return () => {
       events.removeEventListener('activity', onActivity)
+      events.removeEventListener('finance.lifecycle', onFinanceLifecycle)
       events.close()
     }
   }, []) // mount only — stays open for session lifetime
@@ -2503,6 +2555,34 @@ export function ChatScreen({
                   approval={approval}
                   onResolve={resolvePendingApproval}
                 />
+              ))}
+            </div>
+          )}
+          {financeNotices.length > 0 && (
+            <div className="mx-4 mb-2 space-y-1">
+              {financeNotices.map((notice) => (
+                <div
+                  key={notice.id}
+                  className={`flex items-center justify-between px-3 py-2 text-xs rounded-md border transition-all ${
+                    notice.workflowState === 'Rejected'
+                      ? 'bg-rose-950/40 border-rose-800/60 text-rose-300'
+                      : notice.workflowState === 'Posted'
+                        ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-300'
+                        : 'bg-sky-950/40 border-sky-800/60 text-sky-300'
+                  }`}
+                >
+                  <span className="font-medium">{notice.title}</span>
+                  <button
+                    onClick={() =>
+                      setFinanceNotices((prev) =>
+                        prev.filter((n) => n.id !== notice.id),
+                      )
+                    }
+                    className="text-xs opacity-60 hover:opacity-100 ml-2"
+                  >
+                    ✕
+                  </button>
+                </div>
               ))}
             </div>
           )}

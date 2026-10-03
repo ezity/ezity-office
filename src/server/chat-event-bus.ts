@@ -66,6 +66,14 @@ export async function ensureBusStarted(): Promise<void> {
   const bus = getBus()
   if (bus.started) return
   bus.started = true
+
+  // Start EzityHub financial event bridge if configured
+  try {
+    const { startFinanceEventBridge } = await import('./finance-event-bridge')
+    startFinanceEventBridge()
+  } catch {
+    // Non-fatal if bridge init fails
+  }
 }
 
 export function subscribeToChatEvents(
