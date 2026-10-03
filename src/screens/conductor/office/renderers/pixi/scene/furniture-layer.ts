@@ -69,7 +69,7 @@ export class FurnitureLayer extends Container {
       {
         id: 'rev_desk',
         name: 'Approval & Verification Desk',
-        worldPos: { x: 5.38, y: 6.88 },
+        worldPos: { x: 4.98, y: 8.83 },
         deskAsset: 'desk_review',
         radiusX: 42,
         radiusY: 22,
@@ -80,7 +80,7 @@ export class FurnitureLayer extends Container {
       {
         id: 'conf_table',
         name: 'Strategic Conference Table',
-        worldPos: { x: -4.0, y: -6.88 },
+        worldPos: { x: -3.84, y: -6.09 },
         deskAsset: 'table_meeting',
         radiusX: 56,
         radiusY: 28,
@@ -91,7 +91,7 @@ export class FurnitureLayer extends Container {
       {
         id: 'exec_desk',
         name: 'Executive Orchestrator Desk',
-        worldPos: { x: -9.94, y: 2.19 },
+        worldPos: { x: -9.8, y: 2.17 },
         deskAsset: 'desk_executive',
         radiusX: 52,
         radiusY: 26,
@@ -101,7 +101,7 @@ export class FurnitureLayer extends Container {
       {
         id: 'fin_desk',
         name: 'Financial Ledger Station',
-        worldPos: { x: -0.72, y: 9.22 },
+        worldPos: { x: -1.19, y: 9.69 },
         deskAsset: 'desk_finance',
         radiusX: 54,
         radiusY: 28,
@@ -111,7 +111,7 @@ export class FurnitureLayer extends Container {
       {
         id: 'eng_desk',
         name: 'Engineering Bay Workstation',
-        worldPos: { x: 12.56, y: -0.94 },
+        worldPos: { x: 13.03, y: -0.78 },
         deskAsset: 'desk_engineering',
         radiusX: 50,
         radiusY: 26,
