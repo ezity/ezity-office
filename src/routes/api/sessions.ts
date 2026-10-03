@@ -22,6 +22,31 @@ import {
 } from '../../server/local-session-store'
 import { createCapabilityUnavailablePayload } from '@/lib/feature-gates'
 
+import { getAgent } from '../../server/agent-definitions-store'
+import {
+  getSessionAgent,
+  setSessionAgent,
+} from '../../server/session-agent-store'
+
+function decorateWithAgent(s: Record<string, unknown>): Record<string, unknown> {
+  const key =
+    (typeof s.key === 'string' && s.key) ||
+    (typeof s.friendlyId === 'string' && s.friendlyId) ||
+    (typeof s.id === 'string' && s.id) ||
+    ''
+  const agentId = key ? getSessionAgent(key) : null
+  const agent = agentId ? getAgent(agentId) : null
+  if (!agent) return s
+  return {
+    ...s,
+    agentId: agent.id,
+    agentName: agent.name,
+    agentEmoji: agent.emoji,
+    agentRole: agent.roleLabel,
+    agentColor: agent.color,
+  }
+}
+
 export const Route = createFileRoute('/api/sessions')({
   server: {
     handlers: {
@@ -35,16 +60,22 @@ export const Route = createFileRoute('/api/sessions')({
           const localSessions = listLocalSessions()
           return json({
             ok: true,
-            sessions: localSessions.map(toLocalSessionSummary),
+            sessions: localSessions.map(toLocalSessionSummary).map(decorateWithAgent),
             source: 'local',
           })
         }
 
         try {
           const response = await listSessions(50, 0)
-          // Handle OpenAI-format response: { object: "list", data: [...] }
-          const sessionList = Array.isArray(response) ? response : (response?.data ?? [])
-          return json({ ok: true, sessions: sessionList.map(toSessionSummary), source: 'gateway' })
+          const raw = response as any
+          const sessionList: Array<any> = Array.isArray(raw)
+            ? raw
+            : (raw?.items ?? raw?.data ?? raw?.sessions ?? [])
+          return json({
+            ok: true,
+            sessions: sessionList.map(toSessionSummary).map(decorateWithAgent),
+            source: 'gateway',
+          })
         } catch (err) {
           return json(
             {
@@ -62,54 +93,78 @@ export const Route = createFileRoute('/api/sessions')({
         const csrfCheckPost = requireJsonContentType(request)
         if (csrfCheckPost) return csrfCheckPost
         await ensureGatewayProbed()
+
+        const body = (await request.json().catch(() => ({}))) as Record<
+          string,
+          unknown
+        >
+
+        const requestedAgentId =
+          typeof body.agentId === 'string' ? body.agentId.trim() : ''
+        const linkedAgent = requestedAgentId ? getAgent(requestedAgentId) : null
+
+        const requestedLabel =
+          typeof body.label === 'string' ? body.label.trim() : ''
+        const label =
+          requestedLabel ||
+          (linkedAgent ? `${linkedAgent.emoji} ${linkedAgent.name}` : undefined)
+
+        const requestedFriendlyId =
+          typeof body.friendlyId === 'string' ? body.friendlyId.trim() : ''
+        const friendlyId =
+          requestedFriendlyId ||
+          (linkedAgent
+            ? `agent-${linkedAgent.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${randomUUID().slice(0, 8)}`
+            : randomUUID())
+
+        const requestedModel =
+          typeof body.model === 'string' ? body.model.trim() : ''
+        const model =
+          (linkedAgent?.model?.trim() || undefined) ??
+          (requestedModel || undefined)
+
         if (!getGatewayCapabilities().sessions) {
-          const body2 = (await request.json().catch(() => ({}))) as Record<
-            string,
-            unknown
-          >
-          const requestedId =
-            typeof body2.friendlyId === 'string' ? body2.friendlyId.trim() : ''
-          const model =
-            typeof body2.model === 'string' ? body2.model.trim() : undefined
-          const friendlyId = requestedId || randomUUID()
           const session = ensureLocalSession(friendlyId, model)
+          if (linkedAgent) {
+            setSessionAgent(session.id, linkedAgent.id)
+            if (friendlyId !== session.id) {
+              setSessionAgent(friendlyId, linkedAgent.id)
+            }
+          }
+          const baseEntry = toLocalSessionSummary(session)
+          const decorated = decorateWithAgent(baseEntry)
           return json({
             ok: true,
             sessionKey: session.id,
             friendlyId: session.id,
-            entry: toLocalSessionSummary(session),
+            entry: decorated,
+            session: { id: session.id, key: session.id, ...decorated },
             persisted: true,
             source: 'local',
           })
         }
         try {
-          const body = (await request.json().catch(() => ({}))) as Record<
-            string,
-            unknown
-          >
-
-          const requestedLabel =
-            typeof body.label === 'string' ? body.label.trim() : ''
-          const label = requestedLabel || undefined
-
-          const requestedFriendlyId =
-            typeof body.friendlyId === 'string' ? body.friendlyId.trim() : ''
-          const friendlyId = requestedFriendlyId || randomUUID()
-
-          const requestedModel =
-            typeof body.model === 'string' ? body.model.trim() : ''
-          const model = requestedModel || undefined
           const session = await createSession({
             id: friendlyId || randomUUID(),
             title: label,
             model,
           })
 
+          if (linkedAgent) {
+            setSessionAgent(session.id, linkedAgent.id)
+            if (friendlyId !== session.id) {
+              setSessionAgent(friendlyId, linkedAgent.id)
+            }
+          }
+
+          const baseEntry = toSessionSummary(session)
+          const decorated = decorateWithAgent(baseEntry)
           return json({
             ok: true,
             sessionKey: session.id,
             friendlyId: session.id,
-            entry: toSessionSummary(session),
+            entry: decorated,
+            session: { id: session.id, key: session.id, ...decorated },
             modelApplied: true,
           })
         } catch (err) {

@@ -22,6 +22,7 @@ import {
   toLocalSessionSummary,
 } from '../../../server/local-session-store'
 import { createSession } from '../../../server/hermes-api'
+import { setSessionAgent } from '../../../server/session-agent-store'
 
 /**
  * Mint a session for a crew member.
@@ -106,11 +107,16 @@ export const Route = createFileRoute('/api/crews/')({
           (rawMembers as Array<Record<string, unknown>>).map(async (m) => {
             const personaName =
               typeof m.persona === 'string' ? m.persona.toLowerCase() : 'kai'
+            const agentId = typeof m.agentId === 'string' ? m.agentId : null
 
             // Try custom/built-in agent lookup first, fall back to persona
-            const agentDef = allAgents.find(
-              (a) => a.name.toLowerCase() === personaName,
-            )
+            const agentDef = agentId
+              ? allAgents.find((a) => a.id === agentId)
+              : allAgents.find(
+                  (a) =>
+                    a.id.toLowerCase() === personaName ||
+                    a.name.toLowerCase() === personaName,
+                )
             const builtInFallback = AGENT_PERSONAS[6] // Kai fallback
             const displayEmoji = agentDef?.emoji ?? builtInFallback.emoji
             const displayName = agentDef?.name ?? builtInFallback.name
@@ -124,6 +130,9 @@ export const Route = createFileRoute('/api/crews/')({
               typeof m.role === 'string' ? m.role : 'executor'
 
             const sessionKey = await mintSession(displayName.toLowerCase(), model)
+            if (agentDef?.id && sessionKey) {
+              setSessionAgent(sessionKey, agentDef.id)
+            }
             const profileName =
               typeof m.profileName === 'string' && m.profileName
                 ? m.profileName

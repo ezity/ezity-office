@@ -316,16 +316,23 @@ export async function streamChat(
     message: string
     model?: string
     system_message?: string
+    system_msg?: string
     attachments?: Array<Record<string, unknown>>
   },
   opts: StreamChatOptions,
 ): Promise<void> {
+  const payload = {
+    ...body,
+    ...(body.system_message && !body.system_msg
+      ? { system_msg: body.system_message }
+      : {}),
+  }
   const res = await fetch(
     `${HERMES_API}/api/sessions/${sessionId}/chat/stream`,
     {
       method: 'POST',
       headers: { ..._authHeaders(), 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
       signal: opts.signal,
     },
   )

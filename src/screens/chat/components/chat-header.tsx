@@ -79,6 +79,11 @@ type ChatHeaderProps = {
     label?: string
     derivedTitle?: string
     title?: string
+    agentId?: string | null
+    agentName?: string | null
+    agentEmoji?: string | null
+    agentRole?: string | null
+    agentColor?: string | null
   }>
   activeFriendlyId?: string
   onSelectSession?: (key: string) => void
@@ -164,6 +169,11 @@ function ChatHeaderComponent({
 
   const isStale = dataUpdatedAt > 0 && Date.now() - dataUpdatedAt > 15000
   const mobileTitle = formatMobileSessionTitle(activeTitle)
+  const activeSession = sessions.find(
+    (s) =>
+      (s.friendlyId && s.friendlyId === activeFriendlyId) ||
+      (s.key && (s.key === activeFriendlyId || s.key.endsWith(`:${activeFriendlyId}`))),
+  )
   void _agentModel
   void agentConnected
   void statusMode
@@ -276,9 +286,12 @@ function ChatHeaderComponent({
           <button
             type="button"
             onClick={onOpenSessions}
-            className="flex items-center gap-1 min-w-0 max-w-[55vw] px-3 py-1.5 rounded-full bg-[var(--theme-accent-subtle)] hover:bg-[var(--theme-hover)] active:bg-primary-150 transition-colors"
+            className="flex items-center gap-1.5 min-w-0 max-w-[55vw] px-3 py-1.5 rounded-full bg-[var(--theme-accent-subtle)] hover:bg-[var(--theme-hover)] active:bg-primary-150 transition-colors"
             aria-label="Switch session"
           >
+            {activeSession?.agentEmoji && (
+              <span className="shrink-0 text-xs">{activeSession.agentEmoji}</span>
+            )}
             <span className="truncate text-[13px] font-medium text-ink">
               {mobileTitle === 'new' ? 'New Chat' : mobileTitle}
             </span>
@@ -366,7 +379,7 @@ function ChatHeaderComponent({
             />
           ) : (
             <div
-              className="relative flex items-center gap-1"
+              className="relative flex items-center gap-2"
               ref={sessionPopoverRef}
             >
               <button
@@ -377,6 +390,15 @@ function ChatHeaderComponent({
               >
                 {activeTitle}
               </button>
+              {activeSession?.agentName && (
+                <span
+                  className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium bg-[var(--theme-accent)]/10 text-[var(--theme-accent)] border border-[var(--theme-accent)]/20 shrink-0"
+                  title={`Agent: ${activeSession.agentName}${activeSession.agentRole ? ` (${activeSession.agentRole})` : ''}`}
+                >
+                  <span>{activeSession.agentEmoji || '🤖'}</span>
+                  <span>{activeSession.agentName}</span>
+                </span>
+              )}
               {canRenameTitle && !renamingTitle && (
                 <button
                   type="button"
@@ -450,8 +472,9 @@ function ChatHeaderComponent({
                                 'bg-[var(--theme-panel)] font-medium text-[var(--theme-text)]',
                             )}
                           >
-                            <span className="flex-1 min-w-0 truncate text-[var(--theme-text)] dark:text-neutral-200">
-                              {label}
+                            <span className="flex-1 min-w-0 truncate text-[var(--theme-text)] dark:text-neutral-200 flex items-center gap-1.5">
+                              {s.agentEmoji && <span className="shrink-0">{s.agentEmoji}</span>}
+                              <span className="truncate">{label}</span>
                             </span>
                             {isActive && (
                               <span className="size-1.5 rounded-full bg-accent-500 shrink-0" />

@@ -73,6 +73,11 @@ export type SessionSummary = {
   titleStatus?: SessionTitleStatus
   titleSource?: SessionTitleSource
   titleError?: string | null
+  agentId?: string | null
+  agentName?: string | null
+  agentEmoji?: string | null
+  agentRole?: string | null
+  agentColor?: string | null
 }
 
 export type SessionListResponse = {
@@ -96,6 +101,11 @@ export type SessionMeta = {
   titleStatus?: SessionTitleStatus
   titleSource?: SessionTitleSource
   titleError?: string | null
+  agentId?: string | null
+  agentName?: string | null
+  agentEmoji?: string | null
+  agentRole?: string | null
+  agentColor?: string | null
 }
 
 export type PathsPayload = {

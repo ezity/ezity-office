@@ -253,6 +253,11 @@ export function normalizeSessions(
       titleStatus,
       titleSource,
       titleError: session.titleError ?? null,
+      agentId: session.agentId ?? null,
+      agentName: session.agentName ?? null,
+      agentEmoji: session.agentEmoji ?? null,
+      agentRole: session.agentRole ?? null,
+      agentColor: session.agentColor ?? null,
     }
   })
 }

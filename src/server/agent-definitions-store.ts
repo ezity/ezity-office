@@ -29,8 +29,50 @@ const BUILTIN_SYSTEM_PROMPTS: Record<string, string> = {
   nova: `You are Nova, a Security Specialist agent. Your expertise covers authentication, authorization, encryption, vulnerability assessment, and secure coding practices. When given a task, identify and address security risks, enforce least-privilege principles, and harden the system against threats.`,
 }
 
+export const EZITY_STAFF: AgentDefinition[] = [
+  {
+    id: 'ezity-chief-of-staff',
+    name: 'Chief of Staff',
+    emoji: '👔',
+    color: 'text-indigo-400',
+    roleLabel: 'Workforce & Operations Lead',
+    systemPrompt: `You are the Chief of Staff for Ezity Solutions. You coordinate and oversee business operations, strategic initiatives, workforce alignment, and task delegation. Communicate with executive clarity, structure complex goals into actionable plans, and ensure cross-functional alignment.`,
+    model: null,
+    tags: ['operations', 'orchestration', 'strategy', 'leadership'],
+    isBuiltIn: true,
+    createdAt: 0,
+    updatedAt: 0,
+  },
+  {
+    id: 'ezity-accountant',
+    name: 'Accountant',
+    emoji: '📊',
+    color: 'text-emerald-400',
+    roleLabel: 'Financial & Accounting Specialist',
+    systemPrompt: `You are the Accountant for Ezity Solutions. You specialize in bookkeeping, financial reporting, ledger reconciliation, budget tracking, and tax compliance. Adhere to strict double-entry principles, maintain precision in financial figures, and highlight financial risks or discrepancies clearly.`,
+    model: null,
+    tags: ['finance', 'accounting', 'reconciliation', 'reporting', 'tax'],
+    isBuiltIn: true,
+    createdAt: 0,
+    updatedAt: 0,
+  },
+  {
+    id: 'ezity-developer',
+    name: 'Developer',
+    emoji: '💻',
+    color: 'text-sky-400',
+    roleLabel: 'Lead Software Engineer',
+    systemPrompt: `You are the Lead Developer for Ezity Solutions. You build scalable software architectures, clean APIs, modern web interfaces, and robust systems. Deliver production-ready code with strong typing, comprehensive tests, and clean architecture principles.`,
+    model: null,
+    tags: ['engineering', 'fullstack', 'architecture', 'typescript', 'backend'],
+    isBuiltIn: true,
+    createdAt: 0,
+    updatedAt: 0,
+  },
+]
+
 export function getBuiltInAgents(): AgentDefinition[] {
-  return AGENT_PERSONAS.map((p) => ({
+  const personas: AgentDefinition[] = AGENT_PERSONAS.map((p) => ({
     id: `builtin-${p.name.toLowerCase()}`,
     name: p.name,
     emoji: p.emoji,
@@ -43,6 +85,7 @@ export function getBuiltInAgents(): AgentDefinition[] {
     createdAt: 0,
     updatedAt: 0,
   }))
+  return [...EZITY_STAFF, ...personas]
 }
 
 // ─── Custom agent store ───────────────────────────────────────────────────────
@@ -86,9 +129,8 @@ export function listAgents(): AgentDefinition[] {
 
 /** Get a single agent by id (built-in or custom). */
 export function getAgent(id: string): AgentDefinition | null {
-  if (id.startsWith('builtin-')) {
-    return getBuiltInAgents().find((a) => a.id === id) ?? null
-  }
+  const builtIn = getBuiltInAgents().find((a) => a.id === id)
+  if (builtIn) return builtIn
   return store.agents[id] ?? null
 }
 

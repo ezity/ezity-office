@@ -23,6 +23,11 @@ import {
   appendLocalMessage,
   ensureLocalSession,
 } from '../../server/local-session-store'
+import { getAgent } from '../../server/agent-definitions-store'
+import {
+  getSessionAgent,
+  setSessionAgent,
+} from '../../server/session-agent-store'
 import type {OpenAICompatContentPart, OpenAICompatMessage} from '../../server/openai-compat-api';
 // Hermes agent runs can take 5+ minutes with complex tool chains
 const SEND_STREAM_RUN_TIMEOUT_MS = 600_000
@@ -342,6 +347,38 @@ export const Route = createFileRoute('/api/send-stream')({
           resolvedFriendlyId = sessionKey
         }
 
+        // Resolve linked AgentDefinition (if any)
+        const agentIdFromBody =
+          typeof body.agentId === 'string' ? body.agentId.trim() : ''
+        const linkedAgentId =
+          agentIdFromBody ||
+          getSessionAgent(sessionKey) ||
+          getSessionAgent(resolvedFriendlyId) ||
+          (requestedFriendlyId ? getSessionAgent(requestedFriendlyId) : null) ||
+          (rawSessionKey ? getSessionAgent(rawSessionKey) : null)
+        const linkedAgent = linkedAgentId ? getAgent(linkedAgentId) : null
+
+        if (agentIdFromBody && linkedAgent) {
+          setSessionAgent(sessionKey, linkedAgent.id)
+          if (resolvedFriendlyId && resolvedFriendlyId !== sessionKey) {
+            setSessionAgent(resolvedFriendlyId, linkedAgent.id)
+          }
+        }
+
+        // Model Precedence: AgentDefinition.model -> explicit request/turn model -> existing default behavior
+        const effectiveModel =
+          (linkedAgent?.model?.trim() || undefined) ??
+          (typeof body.model === 'string' && body.model.trim()
+            ? body.model.trim()
+            : undefined)
+
+        const effectivePrompt = linkedAgent?.systemPrompt?.trim() || undefined
+        const effectiveSystemMessage = effectivePrompt
+          ? thinking
+            ? `${effectivePrompt}\n\n${thinking}`
+            : effectivePrompt
+          : thinking
+
         // Create streaming response using the SHARED server connection
         const encoder = new TextEncoder()
         let streamClosed = false
@@ -420,6 +457,7 @@ export const Route = createFileRoute('/api/send-stream')({
                     attachments,
                   )
                   const portableMessages: Array<OpenAICompatMessage> = [
+                    ...(effectivePrompt ? [{ role: 'system', content: effectivePrompt }] : []),
                     ...history,
                     {
                       role: 'user',
@@ -427,8 +465,7 @@ export const Route = createFileRoute('/api/send-stream')({
                     },
                   ]
                   const stream = await openaiChat(portableMessages, {
-                    model:
-                      typeof body.model === 'string' ? body.model : undefined,
+                    model: effectiveModel,
                     temperature:
                       typeof body.temperature === 'number'
                         ? body.temperature
@@ -499,9 +536,17 @@ export const Route = createFileRoute('/api/send-stream')({
               }
 
               if (SESSION_BOOTSTRAP_KEYS.has(sessionKey)) {
-                const session = await createSession()
+                const session = await createSession({
+                  title: linkedAgent
+                    ? `${linkedAgent.emoji || '🤖'} ${linkedAgent.name}`
+                    : undefined,
+                  model: effectiveModel,
+                })
                 sessionKey = session.id
                 resolvedFriendlyId = session.id
+                if (linkedAgent) {
+                  setSessionAgent(sessionKey, linkedAgent.id)
+                }
               }
 
               let startedSent = false
@@ -513,9 +558,8 @@ export const Route = createFileRoute('/api/send-stream')({
                 sessionKey,
                 {
                   message: getChatMessage(message, attachments),
-                  model:
-                    typeof body.model === 'string' ? body.model : undefined,
-                  system_message: thinking,
+                  model: effectiveModel,
+                  system_message: effectiveSystemMessage,
                   attachments: attachments || undefined,
                 },
                 {

@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Add01Icon,
+  Chat01Icon,
   Delete01Icon,
   Edit01Icon,
   Search01Icon,
@@ -32,11 +34,15 @@ function AgentCard({
   onEdit,
   onDelete,
   onDuplicate,
+  onStartChat,
+  isStartingChat,
 }: {
   agent: AgentDefinition
   onEdit: (agent: AgentDefinition) => void
   onDelete: (agent: AgentDefinition) => void
   onDuplicate: (agent: AgentDefinition) => void
+  onStartChat: (agent: AgentDefinition) => void
+  isStartingChat?: boolean
 }) {
   const [expanded, setExpanded] = useState(false)
 
@@ -63,6 +69,11 @@ function AgentCard({
               <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-[var(--theme-bg)] text-[var(--theme-muted)] border border-[var(--theme-border)]">
                 <HugeiconsIcon icon={LockIcon} size={9} />
                 built-in
+              </span>
+            )}
+            {agent.model && (
+              <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] bg-[var(--theme-bg)] text-[var(--theme-muted)] border border-[var(--theme-border)] font-mono truncate max-w-[120px]">
+                {agent.model}
               </span>
             )}
           </div>
@@ -104,32 +115,44 @@ function AgentCard({
         </div>
 
         {/* Actions */}
-        <div className="flex shrink-0 flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex shrink-0 flex-col items-end gap-2">
           <button
-            onClick={() => onDuplicate(agent)}
-            className="rounded p-1.5 text-[var(--theme-muted)] hover:bg-[var(--theme-bg)] hover:text-[var(--theme-text)] transition-colors"
-            title="Duplicate"
+            type="button"
+            onClick={() => onStartChat(agent)}
+            disabled={isStartingChat}
+            className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium bg-[var(--theme-accent)]/15 text-[var(--theme-accent)] hover:bg-[var(--theme-accent)]/25 transition-colors border border-[var(--theme-accent)]/25 disabled:opacity-50"
+            title={`Start chat with ${agent.name}`}
           >
-            <HugeiconsIcon icon={Copy01Icon} size={14} />
+            <HugeiconsIcon icon={Chat01Icon} size={13} />
+            <span>Chat</span>
           </button>
-          {!agent.isBuiltIn && (
-            <>
-              <button
-                onClick={() => onEdit(agent)}
-                className="rounded p-1.5 text-[var(--theme-muted)] hover:bg-[var(--theme-bg)] hover:text-[var(--theme-text)] transition-colors"
-                title="Edit"
-              >
-                <HugeiconsIcon icon={Edit01Icon} size={14} />
-              </button>
-              <button
-                onClick={() => onDelete(agent)}
-                className="rounded p-1.5 text-[var(--theme-muted)] hover:bg-[var(--theme-bg)] hover:text-[var(--theme-danger)] transition-colors"
-                title="Delete"
-              >
-                <HugeiconsIcon icon={Delete01Icon} size={14} />
-              </button>
-            </>
-          )}
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              onClick={() => onDuplicate(agent)}
+              className="rounded p-1 text-[var(--theme-muted)] hover:bg-[var(--theme-bg)] hover:text-[var(--theme-text)] transition-colors"
+              title="Duplicate"
+            >
+              <HugeiconsIcon icon={Copy01Icon} size={14} />
+            </button>
+            {!agent.isBuiltIn && (
+              <>
+                <button
+                  onClick={() => onEdit(agent)}
+                  className="rounded p-1 text-[var(--theme-muted)] hover:bg-[var(--theme-bg)] hover:text-[var(--theme-text)] transition-colors"
+                  title="Edit"
+                >
+                  <HugeiconsIcon icon={Edit01Icon} size={14} />
+                </button>
+                <button
+                  onClick={() => onDelete(agent)}
+                  className="rounded p-1 text-[var(--theme-muted)] hover:bg-[var(--theme-bg)] hover:text-[var(--theme-danger)] transition-colors"
+                  title="Delete"
+                >
+                  <HugeiconsIcon icon={Delete01Icon} size={14} />
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -141,11 +164,43 @@ function AgentCard({
 type Filter = 'all' | 'builtin' | 'custom'
 
 export function AgentLibraryScreen() {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
   const [editorOpen, setEditorOpen] = useState(false)
   const [editingAgent, setEditingAgent] = useState<AgentDefinition | null>(null)
+  const [startingChatId, setStartingChatId] = useState<string | null>(null)
+
+  const handleStartChat = async (agent: AgentDefinition) => {
+    try {
+      setStartingChatId(agent.id)
+      const res = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agentId: agent.id }),
+      })
+      if (!res.ok) {
+        throw new Error(`Failed to create session (${res.status})`)
+      }
+      const data = (await res.json()) as {
+        ok?: boolean
+        session?: { key?: string; id?: string }
+      }
+      const sessionKey = data.session?.key || data.session?.id
+      if (!sessionKey) throw new Error('No session returned from server')
+      void queryClient.invalidateQueries({ queryKey: ['sessions'] })
+      void queryClient.invalidateQueries({ queryKey: ['dashboard', 'sessions'] })
+      navigate({
+        to: '/chat/$sessionKey',
+        params: { sessionKey },
+      })
+    } catch (err) {
+      toast((err as Error).message || 'Failed to start chat', { type: 'error' })
+    } finally {
+      setStartingChatId(null)
+    }
+  }
 
   const { data: agents = [], isLoading } = useQuery({
     queryKey: QUERY_KEY,
@@ -324,6 +379,8 @@ export function AgentLibraryScreen() {
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onDuplicate={handleDuplicate}
+                onStartChat={handleStartChat}
+                isStartingChat={startingChatId === agent.id}
               />
             ))}
           </div>
