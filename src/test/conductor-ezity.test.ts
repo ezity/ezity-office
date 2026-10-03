@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
   buildOrchestratorPrompt,
-  buildEzityOrchestratorPrompt,
+  buildEZityOrchestratorPrompt,
 } from '@/routes/api/conductor-spawn'
 import { getAgent, listAgents } from '@/server/agent-definitions-store'
 import type { AgentDefinition } from '@/types/agent'
@@ -22,8 +22,8 @@ afterEach(() => {
   rmSync(tmpDir, { recursive: true, force: true })
 })
 
-describe('Phase C: Conductor Ezity Staff Integration', () => {
-  describe('A. Ezity Conductor launches as Chief of Staff', () => {
+describe('Phase C: Conductor EZity Staff Integration', () => {
+  describe('A. EZity Conductor launches as Chief of Staff', () => {
     it('generates orchestrator prompt inheriting Chief of Staff identity and system prompt', () => {
       const cos = getAgent('ezity-chief-of-staff')
       expect(cos).toBeDefined()
@@ -33,7 +33,7 @@ describe('Phase C: Conductor Ezity Staff Integration', () => {
       const developer = getAgent('ezity-developer')!
       const roster = [accountant, developer]
 
-      const prompt = buildEzityOrchestratorPrompt(
+      const prompt = buildEZityOrchestratorPrompt(
         'Prepare Q3 corporate summary',
         'skill-dispatch-content',
         cos,
@@ -81,7 +81,7 @@ describe('Phase C: Conductor Ezity Staff Integration', () => {
       const developer = getAgent('ezity-developer')!
       const roster = [accountant, developer]
 
-      const prompt = buildEzityOrchestratorPrompt(
+      const prompt = buildEZityOrchestratorPrompt(
         'Audit cloud infrastructure and budget',
         '',
         cos,
@@ -142,7 +142,7 @@ describe('Phase C: Conductor Ezity Staff Integration', () => {
       const developer = getAgent('ezity-developer')!
       const roster = [accountant, developer]
 
-      const prompt = buildEzityOrchestratorPrompt(
+      const prompt = buildEZityOrchestratorPrompt(
         'Execute financial forecast and deploy API',
         '',
         cos,
@@ -165,7 +165,7 @@ describe('Phase C: Conductor Ezity Staff Integration', () => {
   })
 
   describe('E. Generic Conductor behavior remains unchanged', () => {
-    it('generates generic orchestrator prompt without Ezity staff persona or roster', () => {
+    it('generates generic orchestrator prompt without EZity staff persona or roster', () => {
       const prompt = buildOrchestratorPrompt(
         'Build a simple static page',
         'skill-dispatch-info',
@@ -180,7 +180,7 @@ describe('Phase C: Conductor Ezity Staff Integration', () => {
 
       expect(prompt).toContain('You are a mission orchestrator. Execute this mission autonomously.')
       expect(prompt).not.toContain('Chief of Staff')
-      expect(prompt).not.toContain('Available Ezity Staff Team')
+      expect(prompt).not.toContain('Available EZity Staff Team')
       expect(prompt).not.toContain('worker-accountant-')
       expect(prompt).not.toContain('worker-developer-')
       expect(prompt).toContain('Label workers as "worker-<task-slug>"')
@@ -192,7 +192,7 @@ describe('Phase C: Conductor Ezity Staff Integration', () => {
       const cos = getAgent('ezity-chief-of-staff')!
       const emptyRoster: AgentDefinition[] = []
 
-      const prompt = buildEzityOrchestratorPrompt(
+      const prompt = buildEZityOrchestratorPrompt(
         'Solo mission without extra staff',
         '',
         cos,

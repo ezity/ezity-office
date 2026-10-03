@@ -13,7 +13,7 @@ import {
 import type { ReactNode } from 'react'
 import type { HermesSession } from '@/server/hermes-api'
 import { cn } from '@/lib/utils'
-import { EzityLogoMark } from '@/components/brand/ezity-brand'
+import { EZityLogoMark } from '@/components/brand/ezity-brand'
 
 // ── Helpers ──────────────────────────────────────────────────────
 
@@ -653,14 +653,14 @@ export function DashboardScreen() {
 
   return (
     <div className="min-h-full px-4 py-4 md:px-8 md:py-6 lg:px-10 space-y-5 pb-28">
-      {/* ── Header: Ezity Logo + Quick Actions ── */}
+      {/* ── Header: EZity Logo + Quick Actions ── */}
       <div className="flex flex-col items-center gap-1.5 py-3">
-        <EzityLogoMark size="lg" className="mb-1" />
+        <EZityLogoMark size="lg" className="mb-1" />
         <h1 className="text-base font-semibold text-ink tracking-wide">
-          Ezity AI Office
+          EZity AI Office
         </h1>
         <p className="text-xs text-[var(--theme-muted)]">
-          Ezity Solutions &middot; AI Workforce &amp; Operations
+          EZity Solutions &middot; AI Workforce &amp; Operations
         </p>
         <div className="mt-1 grid w-full max-w-2xl grid-cols-2 gap-2 sm:grid-cols-4">
           <QuickAction

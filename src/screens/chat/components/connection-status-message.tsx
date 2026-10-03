@@ -25,7 +25,7 @@ function classifyConnectionError(
   if (!normalizedError && !status) {
     return {
       title: 'Not connected',
-      description: "Ezity AI Office can't reach Hermes.",
+      description: "EZity AI Office can't reach Hermes.",
       action: 'Check that Hermes is running, then try again.',
     }
   }

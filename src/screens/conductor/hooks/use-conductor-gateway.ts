@@ -139,10 +139,10 @@ function loadPersistedMission(): PersistedMission | null {
     const workerOutputs =
       parsed.workerOutputs && typeof parsed.workerOutputs === 'object' && !Array.isArray(parsed.workerOutputs)
         ? Object.fromEntries(
-            Object.entries(parsed.workerOutputs as Record<string, unknown>).filter(
-              (entry): entry is [string, string] => typeof entry[0] === 'string' && typeof entry[1] === 'string',
-            ),
-          )
+          Object.entries(parsed.workerOutputs as Record<string, unknown>).filter(
+            (entry): entry is [string, string] => typeof entry[0] === 'string' && typeof entry[1] === 'string',
+          ),
+        )
         : {}
     const missionStartedAt =
       parsed.missionStartedAt === null || parsed.missionStartedAt === undefined
@@ -163,29 +163,29 @@ function loadPersistedMission(): PersistedMission | null {
       parsed.completedAt === null || parsed.completedAt === undefined ? null : toIso(parsed.completedAt)
     const tasks = Array.isArray(parsed.tasks)
       ? parsed.tasks
-          .map((task): ConductorTask | null => {
-            const record = readRecord(task)
-            if (!record) return null
-            const id = readString(record.id)
-            const title = readString(record.title)
-            const status = record.status
-            if (
-              !id ||
-              !title ||
-              (status !== 'pending' && status !== 'running' && status !== 'complete' && status !== 'failed')
-            ) {
-              return null
-            }
+        .map((task): ConductorTask | null => {
+          const record = readRecord(task)
+          if (!record) return null
+          const id = readString(record.id)
+          const title = readString(record.title)
+          const status = record.status
+          if (
+            !id ||
+            !title ||
+            (status !== 'pending' && status !== 'running' && status !== 'complete' && status !== 'failed')
+          ) {
+            return null
+          }
 
-            return {
-              id,
-              title,
-              status,
-              workerKey: record.workerKey === null || record.workerKey === undefined ? null : readString(record.workerKey),
-              output: record.output === null || record.output === undefined ? null : readString(record.output),
-            }
-          })
-          .filter((task): task is ConductorTask => task !== null)
+          return {
+            id,
+            title,
+            status,
+            workerKey: record.workerKey === null || record.workerKey === undefined ? null : readString(record.workerKey),
+            output: record.output === null || record.output === undefined ? null : readString(record.output),
+          }
+        })
+        .filter((task): task is ConductorTask => task !== null)
       : []
 
     if (
@@ -201,7 +201,7 @@ function loadPersistedMission(): PersistedMission | null {
     // Never restore running/decomposing — if the browser closed mid-mission, it's dead.
     // Only restore 'complete' (reviewable) or 'idle'.
     const isStale = phase === 'running' || phase === 'decomposing'
-    const isEzityStaff = parsed.isEzityStaff === false ? false : true
+    const isEZityStaff = parsed.isEZityStaff === false ? false : true
 
     return {
       goal: isStale ? '' : goal,
@@ -218,7 +218,7 @@ function loadPersistedMission(): PersistedMission | null {
       planText,
       completedAt,
       tasks,
-      isEzityStaff,
+      isEZityStaff,
     }
   } catch {
     return null
@@ -737,8 +737,8 @@ export function useConductorGateway() {
     enabled: phase !== 'idle',
     refetchInterval:
       phase === 'decomposing' ||
-      phase === 'running' ||
-      (phase === 'complete' && Object.keys(workerOutputs).length === 0)
+        phase === 'running' ||
+        (phase === 'complete' && Object.keys(workerOutputs).length === 0)
         ? 3_000
         : false,
   })
@@ -1046,7 +1046,7 @@ export function useConductorGateway() {
         agentRole: worker.agentRole,
       }
     })
-    const isEzityStaff = conductorSettings.staffOrchestrated !== false
+    const isEZityStaff = conductorSettings.staffOrchestrated !== false
     const entry: MissionHistoryEntry = {
       id: missionId,
       goal,
@@ -1062,7 +1062,7 @@ export function useConductorGateway() {
       streamText: streamText ? streamText.slice(0, 5000) : undefined,
       completeSummary,
       workerDetails: workerDetails.length > 0 ? workerDetails : undefined,
-      isEzityStaff,
+      isEZityStaff,
       error: streamError ?? undefined,
     }
 
@@ -1115,7 +1115,7 @@ export function useConductorGateway() {
       planText: planText.slice(0, 10_000),
       completedAt,
       tasks,
-      isEzityStaff: conductorSettings.staffOrchestrated !== false,
+      isEZityStaff: conductorSettings.staffOrchestrated !== false,
     })
   }, [
     phase,
@@ -1389,7 +1389,7 @@ export function useConductorGateway() {
     workerOutputs,
     conductorSettings,
     setConductorSettings,
-    isEzityStaff: conductorSettings.staffOrchestrated !== false,
+    isEZityStaff: conductorSettings.staffOrchestrated !== false,
     sendMission: (nextGoal: string) =>
       sendMission.mutateAsync({ nextGoal, settings: conductorSettings }),
     pauseAgent: (sessionKey: string, pause: boolean) =>

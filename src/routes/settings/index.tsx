@@ -863,7 +863,7 @@ function IntegrationsSection() {
           fromEnv: Boolean(d.skillsmpApiKeyFromEnv),
         })
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   async function handleSave() {
@@ -919,87 +919,87 @@ function IntegrationsSection() {
 
   return (
     <>
-    <SettingsSection
-      title="Integrations"
-      description="Connect external services used by Ezity AI Office features."
-      icon={SparklesIcon}
-    >
-      <SettingsRow
-        label="skillsmp.com API key"
-        description={
-          <span>
-            Required for Skills marketplace search.{' '}
-            <a
-              href="https://skillsmp.com/docs/api"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary underline underline-offset-2 hover:opacity-80"
-            >
-              Get your key at skillsmp.com/docs/api →
-            </a>
-          </span>
-        }
+      <SettingsSection
+        title="Integrations"
+        description="Connect external services used by EZity AI Office features."
+        icon={SparklesIcon}
       >
-        <div className="flex w-full flex-col gap-2 md:max-w-sm">
-          {status?.fromEnv ? (
-            <p className="text-xs text-[var(--theme-muted)]">
-              Key is set via <code className="inline-code">SKILLSMP_API_KEY</code>{' '}
-              environment variable and cannot be changed here.
-            </p>
-          ) : (
-            <>
-              {status?.keySet && (
-                <div className="flex items-center gap-2 rounded-lg border border-[var(--theme-border)] bg-[var(--theme-panel)]/60 px-3 py-2 text-sm">
-                  <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} className="shrink-0 text-green-600" />
-                  <span className="font-mono text-xs text-[var(--theme-text)] flex-1 truncate">
-                    {status.keyMasked}
-                  </span>
+        <SettingsRow
+          label="skillsmp.com API key"
+          description={
+            <span>
+              Required for Skills marketplace search.{' '}
+              <a
+                href="https://skillsmp.com/docs/api"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-2 hover:opacity-80"
+              >
+                Get your key at skillsmp.com/docs/api →
+              </a>
+            </span>
+          }
+        >
+          <div className="flex w-full flex-col gap-2 md:max-w-sm">
+            {status?.fromEnv ? (
+              <p className="text-xs text-[var(--theme-muted)]">
+                Key is set via <code className="inline-code">SKILLSMP_API_KEY</code>{' '}
+                environment variable and cannot be changed here.
+              </p>
+            ) : (
+              <>
+                {status?.keySet && (
+                  <div className="flex items-center gap-2 rounded-lg border border-[var(--theme-border)] bg-[var(--theme-panel)]/60 px-3 py-2 text-sm">
+                    <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} className="shrink-0 text-green-600" />
+                    <span className="font-mono text-xs text-[var(--theme-text)] flex-1 truncate">
+                      {status.keyMasked}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleClear}
+                      disabled={saving}
+                      className="text-xs text-[var(--theme-muted)] hover:text-red-600 transition-colors disabled:opacity-50"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Input
+                    type={showKey ? 'text' : 'password'}
+                    placeholder={status?.keySet ? 'Enter new key to replace…' : 'sk_live_…'}
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    className="flex-1 font-mono text-xs"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && apiKey.trim()) void handleSave()
+                    }}
+                  />
                   <button
                     type="button"
-                    onClick={handleClear}
-                    disabled={saving}
-                    className="text-xs text-[var(--theme-muted)] hover:text-red-600 transition-colors disabled:opacity-50"
+                    onClick={() => setShowKey((v) => !v)}
+                    className="px-2 text-xs text-[var(--theme-muted)] hover:text-[var(--theme-text)] transition-colors"
+                    aria-label={showKey ? 'Hide key' : 'Show key'}
                   >
-                    Remove
+                    {showKey ? 'Hide' : 'Show'}
                   </button>
                 </div>
-              )}
-              <div className="flex gap-2">
-                <Input
-                  type={showKey ? 'text' : 'password'}
-                  placeholder={status?.keySet ? 'Enter new key to replace…' : 'sk_live_…'}
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  className="flex-1 font-mono text-xs"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && apiKey.trim()) void handleSave()
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowKey((v) => !v)}
-                  className="px-2 text-xs text-[var(--theme-muted)] hover:text-[var(--theme-text)] transition-colors"
-                  aria-label={showKey ? 'Hide key' : 'Show key'}
+                <Button
+                  size="sm"
+                  disabled={saving || !apiKey.trim()}
+                  onClick={() => void handleSave()}
                 >
-                  {showKey ? 'Hide' : 'Show'}
-                </button>
-              </div>
-              <Button
-                size="sm"
-                disabled={saving || !apiKey.trim()}
-                onClick={() => void handleSave()}
-              >
-                {saving ? 'Saving…' : 'Save key'}
-              </Button>
-              {saveMsg && (
-                <p className="text-xs text-[var(--theme-muted)]">{saveMsg}</p>
-              )}
-            </>
-          )}
-        </div>
-      </SettingsRow>
-    </SettingsSection>
-    <PlatformsSection />
+                  {saving ? 'Saving…' : 'Save key'}
+                </Button>
+                {saveMsg && (
+                  <p className="text-xs text-[var(--theme-muted)]">{saveMsg}</p>
+                )}
+              </>
+            )}
+          </div>
+        </SettingsRow>
+      </SettingsSection>
+      <PlatformsSection />
     </>
   )
 }
@@ -1093,7 +1093,7 @@ function PlatformsSection() {
         void d
         setEnvStatus({})
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   const setInput = (key: string, value: string) =>
@@ -1786,8 +1786,8 @@ function HermesConfigSection({
     : []
   const quickCommands =
     data.config.quick_commands &&
-    typeof data.config.quick_commands === 'object' &&
-    !Array.isArray(data.config.quick_commands)
+      typeof data.config.quick_commands === 'object' &&
+      !Array.isArray(data.config.quick_commands)
       ? (data.config.quick_commands as Record<string, string>)
       : {}
 
@@ -1795,8 +1795,8 @@ function HermesConfigSection({
     (data.config.session_reset as Record<string, unknown>) || {}
   const platformOverrides =
     displayConfig.platforms &&
-    typeof displayConfig.platforms === 'object' &&
-    !Array.isArray(displayConfig.platforms)
+      typeof displayConfig.platforms === 'object' &&
+      !Array.isArray(displayConfig.platforms)
       ? (displayConfig.platforms as Record<string, Record<string, string>>)
       : {}
 
@@ -2227,45 +2227,45 @@ function HermesConfigSection({
       {['daily', 'both'].includes(
         (sessionResetConfig.mode as string) || 'both',
       ) && (
-        <SettingsRow
-          label="Reset hour"
-          description="Hour of day (0–23, local time) for daily session reset."
-        >
-          <Input
-            type="number"
-            min={0}
-            max={23}
-            value={readNumber(sessionResetConfig.at_hour, 4)}
-            onChange={(e) =>
-              saveNumberField('session_reset', 'at_hour', e.target.value, 4)
-            }
-            className="md:w-24"
-          />
-        </SettingsRow>
-      )}
+          <SettingsRow
+            label="Reset hour"
+            description="Hour of day (0–23, local time) for daily session reset."
+          >
+            <Input
+              type="number"
+              min={0}
+              max={23}
+              value={readNumber(sessionResetConfig.at_hour, 4)}
+              onChange={(e) =>
+                saveNumberField('session_reset', 'at_hour', e.target.value, 4)
+              }
+              className="md:w-24"
+            />
+          </SettingsRow>
+        )}
       {['idle', 'both'].includes(
         (sessionResetConfig.mode as string) || 'both',
       ) && (
-        <SettingsRow
-          label="Idle timeout"
-          description="Minutes of inactivity before the session resets."
-        >
-          <Input
-            type="number"
-            min={1}
-            value={readNumber(sessionResetConfig.idle_minutes, 1440)}
-            onChange={(e) =>
-              saveNumberField(
-                'session_reset',
-                'idle_minutes',
-                e.target.value,
-                1440,
-              )
-            }
-            className="md:w-28"
-          />
-        </SettingsRow>
-      )}
+          <SettingsRow
+            label="Idle timeout"
+            description="Minutes of inactivity before the session resets."
+          >
+            <Input
+              type="number"
+              min={1}
+              value={readNumber(sessionResetConfig.idle_minutes, 1440)}
+              onChange={(e) =>
+                saveNumberField(
+                  'session_reset',
+                  'idle_minutes',
+                  e.target.value,
+                  1440,
+                )
+              }
+              className="md:w-28"
+            />
+          </SettingsRow>
+        )}
     </SettingsSection>
   )
 
@@ -3379,7 +3379,7 @@ function SystemdAutoStartSection() {
           }}
         >
           <p style={{ ...headingStyle, fontWeight: 400, ...muteStyle }}>
-            You can still start Ezity AI Office manually:
+            You can still start EZity AI Office manually:
           </p>
           <pre
             style={{

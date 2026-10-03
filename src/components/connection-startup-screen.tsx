@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { AuthStatus } from '@/lib/hermes-auth'
 import { writeTextToClipboard } from '@/lib/clipboard'
 import { fetchHermesAuthStatus } from '@/lib/hermes-auth'
-import { EzityLogoMark } from '@/components/brand/ezity-brand'
+import { EZityLogoMark } from '@/components/brand/ezity-brand'
 
 const POLL_INTERVAL_MS = 2_000
 const FAILURE_REVEAL_MS = 5_000
@@ -187,13 +187,13 @@ export function ConnectionStartupScreen({ onConnected }: Props) {
       }}
     >
       <div className="flex w-full max-w-lg flex-col items-center text-center">
-        <EzityLogoMark size="xl" className="mb-4" />
+        <EZityLogoMark size="xl" className="mb-4" />
 
         <h1 className="text-[2rem] font-semibold tracking-tight text-white">
-          Ezity AI Office
+          EZity AI Office
         </h1>
         <p className="mt-1 text-xs font-medium uppercase tracking-wider text-white/50">
-          Ezity Solutions &middot; AI Workforce &amp; Operations
+          EZity Solutions &middot; AI Workforce &amp; Operations
         </p>
 
         {/* Connecting spinner */}
@@ -222,7 +222,7 @@ export function ConnectionStartupScreen({ onConnected }: Props) {
               Welcome! Let&apos;s connect your backend
             </p>
             <p className="mt-2 text-sm leading-6 text-white/60">
-              Ezity AI Office works with any OpenAI-compatible backend. Hermes
+              EZity AI Office works with any OpenAI-compatible backend. Hermes
               gateway APIs unlock enhanced features automatically when they are
               available.
             </p>

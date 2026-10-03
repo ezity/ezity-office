@@ -21,7 +21,7 @@
 </div>
 
 > [!NOTE]
-> **Ezity AI Office**: This repository is the Ezity Solutions fork of Hermes Studio for enterprise AI Workforce & Operations. Upstream architecture and internal Hermes contracts are intentionally preserved. For details on fork architecture and upstream compatibility, see [docs/EZITY_FORK.md](docs/EZITY_FORK.md).
+> **EZity AI Office**: This repository is the EZity Solutions fork of Hermes Studio for enterprise AI Workforce & Operations. Upstream architecture and internal Hermes contracts are intentionally preserved. For details on fork architecture and upstream compatibility, see [docs/EZITY_FORK.md](docs/EZITY_FORK.md).
 
 ## What is Hermes Studio?
 
@@ -118,7 +118,7 @@ From the Jobs tab you can:
 ### What this unlocks
 
 | Use case | How |
-|---|---|
+| --- | --- |
 | Daily briefing | Schedule a "summarise my emails and calendar" prompt every morning at 7am, delivered to Telegram |
 | Repo health check | Run a code analysis prompt every night; get a Slack message only if issues found |
 | Price / data monitor | Poll an API every 15 minutes; alert on thresholds |
@@ -162,6 +162,7 @@ Hermes Studio is a fork of [hermes-workspace](https://github.com/outsourc-e/herm
 Every crew gets a **Usage** tab on its detail screen. After each agent run completes, Hermes Studio fetches the accumulated token counts from the Hermes session API and records them per agent.
 
 The tab shows:
+
 - **KPI strip** — total tokens, input/output split, estimated total cost
 - **Per-agent breakdown** — input tokens, output tokens, estimated cost per member; shows model badge and dashes for portable mode sessions
 - **Reset control** — clear all usage data for a crew at any time
@@ -179,7 +180,7 @@ Launching a new crew from scratch every time gets repetitive. Templates let you 
 **Built-in templates (7 total, 4 categories):**
 
 | Category | Template | Composition |
-|---|---|---|
+| --- | --- | --- |
 | Research | Research Team | Luna (analyst), Ada (reviewer), Kai (coordinator) |
 | Research | Deep Dive | Luna + Roger (analysts), Kai (coordinator) |
 | Engineering | Full-Stack Squad | Kai (coordinator), Roger (frontend), Sally (backend), Max (DevOps), Ada (QA) |
@@ -720,9 +721,11 @@ If using Docker Compose and getting auth errors:
    ```
 
 5. **Check workspace logs for gateway status:**
+
    ```bash
    docker compose logs hermes-studio
    ```
+
    Look for: `[gateway] http://hermes-agent:8642 mode=...` — if it shows `mode=disconnected`, the agent isn't running correctly.
 
 ### Docker: "hermes webapi command not found"
@@ -746,6 +749,7 @@ bash scripts/uninstall.sh
 ```
 
 This will:
+
 1. Stop and disable the systemd service (if installed)
 2. Kill any running `server-entry.js` process
 3. Ask for confirmation, then delete the project folder (including `.runtime/` data)
@@ -753,7 +757,7 @@ This will:
 **Data locations removed with the project folder:**
 
 | File | Contents |
-|------|----------|
+| ------ | ---------- |
 | `.runtime/events.db` | Analytics SQLite database |
 | `.runtime/costs.json` | Token cost history |
 | `.runtime/crews.json` | Saved agent crews |

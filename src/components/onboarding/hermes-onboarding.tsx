@@ -171,7 +171,7 @@ export function HermesOnboarding() {
       if (data.activeProvider) {
         setSelectedProvider((current) => current || data.activeProvider || null)
       }
-    } catch {}
+    } catch { }
   }, [])
 
   const loadModels = useCallback(async () => {
@@ -416,7 +416,7 @@ export function HermesOnboarding() {
             setOauthError(pollData.message || 'Authentication failed')
             setOauthStep('error')
           }
-        } catch {}
+        } catch { }
       }, intervalMs)
     } catch (err) {
       setOauthError(
@@ -500,7 +500,7 @@ export function HermesOnboarding() {
                   filter: 'drop-shadow(0 8px 24px rgba(99,102,241,0.3))',
                 }}
               />
-              <h2 className="text-xl font-bold">Welcome to Ezity AI Office</h2>
+              <h2 className="text-xl font-bold">Welcome to EZity AI Office</h2>
               <p className="text-sm" style={mutedStyle}>
                 Works with any OpenAI-compatible backend. Hermes gateway APIs
                 unlock sessions, memory, skills, and other extras automatically.
@@ -525,7 +525,7 @@ export function HermesOnboarding() {
               <div className="text-4xl">🔌</div>
               <h2 className="text-lg font-bold">Connect Your Backend</h2>
               <p className="text-sm" style={mutedStyle}>
-                Start by verifying that Ezity AI Office can reach your
+                Start by verifying that EZity AI Office can reach your
                 OpenAI-compatible backend.
               </p>
 
@@ -622,7 +622,7 @@ export function HermesOnboarding() {
               <p className="text-center text-xs" style={mutedStyle}>
                 {canEditConfig
                   ? 'Save provider settings here, then choose a model before testing chat.'
-                  : 'This backend manages provider settings outside Ezity AI Office. Confirm the model you expect to use, then test chat.'}
+                  : 'This backend manages provider settings outside EZity AI Office. Confirm the model you expect to use, then test chat.'}
               </p>
 
               <div className="rounded-xl p-3 text-xs" style={cardStyle}>
@@ -886,8 +886,8 @@ export function HermesOnboarding() {
 
               <div className="flex gap-2">
                 {selectedProvider &&
-                canEditConfig &&
-                (needsApiKey || needsBaseUrl) ? (
+                  canEditConfig &&
+                  (needsApiKey || needsBaseUrl) ? (
                   <button
                     onClick={() => void saveProviderConfig()}
                     disabled={
@@ -1002,7 +1002,7 @@ export function HermesOnboarding() {
                       {testMessage}
                     </p>
                     {testMessage.includes('401') ||
-                    testMessage.toLowerCase().includes('key') ? (
+                      testMessage.toLowerCase().includes('key') ? (
                       <p className="mt-2 text-xs text-yellow-400">
                         Check your provider credentials and account access.
                       </p>
@@ -1013,7 +1013,7 @@ export function HermesOnboarding() {
                     ) : (
                       <p className="mt-2 text-xs text-yellow-400">
                         Confirm the backend is running and still reachable from
-                        Ezity AI Office.
+                        EZity AI Office.
                       </p>
                     )}
                   </div>

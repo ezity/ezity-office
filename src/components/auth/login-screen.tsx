@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { EzityLogoMark } from '@/components/brand/ezity-brand'
+import { EZityLogoMark } from '@/components/brand/ezity-brand'
 
 export function LoginScreen() {
   const [password, setPassword] = useState('')
@@ -41,13 +41,13 @@ export function LoginScreen() {
           {/* Logo */}
           <div className="mb-6 flex flex-col items-center gap-2 text-center">
             <div className="flex items-center gap-2.5">
-              <EzityLogoMark size="md" />
+              <EZityLogoMark size="md" />
               <h1 className="text-2xl font-bold tracking-tight text-primary-900">
-                Ezity AI Office
+                EZity AI Office
               </h1>
             </div>
             <p className="text-xs font-medium text-primary-500">
-              Ezity Solutions &middot; AI Workforce &amp; Operations
+              EZity Solutions &middot; AI Workforce &amp; Operations
             </p>
           </div>
 

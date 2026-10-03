@@ -227,7 +227,7 @@ export function ConductorSettingsDrawer({
 
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-sm font-medium" style={{ color: 'var(--theme-text)' }}>Ezity Staff Orchestration</span>
+              <span className="text-sm font-medium" style={{ color: 'var(--theme-text)' }}>EZity Staff Orchestration</span>
               <p className="text-xs" style={{ color: 'var(--theme-muted)' }}>Use Chief of Staff to delegate work to Accountant and Developer.</p>
             </div>
             <button

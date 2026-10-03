@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { hapticTap } from '@/lib/haptics'
 import { getTheme, setTheme } from '@/lib/theme'
-import { EzityLogoMark } from '@/components/brand/ezity-brand'
+import { EZityLogoMark } from '@/components/brand/ezity-brand'
 import {
   selectChatProfileDisplayName,
   useChatSettingsStore,
@@ -173,19 +173,19 @@ export function MobileHamburgerMenu() {
           style={{ borderBottom: '1px solid var(--color-border, #e5e7eb)' }}
         >
           <div className="flex items-center gap-2.5">
-            <EzityLogoMark size="sm" />
+            <EZityLogoMark size="sm" />
             <div className="flex flex-col leading-tight">
               <span
                 className="font-bold text-[15px] tracking-tight"
                 style={{ color: 'var(--color-ink, #111)' }}
               >
-                Ezity AI Office
+                EZity AI Office
               </span>
               <span
                 className="text-[11px]"
                 style={{ color: 'var(--color-muted, #888)' }}
               >
-                Ezity Solutions
+                EZity Solutions
               </span>
             </div>
           </div>
@@ -216,10 +216,10 @@ export function MobileHamburgerMenu() {
                 style={
                   isActive
                     ? {
-                        background:
-                          'var(--color-accent-muted, rgba(99,102,241,0.12))',
-                        color: 'var(--color-accent, #6366f1)',
-                      }
+                      background:
+                        'var(--color-accent-muted, rgba(99,102,241,0.12))',
+                      color: 'var(--color-accent, #6366f1)',
+                    }
                     : { color: 'var(--color-ink-muted, #555)' }
                 }
               >

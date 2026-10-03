@@ -41,7 +41,7 @@ import { SidebarSessions } from './sidebar/sidebar-sessions'
 import type { ChatOpenSettingsDetail } from '../chat-events'
 import type { SessionMeta } from '../types'
 import { SettingsDialog } from '@/components/settings-dialog'
-import { EzityLogoMark } from '@/components/brand/ezity-brand'
+import { EZityLogoMark } from '@/components/brand/ezity-brand'
 import {
   TooltipContent,
   TooltipProvider,
@@ -512,7 +512,7 @@ function ChatSidebarComponent({
   const _mod = useMemo(
     () =>
       typeof navigator !== 'undefined' &&
-      /Mac|iPod|iPhone|iPad/.test(navigator.userAgent)
+        /Mac|iPod|iPhone|iPad/.test(navigator.userAgent)
         ? '⌘'
         : 'Ctrl+',
     [],
@@ -613,9 +613,9 @@ function ChatSidebarComponent({
     setDeleteFriendlyId(session.friendlyId)
     setDeleteSessionTitle(
       session.label ||
-        session.title ||
-        session.derivedTitle ||
-        session.friendlyId,
+      session.title ||
+      session.derivedTitle ||
+      session.friendlyId,
     )
     setDeleteDialogOpen(true)
   }
@@ -730,7 +730,7 @@ function ChatSidebarComponent({
     return () => window.clearInterval(id)
   }, [])
 
-// ── Nav definitions ─────────────────────────────────────────────────
+  // ── Nav definitions ─────────────────────────────────────────────────
 
   // Search button definition (placed above Studio section)
   const searchItem: NavItemDef = {
@@ -946,19 +946,19 @@ function ChatSidebarComponent({
                   'h-auto py-1 pl-1.5 pr-2 justify-start gap-2.5',
                 )}
               >
-                <EzityLogoMark size="sm" />
+                <EZityLogoMark size="sm" />
                 <div className="flex flex-col text-left leading-none">
                   <span
                     className="text-sm font-semibold tracking-tight"
                     style={{ color: 'var(--theme-text)' }}
                   >
-                    Ezity AI Office
+                    EZity AI Office
                   </span>
                   <span
                     className="text-[10px] font-medium tracking-tight mt-0.5"
                     style={{ color: 'var(--theme-muted)' }}
                   >
-                    Ezity Solutions
+                    EZity Solutions
                   </span>
                 </div>
               </Link>
@@ -1031,7 +1031,7 @@ function ChatSidebarComponent({
               buttonVariants({ variant: 'ghost', size: 'sm' }),
               'w-full justify-start gap-2.5 px-3 py-2 text-primary-900 hover:bg-primary-200 dark:hover:bg-primary-800',
               isNewSessionActive &&
-                'bg-accent-500/10 text-accent-500 hover:bg-accent-50 dark:hover:bg-accent-900/300/15',
+              'bg-accent-500/10 text-accent-500 hover:bg-accent-50 dark:hover:bg-accent-900/300/15',
             )}
             data-tour="new-session"
           >

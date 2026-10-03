@@ -1,7 +1,7 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BrainIcon, CodeIcon, PuzzleIcon } from '@hugeicons/core-free-icons'
 import { motion } from 'motion/react'
-import { EzityLogoMark } from '@/components/brand/ezity-brand'
+import { EZityLogoMark } from '@/components/brand/ezity-brand'
 
 type SuggestionChip = {
   label: string
@@ -55,7 +55,7 @@ export function ChatEmptyState({
               transform: 'scale(1.6)',
             }}
           />
-          <EzityLogoMark
+          <EZityLogoMark
             size="xl"
             className="relative size-20 rounded-2xl"
           />
@@ -66,10 +66,10 @@ export function ChatEmptyState({
           className="text-xl font-semibold tracking-tight"
           style={{ color: 'var(--theme-text)' }}
         >
-          Ezity AI Office
+          EZity AI Office
         </h2>
         <p className="mt-1 text-xs font-medium" style={{ color: 'var(--theme-muted)' }}>
-          Ezity Solutions &middot; AI Workforce &amp; Operations
+          EZity Solutions &middot; AI Workforce &amp; Operations
         </p>
 
         {!compact && (

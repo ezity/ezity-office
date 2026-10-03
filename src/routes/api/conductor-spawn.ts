@@ -104,13 +104,13 @@ export function buildOrchestratorPrompt(
       : []),
     ...(options.maxParallel > 1
       ? [
-          '',
-          `Run up to ${options.maxParallel} workers in parallel when tasks are independent`,
-        ]
+        '',
+        `Run up to ${options.maxParallel} workers in parallel when tasks are independent`,
+      ]
       : [
-          '',
-          'Spawn workers one at a time. Do NOT wait for workers to finish — the UI handles tracking.',
-        ]),
+        '',
+        'Spawn workers one at a time. Do NOT wait for workers to finish — the UI handles tracking.',
+      ]),
     ...(options.supervised
       ? ['', 'Supervised mode is enabled. Require approval before each task.']
       : []),
@@ -128,7 +128,7 @@ export function buildOrchestratorPrompt(
   ].join('\n')
 }
 
-export function buildEzityOrchestratorPrompt(
+export function buildEZityOrchestratorPrompt(
   goal: string,
   skill: string,
   chiefOfStaff: AgentDefinition,
@@ -148,15 +148,15 @@ export function buildEzityOrchestratorPrompt(
   const rosterLines =
     staffRoster.length > 0
       ? staffRoster
-          .map((member) => {
-            const modelNote = member.model ? ` (Model: ${member.model})` : ''
-            return [
-              `- **${member.name}** (\`${member.id}\`)${modelNote} — ${member.roleLabel}`,
-              `  Focus: ${member.tags.join(', ')}`,
-              `  Directives: ${member.systemPrompt.slice(0, 160).trim()}...`,
-            ].join('\n')
-          })
-          .join('\n\n')
+        .map((member) => {
+          const modelNote = member.model ? ` (Model: ${member.model})` : ''
+          return [
+            `- **${member.name}** (\`${member.id}\`)${modelNote} — ${member.roleLabel}`,
+            `  Focus: ${member.tags.join(', ')}`,
+            `  Directives: ${member.systemPrompt.slice(0, 160).trim()}...`,
+          ].join('\n')
+        })
+        .join('\n\n')
       : '(No specialized staff defined; spawn general workers as needed)'
 
   return [
@@ -167,10 +167,10 @@ export function buildEzityOrchestratorPrompt(
     '## Dispatch Skill Instructions',
     '',
     skill ||
-      '(workspace-dispatch skill not found locally; proceed using create_task to spawn workers)',
+    '(workspace-dispatch skill not found locally; proceed using create_task to spawn workers)',
     '',
     '## Available Staff Roster',
-    'You lead and coordinate the following specialized Ezity staff members:',
+    'You lead and coordinate the following specialized EZity staff members:',
     '',
     rosterLines,
     '',
@@ -197,13 +197,13 @@ export function buildEzityOrchestratorPrompt(
       : []),
     ...(options.maxParallel > 1
       ? [
-          '',
-          `Run up to ${options.maxParallel} workers in parallel when tasks are independent`,
-        ]
+        '',
+        `Run up to ${options.maxParallel} workers in parallel when tasks are independent`,
+      ]
       : [
-          '',
-          'Spawn workers one at a time. Do NOT wait for workers to finish — the UI handles tracking.',
-        ]),
+        '',
+        'Spawn workers one at a time. Do NOT wait for workers to finish — the UI handles tracking.',
+      ]),
     ...(options.supervised
       ? ['', 'Supervised mode is enabled. Require approval before each task.']
       : []),
@@ -294,7 +294,7 @@ export const Route = createFileRoute('/api/conductor-spawn')({
 
           const skill = loadDispatchSkill()
 
-          // Resolve Ezity Chief of Staff and Staff Roster
+          // Resolve EZity Chief of Staff and Staff Roster
           const isGeneric =
             body.ezity === false ||
             body.staffOrchestrated === false ||
@@ -312,7 +312,7 @@ export const Route = createFileRoute('/api/conductor-spawn')({
             const roster = [accountant, developer].filter(
               (a): a is AgentDefinition => a !== null,
             )
-            prompt = buildEzityOrchestratorPrompt(
+            prompt = buildEZityOrchestratorPrompt(
               goal,
               skill,
               cosAgent,
@@ -369,15 +369,15 @@ export const Route = createFileRoute('/api/conductor-spawn')({
               jobId,
               jobName: result.name ?? jobName,
               runId: null,
-              isEzity: Boolean(cosAgent),
+              isEZity: Boolean(cosAgent),
               orchestrator: cosAgent
                 ? {
-                    id: cosAgent.id,
-                    name: cosAgent.name,
-                    emoji: cosAgent.emoji,
-                    role: cosAgent.roleLabel,
-                    model: effectiveOrchestratorModel,
-                  }
+                  id: cosAgent.id,
+                  name: cosAgent.name,
+                  emoji: cosAgent.emoji,
+                  role: cosAgent.roleLabel,
+                  model: effectiveOrchestratorModel,
+                }
                 : null,
             }),
             { status: 200, headers: { 'Content-Type': 'application/json' } },

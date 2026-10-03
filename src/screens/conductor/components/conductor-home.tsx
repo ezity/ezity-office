@@ -50,11 +50,11 @@ const QUICK_ACTIONS: Array<{
   icon: typeof Search01Icon
   prompt: string
 }> = [
-  { id: 'research', label: 'Research', icon: Search01Icon, prompt: 'Research the problem space, gather constraints, compare approaches, and propose the most viable plan.' },
-  { id: 'build', label: 'Build', icon: PlayIcon, prompt: 'Build the requested feature end-to-end, including implementation, validation, and a concise delivery summary.' },
-  { id: 'review', label: 'Review', icon: TaskDone01Icon, prompt: 'Review the current implementation for correctness, regressions, missing tests, and release risks.' },
-  { id: 'deploy', label: 'Deploy', icon: Rocket01Icon, prompt: 'Prepare the work for deployment, verify readiness, and summarize any operational follow-ups.' },
-]
+    { id: 'research', label: 'Research', icon: Search01Icon, prompt: 'Research the problem space, gather constraints, compare approaches, and propose the most viable plan.' },
+    { id: 'build', label: 'Build', icon: PlayIcon, prompt: 'Build the requested feature end-to-end, including implementation, validation, and a concise delivery summary.' },
+    { id: 'review', label: 'Review', icon: TaskDone01Icon, prompt: 'Review the current implementation for correctness, regressions, missing tests, and release risks.' },
+    { id: 'deploy', label: 'Deploy', icon: Rocket01Icon, prompt: 'Prepare the work for deployment, verify readiness, and summarize any operational follow-ups.' },
+  ]
 
 const OFFICE_NAMES = AGENT_NAMES.slice(0, 6)
 const ACTIVITY_PAGE_SIZE = 3
@@ -129,10 +129,10 @@ export function ConductorHome({ conductor, goalDraft, setGoalDraft, onSubmit, on
 
   // Build office rows for idle home view
   const homeOfficeRows = useMemo<AgentWorkingRow[]>(() => {
-    const isEzityStaff = conductor.conductorSettings.staffOrchestrated !== false
+    const isEZityStaff = conductor.conductorSettings.staffOrchestrated !== false
     const sessions = conductor.recentSessions
     if (sessions.length === 0) {
-      if (isEzityStaff) {
+      if (isEZityStaff) {
         return [
           {
             id: 'ezity-chief-of-staff',
@@ -188,7 +188,7 @@ export function ConductorHome({ conductor, goalDraft, setGoalDraft, onSubmit, on
       const statusText = `${s.status ?? ''} ${s.kind ?? ''}`.toLowerCase()
       const status: AgentWorkingRow['status'] = /error|failed/.test(statusText) ? 'error'
         : /pause/.test(statusText) ? 'paused'
-        : Date.now() - updatedAt < 120_000 ? 'active' : 'idle'
+          : Date.now() - updatedAt < 120_000 ? 'active' : 'idle'
       const agentName = typeof s.agentName === 'string' ? s.agentName : null
       const agentEmoji = typeof s.agentEmoji === 'string' ? s.agentEmoji : null
       const agentRole = typeof s.agentRole === 'string' ? s.agentRole : null
@@ -359,7 +359,7 @@ export function ConductorHome({ conductor, goalDraft, setGoalDraft, onSubmit, on
       <div className="space-y-2 text-center">
         <div className="relative flex items-center justify-center">
           <div className="inline-flex items-center gap-2.5 rounded-full border border-[var(--theme-border)] bg-[var(--theme-card)] px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.24em] text-[var(--theme-muted)]">
-            Ezity AI Office
+            EZity AI Office
             <span className="size-2.5 rounded-full bg-emerald-400" />
           </div>
           <div className="absolute right-0 flex items-center gap-2">
@@ -403,7 +403,7 @@ export function ConductorHome({ conductor, goalDraft, setGoalDraft, onSubmit, on
         <OfficeView
           agentRows={homeOfficeRows}
           missionRunning={homeOfficeRows.some((a) => a.status === 'active')}
-          onViewOutput={() => {}}
+          onViewOutput={() => { }}
           processType="parallel"
           companyName=""
           containerHeight={520}
@@ -458,58 +458,58 @@ export function ConductorHome({ conductor, goalDraft, setGoalDraft, onSubmit, on
             <div className="min-h-[140px] space-y-1.5">
               {hasMissionHistory
                 ? visibleActivityItems.map((item) => {
-                    const entry = item as MissionHistoryEntry
-                    return (
-                      <button
-                        key={entry.id}
-                        type="button"
-                        onClick={() => conductor.setSelectedHistoryEntry(entry)}
-                        className="flex w-full items-center gap-3 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-card)] px-3 py-2 text-left text-sm transition-colors hover:border-[var(--theme-accent)]"
+                  const entry = item as MissionHistoryEntry
+                  return (
+                    <button
+                      key={entry.id}
+                      type="button"
+                      onClick={() => conductor.setSelectedHistoryEntry(entry)}
+                      className="flex w-full items-center gap-3 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-card)] px-3 py-2 text-left text-sm transition-colors hover:border-[var(--theme-accent)]"
+                    >
+                      <span className="min-w-0 flex-1 truncate font-medium text-[var(--theme-text)]">{entry.goal}</span>
+                      <span
+                        className={cn(
+                          'w-[76px] shrink-0 rounded-full border px-2 py-0.5 text-center text-[10px] font-medium uppercase tracking-[0.12em]',
+                          entry.status === 'completed'
+                            ? 'border-emerald-400/35 bg-emerald-500/10 text-emerald-300'
+                            : 'border-red-400/35 bg-red-500/10 text-red-300',
+                        )}
                       >
-                        <span className="min-w-0 flex-1 truncate font-medium text-[var(--theme-text)]">{entry.goal}</span>
-                        <span
-                          className={cn(
-                            'w-[76px] shrink-0 rounded-full border px-2 py-0.5 text-center text-[10px] font-medium uppercase tracking-[0.12em]',
-                            entry.status === 'completed'
-                              ? 'border-emerald-400/35 bg-emerald-500/10 text-emerald-300'
-                              : 'border-red-400/35 bg-red-500/10 text-red-300',
-                          )}
-                        >
-                          {entry.status === 'completed' ? 'Complete' : 'Failed'}
-                        </span>
-                        <span className="w-[52px] shrink-0 text-right text-xs text-[var(--theme-muted-2)]">{formatRelativeTime(entry.completedAt, now)}</span>
-                        <span className="w-[72px] shrink-0 text-right text-xs text-[var(--theme-muted)]">{entry.totalTokens.toLocaleString()} tok</span>
-                      </button>
-                    )
-                  })
+                        {entry.status === 'completed' ? 'Complete' : 'Failed'}
+                      </span>
+                      <span className="w-[52px] shrink-0 text-right text-xs text-[var(--theme-muted-2)]">{formatRelativeTime(entry.completedAt, now)}</span>
+                      <span className="w-[72px] shrink-0 text-right text-xs text-[var(--theme-muted)]">{entry.totalTokens.toLocaleString()} tok</span>
+                    </button>
+                  )
+                })
                 : visibleActivityItems.map((item, i) => {
-                    const session = item as GatewaySession
-                    const label = session.label ?? session.key ?? ''
-                    const displayName = label.replace(/^worker-/, '').replace(/[-_]+/g, ' ')
-                    const tokens = typeof session.totalTokens === 'number' ? session.totalTokens : 0
-                    const updatedAt = typeof session.updatedAt === 'string' ? session.updatedAt : null
-                    const sessionStatus = deriveSessionStatus(session)
-                    const dotClass = sessionStatus === 'completed' ? 'bg-emerald-400' : sessionStatus === 'failed' ? 'bg-red-400' : 'bg-sky-400 animate-pulse'
+                  const session = item as GatewaySession
+                  const label = session.label ?? session.key ?? ''
+                  const displayName = label.replace(/^worker-/, '').replace(/[-_]+/g, ' ')
+                  const tokens = typeof session.totalTokens === 'number' ? session.totalTokens : 0
+                  const updatedAt = typeof session.updatedAt === 'string' ? session.updatedAt : null
+                  const sessionStatus = deriveSessionStatus(session)
+                  const dotClass = sessionStatus === 'completed' ? 'bg-emerald-400' : sessionStatus === 'failed' ? 'bg-red-400' : 'bg-sky-400 animate-pulse'
 
-                    return (
-                      <div
-                        key={session.key ?? `session-${i}`}
-                        className="flex items-center gap-3 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-card)] px-3 py-2 text-sm"
-                      >
-                        <span className="min-w-0 flex-1 truncate font-medium capitalize text-[var(--theme-text)]">{displayName}</span>
-                        <span className={cn('shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em]',
-                          sessionStatus === 'completed' ? 'border-emerald-400/35 bg-emerald-500/10 text-emerald-300'
-                            : sessionStatus === 'failed' ? 'border-red-400/35 bg-red-500/10 text-red-300'
+                  return (
+                    <div
+                      key={session.key ?? `session-${i}`}
+                      className="flex items-center gap-3 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-card)] px-3 py-2 text-sm"
+                    >
+                      <span className="min-w-0 flex-1 truncate font-medium capitalize text-[var(--theme-text)]">{displayName}</span>
+                      <span className={cn('shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em]',
+                        sessionStatus === 'completed' ? 'border-emerald-400/35 bg-emerald-500/10 text-emerald-300'
+                          : sessionStatus === 'failed' ? 'border-red-400/35 bg-red-500/10 text-red-300'
                             : 'border-sky-400/35 bg-sky-500/10 text-sky-300',
-                        )}>
-                          <span className={cn('mr-1 inline-block size-1.5 rounded-full align-middle', dotClass)} />
-                          {sessionStatus}
-                        </span>
-                        <span className="shrink-0 text-xs text-[var(--theme-muted-2)]">{formatRelativeTime(updatedAt, now)}</span>
-                        <span className="shrink-0 text-xs text-[var(--theme-muted)]">{tokens.toLocaleString()} tok</span>
-                      </div>
-                    )
-                  })}
+                      )}>
+                        <span className={cn('mr-1 inline-block size-1.5 rounded-full align-middle', dotClass)} />
+                        {sessionStatus}
+                      </span>
+                      <span className="shrink-0 text-xs text-[var(--theme-muted-2)]">{formatRelativeTime(updatedAt, now)}</span>
+                      <span className="shrink-0 text-xs text-[var(--theme-muted)]">{tokens.toLocaleString()} tok</span>
+                    </div>
+                  )
+                })}
             </div>
           ) : (
             <div className="rounded-xl border border-dashed border-[var(--theme-border)] px-4 py-6 text-center text-sm text-[var(--theme-muted)]">

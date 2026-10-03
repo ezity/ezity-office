@@ -62,7 +62,7 @@ export function MobileSetupModal({ isOpen, onClose }: MobileSetupModalProps) {
   const steps = [
     {
       title: 'Install Tailscale on your desktop',
-      body: 'Install Tailscale on the machine running Ezity AI Office, then sign in.',
+      body: 'Install Tailscale on the machine running EZity AI Office, then sign in.',
       showTailscaleIcon: true,
       action: (
         <a
@@ -77,7 +77,7 @@ export function MobileSetupModal({ isOpen, onClose }: MobileSetupModalProps) {
     },
     {
       title: 'Keep your backend reachable',
-      body: 'Ezity AI Office can talk to any OpenAI-compatible backend on mobile too. Make sure both the workspace and backend stay reachable over Tailscale or your local network.',
+      body: 'EZity AI Office can talk to any OpenAI-compatible backend on mobile too. Make sure both the workspace and backend stay reachable over Tailscale or your local network.',
       showTailscaleIcon: false,
       action: (
         <div className="rounded-lg border border-primary-700 bg-primary-950 px-4 py-3 text-sm text-primary-200">
@@ -112,7 +112,7 @@ export function MobileSetupModal({ isOpen, onClose }: MobileSetupModalProps) {
       ),
     },
     {
-      title: 'Open Ezity AI Office on your phone',
+      title: 'Open EZity AI Office on your phone',
       body:
         networkUrl?.source === 'tailscale'
           ? 'Your Tailscale address. Open this on your phone browser to use the same workspace.'
@@ -124,7 +124,7 @@ export function MobileSetupModal({ isOpen, onClose }: MobileSetupModalProps) {
         <button
           type="button"
           onClick={() =>
-            networkUrl && writeTextToClipboard(networkUrl.url).catch(() => {})
+            networkUrl && writeTextToClipboard(networkUrl.url).catch(() => { })
           }
           className="group flex w-full items-center justify-between rounded-lg border border-primary-700 bg-primary-950 px-4 py-3 transition-colors hover:border-accent-500/50"
         >
@@ -231,9 +231,8 @@ export function MobileSetupModal({ isOpen, onClose }: MobileSetupModalProps) {
               {steps.map((_, index) => (
                 <span
                   key={`step-indicator-${index}`}
-                  className={`h-2 w-6 rounded-full transition-colors ${
-                    index === step ? 'bg-accent-500' : 'bg-primary-700'
-                  }`}
+                  className={`h-2 w-6 rounded-full transition-colors ${index === step ? 'bg-accent-500' : 'bg-primary-700'
+                    }`}
                 />
               ))}
             </div>

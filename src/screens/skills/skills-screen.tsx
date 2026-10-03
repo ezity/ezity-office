@@ -375,8 +375,8 @@ export function SkillsScreen() {
   function handleTabChange(nextTab: string) {
     const parsedTab: SkillsTab =
       nextTab === 'installed' ||
-      nextTab === 'marketplace' ||
-      nextTab === 'featured'
+        nextTab === 'marketplace' ||
+        nextTab === 'featured'
         ? nextTab
         : 'installed'
 
@@ -410,7 +410,7 @@ export function SkillsScreen() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="space-y-1.5">
               <p className="text-xs font-medium uppercase text-[var(--theme-muted)] tabular-nums">
-                Ezity AI Office Marketplace
+                EZity AI Office Marketplace
               </p>
               <h1 className="text-2xl font-medium text-ink text-balance sm:text-3xl">
                 Skills Browser
@@ -873,7 +873,7 @@ function SecurityScanCard({ security }: { security: SecurityRisk }) {
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <span className="text-[var(--theme-muted)] font-medium w-24 shrink-0">
-              Ezity AI Office
+              EZity AI Office
             </span>
             <span
               className={cn(

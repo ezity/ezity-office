@@ -1,12 +1,12 @@
-# Ezity AI Office
+# EZity AI Office
 
-**Ezity AI Office** is an enterprise AI workforce and operations workspace maintained by **Ezity Solutions**.
+**EZity AI Office** is an enterprise AI workforce and operations workspace maintained by **EZity Solutions**.
 
 ## Upstream Relationship
 
 - **Upstream Repository:** [JPeetz/Hermes-Studio](https://github.com/JPeetz/Hermes-Studio)
-- **Product Name:** Ezity AI Office
-- **Company:** Ezity Solutions
+- **Product Name:** EZity AI Office
+- **Company:** EZity Solutions
 - **Short Descriptor:** AI Workforce & Operations
 
 ## Architecture & Compatibility Principles
@@ -28,6 +28,7 @@ To ensure continuous, painless merges with upstream releases of Hermes Studio, t
 ## Contributing & Syncing Upstream
 
 When adding features or syncing upstream changes:
+
 - Keep downstream-specific changes isolated.
 - Avoid modifying core runtime wiring or renaming internal identifiers.
 - Test compatibility against the standard Hermes Gateway.

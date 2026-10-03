@@ -17,8 +17,8 @@ afterEach(() => {
   rmSync(tmpDir, { recursive: true, force: true })
 })
 
-describe('Phase B: Built-in Ezity Staff Definitions', () => {
-  it('loads all three Ezity staff definitions', async () => {
+describe('Phase B: Built-in EZity Staff Definitions', () => {
+  it('loads all three EZity staff definitions', async () => {
     const { getAgent, listAgents, EZITY_STAFF } = await import(
       '@/server/agent-definitions-store'
     )
@@ -217,7 +217,7 @@ describe('Phase A: streamChat Runtime Persona and Model Propagation', () => {
       {
         message: 'Hello, what are your directives?',
         model: 'deepseek-chat',
-        system_message: 'You are the Chief of Staff for Ezity Solutions.',
+        system_message: 'You are the Chief of Staff for EZity Solutions.',
       },
       {
         onEvent(ev) {
@@ -230,10 +230,10 @@ describe('Phase A: streamChat Runtime Persona and Model Propagation', () => {
     expect(capturedBody).toBeDefined()
     expect(capturedBody.model).toBe('deepseek-chat')
     expect(capturedBody.system_message).toBe(
-      'You are the Chief of Staff for Ezity Solutions.',
+      'You are the Chief of Staff for EZity Solutions.',
     )
     expect(capturedBody.system_msg).toBe(
-      'You are the Chief of Staff for Ezity Solutions.',
+      'You are the Chief of Staff for EZity Solutions.',
     )
     expect(events.length).toBeGreaterThan(0)
   })

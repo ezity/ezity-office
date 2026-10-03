@@ -136,7 +136,7 @@ export function ConductorActive({ conductor }: ConductorActiveProps) {
       })
     }
 
-    if (conductor.isEzityStaff) {
+    if (conductor.isEZityStaff) {
       return [{
         id: conductor.orchestratorSessionKey || 'conductor-chief-of-staff',
         name: 'Chief of Staff',
@@ -170,7 +170,7 @@ export function ConductorActive({ conductor }: ConductorActiveProps) {
     conductor.workerOutputs,
     conductor.isPaused,
     conductor.goal,
-    conductor.isEzityStaff,
+    conductor.isEZityStaff,
     conductor.orchestratorSessionKey,
     conductor.streamText,
     conductor.conductorSettings.orchestratorModel,
@@ -188,7 +188,7 @@ export function ConductorActive({ conductor }: ConductorActiveProps) {
       {/* Header badge */}
       <div className="text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--theme-border)] bg-[var(--theme-card)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[var(--theme-muted)]">
-          Ezity AI Office
+          EZity AI Office
           <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
         </div>
       </div>
@@ -279,9 +279,9 @@ export function ConductorActive({ conductor }: ConductorActiveProps) {
         <OfficeView
           agentRows={officeAgentRows}
           missionRunning
-          onViewOutput={() => {}}
+          onViewOutput={() => { }}
           processType="parallel"
-          companyName="Ezity AI Office"
+          companyName="EZity AI Office"
           containerHeight={360}
           hideHeader
         />
@@ -298,9 +298,9 @@ export function ConductorActive({ conductor }: ConductorActiveProps) {
               const isSelected = selectedTaskId === task.id
               const statusDot =
                 task.status === 'complete' ? 'bg-emerald-400'
-                : task.status === 'running' ? 'bg-sky-400 animate-pulse'
-                : task.status === 'failed' ? 'bg-red-400'
-                : 'bg-zinc-500'
+                  : task.status === 'running' ? 'bg-sky-400 animate-pulse'
+                    : task.status === 'failed' ? 'bg-red-400'
+                      : 'bg-zinc-500'
               return (
                 <button
                   key={task.id}
@@ -379,8 +379,8 @@ function WorkerCards({
         const workerOutput = conductor.workerOutputs[worker.key] ?? ''
         const workerStartedAt =
           typeof worker.raw.createdAt === 'string' ? worker.raw.createdAt
-          : typeof worker.raw.startedAt === 'string' ? worker.raw.startedAt
-          : conductor.missionStartedAt
+            : typeof worker.raw.startedAt === 'string' ? worker.raw.startedAt
+              : conductor.missionStartedAt
         const workerEndTime =
           worker.status === 'complete' || worker.status === 'stale'
             ? new Date(worker.updatedAt ?? new Date().toISOString()).getTime()

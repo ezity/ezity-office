@@ -70,7 +70,7 @@ export type MissionHistoryEntry = {
   completeSummary?: string
   workerDetails?: MissionHistoryWorkerDetail[]
   error?: string | null
-  isEzityStaff?: boolean
+  isEZityStaff?: boolean
 }
 
 export type StreamEvent =
@@ -96,7 +96,7 @@ export type PersistedMission = {
   planText: string
   completedAt: string | null
   tasks: ConductorTask[]
-  isEzityStaff?: boolean
+  isEZityStaff?: boolean
 }
 
 /** Default settings — empty model strings = Hermes default */

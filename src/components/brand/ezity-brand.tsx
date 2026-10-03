@@ -1,7 +1,7 @@
 import type { HTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
 
-export type EzityLogoMarkProps = HTMLAttributes<HTMLDivElement> & {
+export type EZityLogoMarkProps = HTMLAttributes<HTMLDivElement> & {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 }
 
@@ -14,15 +14,15 @@ const SIZE_MAP = {
 }
 
 /**
- * Centralized Ezity brand logo mark.
+ * Centralized EZity brand logo mark.
  * Defaults to the themed 'EA' fallback badge using design system tokens.
  * Replace or enhance this component when final graphic assets are supplied.
  */
-export function EzityLogoMark({
+export function EZityLogoMark({
   size = 'md',
   className,
   ...props
-}: EzityLogoMarkProps) {
+}: EZityLogoMarkProps) {
   return (
     <div
       className={cn(
@@ -35,7 +35,7 @@ export function EzityLogoMark({
         boxShadow:
           '0 2px 8px color-mix(in srgb, var(--theme-accent) 35%, transparent)',
       }}
-      aria-label="Ezity AI Office"
+      aria-label="EZity AI Office"
       {...props}
     >
       EA
@@ -43,7 +43,7 @@ export function EzityLogoMark({
   )
 }
 
-export type EzityBrandHeaderProps = HTMLAttributes<HTMLDivElement> & {
+export type EZityBrandHeaderProps = HTMLAttributes<HTMLDivElement> & {
   size?: 'sm' | 'md' | 'lg'
   showTagline?: boolean
 }
@@ -51,15 +51,15 @@ export type EzityBrandHeaderProps = HTMLAttributes<HTMLDivElement> & {
 /**
  * Reusable brand block with mark, title, and company / subtitle.
  */
-export function EzityBrandHeader({
+export function EZityBrandHeader({
   size = 'md',
   showTagline = true,
   className,
   ...props
-}: EzityBrandHeaderProps) {
+}: EZityBrandHeaderProps) {
   return (
     <div className={cn('flex items-center gap-3', className)} {...props}>
-      <EzityLogoMark size={size} />
+      <EZityLogoMark size={size} />
       <div className="flex flex-col text-left leading-tight">
         <span
           className={cn(
@@ -70,14 +70,14 @@ export function EzityBrandHeader({
           )}
           style={{ color: 'var(--theme-text, #111)' }}
         >
-          Ezity AI Office
+          EZity AI Office
         </span>
         {showTagline && (
           <span
             className="text-[11px] font-medium"
             style={{ color: 'var(--theme-muted, #888)' }}
           >
-            Ezity Solutions
+            EZity Solutions
           </span>
         )}
       </div>

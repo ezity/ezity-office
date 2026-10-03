@@ -36,7 +36,7 @@ export function decorateWithAgent(s: Record<string, unknown>): Record<string, un
     ''
   let agentId = key ? getSessionAgent(key) : null
 
-  // If not explicitly mapped yet, inspect session metadata for Ezity staff worker conventions
+  // If not explicitly mapped yet, inspect session metadata for EZity staff worker conventions
   if (!agentId && key) {
     const label = typeof s.label === 'string' ? s.label.toLowerCase() : ''
     const title = typeof s.title === 'string' ? s.title.toLowerCase() : ''

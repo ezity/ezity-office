@@ -147,69 +147,69 @@ const PROVIDER_CARDS: Array<{
   authType: 'oauth' | 'api_key' | 'none'
   envKey?: string
 }> = [
-  {
-    id: 'nous',
-    name: 'Nous Portal',
-    logo: '/providers/nous.png',
-    models: ['hermes-3-llama-3.1-405b', 'hermes-3-llama-3.1-70b'],
-    authType: 'oauth',
-  },
-  {
-    id: 'openai-codex',
-    name: 'OpenAI Codex',
-    logo: '/providers/openai.png',
-    models: ['gpt-5.4', 'gpt-5.3-codex', 'gpt-4o'],
-    authType: 'oauth',
-  },
-  {
-    id: 'anthropic',
-    name: 'Anthropic',
-    logo: '/providers/anthropic.png',
-    models: ['claude-sonnet-4-6', 'claude-opus-4-6', 'claude-haiku-3-5'],
-    authType: 'api_key',
-    envKey: 'ANTHROPIC_API_KEY',
-  },
-  {
-    id: 'openrouter',
-    name: 'OpenRouter',
-    logo: '/providers/openrouter.png',
-    models: ['auto', 'deepseek/deepseek-r1', 'google/gemini-2.5-pro'],
-    authType: 'api_key',
-    envKey: 'OPENROUTER_API_KEY',
-  },
-  {
-    id: 'zai',
-    name: 'Z.AI / GLM',
-    logo: '/providers/zhipu.png',
-    models: ['glm-4-plus', 'glm-4-air'],
-    authType: 'api_key',
-    envKey: 'GLM_API_KEY',
-  },
-  {
-    id: 'kimi-coding',
-    name: 'Kimi',
-    logo: '/providers/kimi.png',
-    models: ['kimi-latest', 'moonshot-v1-128k'],
-    authType: 'api_key',
-    envKey: 'KIMI_API_KEY',
-  },
-  {
-    id: 'minimax',
-    name: 'MiniMax',
-    logo: '/providers/minimax.png',
-    models: ['MiniMax-M2.5', 'MiniMax-M2.5-Lightning'],
-    authType: 'api_key',
-    envKey: 'MINIMAX_API_KEY',
-  },
-  {
-    id: 'ollama',
-    name: 'Ollama',
-    logo: '/providers/ollama.png',
-    models: ['llama3.1:70b', 'qwen3:32b', 'deepseek-r1:32b'],
-    authType: 'none',
-  },
-  { id: 'custom', name: 'Custom', logo: '', models: [], authType: 'api_key' },
-]
+    {
+      id: 'nous',
+      name: 'Nous Portal',
+      logo: '/providers/nous.png',
+      models: ['hermes-3-llama-3.1-405b', 'hermes-3-llama-3.1-70b'],
+      authType: 'oauth',
+    },
+    {
+      id: 'openai-codex',
+      name: 'OpenAI Codex',
+      logo: '/providers/openai.png',
+      models: ['gpt-5.4', 'gpt-5.3-codex', 'gpt-4o'],
+      authType: 'oauth',
+    },
+    {
+      id: 'anthropic',
+      name: 'Anthropic',
+      logo: '/providers/anthropic.png',
+      models: ['claude-sonnet-4-6', 'claude-opus-4-6', 'claude-haiku-3-5'],
+      authType: 'api_key',
+      envKey: 'ANTHROPIC_API_KEY',
+    },
+    {
+      id: 'openrouter',
+      name: 'OpenRouter',
+      logo: '/providers/openrouter.png',
+      models: ['auto', 'deepseek/deepseek-r1', 'google/gemini-2.5-pro'],
+      authType: 'api_key',
+      envKey: 'OPENROUTER_API_KEY',
+    },
+    {
+      id: 'zai',
+      name: 'Z.AI / GLM',
+      logo: '/providers/zhipu.png',
+      models: ['glm-4-plus', 'glm-4-air'],
+      authType: 'api_key',
+      envKey: 'GLM_API_KEY',
+    },
+    {
+      id: 'kimi-coding',
+      name: 'Kimi',
+      logo: '/providers/kimi.png',
+      models: ['kimi-latest', 'moonshot-v1-128k'],
+      authType: 'api_key',
+      envKey: 'KIMI_API_KEY',
+    },
+    {
+      id: 'minimax',
+      name: 'MiniMax',
+      logo: '/providers/minimax.png',
+      models: ['MiniMax-M2.5', 'MiniMax-M2.5-Lightning'],
+      authType: 'api_key',
+      envKey: 'MINIMAX_API_KEY',
+    },
+    {
+      id: 'ollama',
+      name: 'Ollama',
+      logo: '/providers/ollama.png',
+      models: ['llama3.1:70b', 'qwen3:32b', 'deepseek-r1:32b'],
+      authType: 'none',
+    },
+    { id: 'custom', name: 'Custom', logo: '', models: [], authType: 'api_key' },
+  ]
 
 function HermesContent() {
   const configAvailable = useFeatureAvailable('config')
@@ -259,7 +259,7 @@ function HermesContent() {
         }
         setConfiguredKeys(keys)
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   const save = async (updates: {
@@ -411,7 +411,7 @@ function HermesContent() {
             {(availableModels.length > 0
               ? availableModels
               : PROVIDER_CARDS.find((p) => p.id === activeProvider)?.models ||
-                []
+              []
             ).map((model) => (
               <button
                 key={model}
@@ -1175,13 +1175,13 @@ function _AdvancedContent() {
             className={cn(
               'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium',
               connectionStatus === 'connected' &&
-                'border-green-500/35 bg-green-500/10 text-green-600',
+              'border-green-500/35 bg-green-500/10 text-green-600',
               connectionStatus === 'failed' &&
-                'border-red-500/35 bg-red-500/10 text-red-600',
+              'border-red-500/35 bg-red-500/10 text-red-600',
               connectionStatus === 'testing' &&
-                'border-accent-500/35 bg-accent-500/10 text-accent-600',
+              'border-accent-500/35 bg-accent-500/10 text-accent-600',
               connectionStatus === 'idle' &&
-                'border-primary-300 bg-primary-100 text-primary-700',
+              'border-primary-300 bg-primary-100 text-primary-700',
             )}
           >
             {connectionStatus === 'idle'
@@ -1290,7 +1290,7 @@ function AgentBehaviorContent() {
       .then((d: any) => {
         setConfig((d.config?.agent as Record<string, unknown>) || {})
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   const save = async (key: string, value: unknown) => {
@@ -1382,13 +1382,13 @@ function SmartRoutingContent() {
           (d.config?.smart_model_routing as Record<string, unknown>) || {},
         )
       })
-      .catch(() => {})
+      .catch(() => { })
     fetch('/api/models')
       .then((r) => r.json())
       .then((d: any) => {
         setModels(d.models || [])
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   const save = async (key: string, value: unknown) => {
@@ -1493,7 +1493,7 @@ function VoiceContent() {
         setTts((d.config?.tts as Record<string, unknown>) || {})
         setStt((d.config?.stt as Record<string, unknown>) || {})
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   const saveTts = async (key: string, value: unknown) => {
@@ -1626,7 +1626,7 @@ function DisplayContent() {
       .then((d: any) => {
         setConfig((d.config?.display as Record<string, unknown>) || {})
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   const save = async (key: string, value: unknown) => {
@@ -1758,7 +1758,7 @@ export function SettingsDialog({
                 Settings
               </DialogTitle>
               <DialogDescription className="sr-only">
-                Configure Ezity AI Office
+                Configure EZity AI Office
               </DialogDescription>
             </div>
             <DialogClose
@@ -1796,7 +1796,7 @@ export function SettingsDialog({
                       className={cn(
                         'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-primary-600 transition-colors hover:bg-primary-100',
                         active === s.id &&
-                          'bg-accent-50 font-medium text-accent-700',
+                        'bg-accent-50 font-medium text-accent-700',
                       )}
                     >
                       <HugeiconsIcon

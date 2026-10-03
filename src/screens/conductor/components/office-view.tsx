@@ -492,7 +492,7 @@ export function OfficeView({
   onNewMission,
   selectedOutputAgentId,
   activeTemplateName: _activeTemplateName,
-  companyName = 'Ezity AI Office',
+  companyName = 'EZity AI Office',
   agentTasks = {},
   remoteSessions = [],
   onViewRemoteOutput,
@@ -776,9 +776,9 @@ export function OfficeView({
           {/* Furniture */}
           {socialSpots.map((spot, i) => (
             spot.type === 'coffee' ? <CoffeeMachineSVG key={i} x={spot.x} y={spot.y} /> :
-            spot.type === 'water' ? <WaterCoolerSVG key={i} x={spot.x} y={spot.y} /> :
-            spot.type === 'snack' ? <SnackBarSVG key={i} x={spot.x} y={spot.y} /> :
-            <PlantSVG key={i} x={spot.x} y={spot.y} />
+              spot.type === 'water' ? <WaterCoolerSVG key={i} x={spot.x} y={spot.y} /> :
+                spot.type === 'snack' ? <SnackBarSVG key={i} x={spot.x} y={spot.y} /> :
+                  <PlantSVG key={i} x={spot.x} y={spot.y} />
           ))}
 
           {/* Extra plants */}
