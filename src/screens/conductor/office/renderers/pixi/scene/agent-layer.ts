@@ -33,6 +33,7 @@ interface AgentDisplayObject {
   sessionKey?: string
   lastAnimState: AgentAnimationState
   lastFacing: AgentFacing
+  currentTextureKey: string
   screenPosition: ScreenPoint
 }
 
@@ -107,30 +108,11 @@ export class AgentLayer extends Container {
 
       obj.screenPosition = screenPos
 
-      // Micro-animation bobbing
-      let bobY = 0
-      let legCycle = 1
+      // Unique phase per agent for organic, unsynchronized life
+      const agentPhase = (agentId.charCodeAt(0) * 1.618 + agentId.length * 2.718) % (Math.PI * 2)
+      const t = this.animTimer + agentPhase
 
-      if (moveState.isMoving) {
-        // Walking bounce cycle (stride frequency ~ 8 Hz)
-        bobY = Math.sin(this.animTimer * 16) * 3
-        legCycle = Math.sin(this.animTimer * 16) > 0 ? 1 : -1
-      } else if (moveState.animationState === 'idle') {
-        // Idle gentle breathing
-        bobY = Math.sin(this.animTimer * 2.5) * 1.5
-      }
-
-      // Check if texture needs update based on state or role
-      if (
-        obj.lastAnimState !== moveState.animationState ||
-        obj.lastFacing !== moveState.facing
-      ) {
-        this.updateAgentTexture(agentId, obj, moveState.animationState, moveState.facing)
-        obj.lastAnimState = moveState.animationState
-        obj.lastFacing = moveState.facing
-      }
-
-      // Update chair visibility and orientation
+      const isFacingLeft = moveState.facing.endsWith('left')
       const isSeated =
         moveState.animationState === 'sit' ||
         moveState.animationState === 'work' ||
@@ -139,17 +121,85 @@ export class AgentLayer extends Container {
 
       obj.chairSprite.visible = isSeated
 
-      // Flip sprite horizontally when facing left vs right
-      const isFacingLeft = moveState.facing.endsWith('left')
-      obj.sprite.scale.x = isFacingLeft ? -Math.abs(obj.sprite.scale.x) : Math.abs(obj.sprite.scale.x)
+      let bobY = 0
 
-      if (isSeated) {
+      if (moveState.isMoving || moveState.animationState === 'walk') {
+        // Walking bounce cycle and stride tilt
+        const step = Math.sin(t * 14)
+        bobY = -Math.abs(step) * 3.5
+        obj.sprite.rotation = step * 0.05
+        obj.sprite.position.set(0, 0)
+        obj.sprite.scale.set(isFacingLeft ? -1 : 1, 1)
+
+        // Shadow compresses slightly during stride apex
+        obj.shadow.scale.set(1 - Math.abs(step) * 0.15, 1 - Math.abs(step) * 0.1)
+        obj.shadow.alpha = 0.25
+
+        this.updateAgentTexture(agentId, obj, 'walk')
+      } else if (isSeated) {
         // Match chair orientation with agent's facing direction
         obj.chairSprite.scale.x = isFacingLeft
           ? -Math.abs(obj.chairSprite.scale.x)
           : Math.abs(obj.chairSprite.scale.x)
         obj.chairSprite.position.set(isFacingLeft ? 4 : -4, -6)
+
+        // Seated gentle breathing (squash & stretch from the hips/waist)
+        const breath = Math.sin(t * 2.2)
+        const breathScaleY = 1 + breath * 0.024
+        const breathScaleX = 1 - breath * 0.012
+
+        // Active working typing bursts vs reading/resting
+        // Cycle: ~3.5s typing burst, ~2s pause
+        const burstEnvelope = Math.sin(t * 0.85)
+
+        if (burstEnvelope > 0.15) {
+          // In active typing burst: alternate between typing frame and sit frame
+          const isKeyStroke = Math.sin(t * 11) > 0
+          this.updateAgentTexture(agentId, obj, isKeyStroke ? 'work' : 'sit')
+
+          // Typing keystroke micro-motion
+          obj.sprite.position.y = Math.sin(t * 11) * 0.6
+          // Focus head nod towards monitor/desk
+          obj.sprite.rotation = (isFacingLeft ? -1 : 1) * (0.015 + Math.sin(t * 1.5) * 0.01)
+        } else {
+          // Thoughtful pause: reading screen, resting hands
+          this.updateAgentTexture(agentId, obj, 'sit')
+          obj.sprite.position.y = 0
+          obj.sprite.rotation = (isFacingLeft ? -1 : 1) * Math.sin(t * 0.9) * 0.012
+        }
+
+        obj.sprite.scale.set(
+          (isFacingLeft ? -1 : 1) * breathScaleX,
+          breathScaleY,
+        )
+
+        // Shadow stays anchored underneath chair
+        obj.shadow.scale.set(1, 1)
+        obj.shadow.alpha = 0.25
+      } else {
+        // Standing idle breathing and subtle weight shift
+        const breath = Math.sin(t * 2.0)
+        const breathScaleY = 1 + breath * 0.035
+        const breathScaleX = 1 - breath * 0.018
+
+        obj.sprite.scale.set(
+          (isFacingLeft ? -1 : 1) * breathScaleX,
+          breathScaleY,
+        )
+        // Gentle weight shift sway
+        obj.sprite.rotation = Math.sin(t * 1.2) * 0.02
+        obj.sprite.position.set(0, 0)
+
+        // Ground shadow breathing
+        obj.shadow.scale.set(1 + breath * 0.04, 1 + breath * 0.02)
+        obj.shadow.alpha = 0.25 - breath * 0.03
+
+        this.updateAgentTexture(agentId, obj, 'idle')
       }
+
+      // Track last state
+      obj.lastAnimState = moveState.animationState
+      obj.lastFacing = moveState.facing
 
       // Position container and scale with camera zoom
       obj.container.position.set(screenPos.x, screenPos.y + bobY)
@@ -235,6 +285,7 @@ export class AgentLayer extends Container {
       sessionKey: agent.sessionKey,
       lastAnimState: 'sit',
       lastFacing: 'down-left',
+      currentTextureKey: textureKey,
       screenPosition: { x: 0, y: 0 },
     }
   }
@@ -242,13 +293,13 @@ export class AgentLayer extends Container {
   private updateAgentTexture(
     agentId: string,
     obj: AgentDisplayObject,
-    animState: AgentAnimationState,
-    facing: AgentFacing,
+    poseKey: string,
   ): void {
-    const poseKey = animState === 'walk' ? 'walk' : animState === 'sit' ? 'sit' : 'idle'
     const textureKey = this.getTextureKeyForRole(agentId, poseKey)
+    if (obj.currentTextureKey === textureKey) return
     const texture = getOfficeTexture(textureKey, this.app)
     obj.sprite.texture = texture
+    obj.currentTextureKey = textureKey
   }
 
   private getTextureKeyForRole(agentId: string, pose: string): string {

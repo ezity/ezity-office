@@ -12,6 +12,8 @@
     "start": "NODE_OPTIONS=\"--max-old-space-size=2048\" node server-entry.js",
     "deploy": "npm run build && pkill -f 'node server-entry.js' 2>/dev/null; sleep 1; NODE_OPTIONS=\"--max-old-space-size=2048\" node server-entry.js",
     "start:dev": "NODE_OPTIONS=\"--max-old-space-size=2048\" vite dev --port 3000",
+    "clean": "rm -rf node_modules/.vite .tanstack dist",
+    "dev:clean": "npm run clean && NODE_OPTIONS=\"--max-old-space-size=2048\" vite dev --force --port 3000",
     "preview": "vite preview",
     "test": "vitest run",
     "test:e2e": "playwright test",

@@ -81,6 +81,8 @@ export type OfficeAgentSceneNode = {
   activeWorkItemIds: Array<string>
 }
 
+export type OfficeAgentSceneState = OfficeAgentSceneNode
+
 export type OfficeRoomSceneNode = {
   id: OfficeZoneId
   name: string
