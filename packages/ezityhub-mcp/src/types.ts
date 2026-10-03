@@ -113,3 +113,63 @@ export interface TrialBalanceItem {
   credit_balance: number
   net_balance: number
 }
+
+export type WorkflowState =
+  | 'Draft'
+  | 'Pending Approval'
+  | 'Approved'
+  | 'Posted'
+  | 'Rejected'
+
+export interface WriteAuditRecord extends AuditRecord {
+  actingAgentId?: string
+  agentDefinitionId?: string
+  humanApprover?: string
+  idempotencyKey?: string
+  recordId?: string
+  beforeState?: unknown
+  afterState?: unknown
+}
+
+export interface JournalLineDraftInput {
+  account_id: string
+  debit: string
+  credit: string
+  business_unit_id?: string | null
+  cost_centre_id?: string | null
+  cashflow_category?:
+    | 'operating'
+    | 'investing'
+    | 'financing'
+    | 'internal_transfer'
+    | null
+}
+
+export interface CreateJournalDraftInput {
+  posting_date: string
+  description: string
+  currency?: 'MYR'
+  lines: Array<JournalLineDraftInput>
+}
+
+export interface InvoiceLineDraftInput {
+  product_id?: string | null
+  description: string
+  quantity: number
+  unit_price: number
+  discount_pct?: number | null
+  revenue_account_id?: string | null
+  business_unit_id?: string | null
+  cost_centre_id?: string | null
+}
+
+export interface CreateInvoiceDraftInput {
+  invoice_id?: string | null
+  customer_party_id: string
+  issue_date: string
+  due_date: string
+  notes?: string | null
+  sales_order_id?: string | null
+  auto_submit?: boolean
+  lines: Array<InvoiceLineDraftInput>
+}

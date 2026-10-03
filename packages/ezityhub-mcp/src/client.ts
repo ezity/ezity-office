@@ -1,6 +1,13 @@
 import { auditLogger } from './audit.js'
-import type { ErrorCode, EzityHubConfig, StructuredErrorResponse } from './types.js'
-import type { AuditLogger } from './audit.js';
+import type {
+  CreateInvoiceDraftInput,
+  CreateJournalDraftInput,
+  ErrorCode,
+  EzityHubConfig,
+  StructuredErrorResponse,
+  WriteAuditRecord,
+} from './types.js'
+import type { AuditLogger } from './audit.js'
 
 export class EzityHubApiError extends Error {
   public readonly code: ErrorCode
@@ -38,6 +45,7 @@ export class EzityHubClient {
   private config: EzityHubConfig
   private logger: AuditLogger
   private fetchFn: typeof fetch
+  private idempotencyCache = new Map<string, any>()
 
   constructor(
     config: EzityHubConfig,
@@ -53,12 +61,52 @@ export class EzityHubClient {
     options: {
       method?: string
       query?: Record<string, unknown>
+      body?: unknown
       toolName: string
+      actingAgentId?: string
+      agentDefinitionId?: string
+      humanApprover?: string
+      idempotencyKey?: string
+      beforeState?: unknown
+      afterState?: unknown
     },
   ): Promise<T> {
-    const { method = 'GET', query, toolName } = options
+    const {
+      method = 'GET',
+      query,
+      body,
+      toolName,
+      actingAgentId,
+      agentDefinitionId,
+      humanApprover,
+      idempotencyKey,
+      beforeState,
+      afterState,
+    } = options
     const requestId = `req_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
     const startTime = Date.now()
+
+    // Idempotency check for write operations
+    if (idempotencyKey && this.idempotencyCache.has(idempotencyKey)) {
+      const cached = this.idempotencyCache.get(idempotencyKey)
+      this.logger.log({
+        timestamp: new Date().toISOString(),
+        requestId,
+        toolName,
+        endpoint,
+        method,
+        status: 'success',
+        statusCode: 200,
+        durationMs: 0,
+        actingAgentId,
+        agentDefinitionId,
+        humanApprover,
+        idempotencyKey,
+        beforeState,
+        afterState: cached,
+      })
+      return cached as T
+    }
 
     if (!this.config.apiToken) {
       const err = new EzityHubApiError(
@@ -76,6 +124,10 @@ export class EzityHubClient {
         status: 'failure',
         statusCode: 401,
         durationMs: 0,
+        actingAgentId,
+        agentDefinitionId,
+        humanApprover,
+        idempotencyKey,
         error: err.message,
       })
       throw err
@@ -97,13 +149,19 @@ export class EzityHubClient {
     )
 
     try {
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${this.config.apiToken}`,
+        Accept: 'application/json',
+        'User-Agent': 'EzityHub-MCP-Adapter/1.0',
+      }
+      if (body !== undefined) {
+        headers['Content-Type'] = 'application/json'
+      }
+
       const res = await this.fetchFn(url.toString(), {
         method,
-        headers: {
-          Authorization: `Bearer ${this.config.apiToken}`,
-          Accept: 'application/json',
-          'User-Agent': 'EzityHub-MCP-Adapter/1.0',
-        },
+        headers,
+        body: body !== undefined ? JSON.stringify(body) : undefined,
         signal: controller.signal,
       })
 
@@ -140,11 +198,22 @@ export class EzityHubClient {
           status: 'failure',
           statusCode: res.status,
           durationMs,
+          actingAgentId,
+          agentDefinitionId,
+          humanApprover,
+          idempotencyKey,
           error: errMsg,
         })
 
         throw new EzityHubApiError(errMsg, code, res.status, endpoint, json)
       }
+
+      // Record ID resolution for audit
+      const recordId =
+        json?.journal?.id ||
+        json?.invoice?.id ||
+        json?.id ||
+        undefined
 
       this.logger.log({
         timestamp: new Date().toISOString(),
@@ -155,7 +224,18 @@ export class EzityHubClient {
         status: 'success',
         statusCode: res.status,
         durationMs,
+        actingAgentId,
+        agentDefinitionId,
+        humanApprover,
+        idempotencyKey,
+        recordId,
+        beforeState,
+        afterState: afterState || json,
       })
+
+      if (idempotencyKey) {
+        this.idempotencyCache.set(idempotencyKey, json)
+      }
 
       return json as T
     } catch (err: any) {
@@ -375,5 +455,86 @@ export class EzityHubClient {
         },
       },
     )
+  }
+
+  // --- Mutation Endpoints (Draft-First & Approval Gated) ---
+
+  async createJournalDraft(
+    data: CreateJournalDraftInput,
+    options?: {
+      toolName?: string
+      idempotencyKey?: string
+      actingAgentId?: string
+      agentDefinitionId?: string
+      humanApprover?: string
+      beforeState?: unknown
+    },
+  ) {
+    return this.request<{
+      success: boolean
+      journal: any
+      message?: string
+    }>('/api/v1/accounting/journals', {
+      method: 'POST',
+      body: data,
+      toolName: options?.toolName || 'finance_prepare_journal',
+      idempotencyKey: options?.idempotencyKey,
+      actingAgentId: options?.actingAgentId,
+      agentDefinitionId: options?.agentDefinitionId,
+      humanApprover: options?.humanApprover,
+      beforeState: options?.beforeState,
+    })
+  }
+
+  async createInvoiceDraft(
+    data: CreateInvoiceDraftInput,
+    options?: {
+      toolName?: string
+      idempotencyKey?: string
+      actingAgentId?: string
+      agentDefinitionId?: string
+      humanApprover?: string
+    },
+  ) {
+    return this.request<{
+      success: boolean
+      invoice: any
+      message?: string
+    }>('/api/v1/finance/invoices', {
+      method: 'POST',
+      body: {
+        ...data,
+        auto_submit: false, // Strictly draft-first!
+      },
+      toolName: options?.toolName || 'finance_create_invoice_draft',
+      idempotencyKey: options?.idempotencyKey,
+      actingAgentId: options?.actingAgentId,
+      agentDefinitionId: options?.agentDefinitionId,
+      humanApprover: options?.humanApprover,
+    })
+  }
+
+  async submitInvoice(
+    invoiceId: string,
+    options: {
+      toolName?: string
+      approvalId: string
+      approvedBy: string
+      actingAgentId?: string
+      agentDefinitionId?: string
+    },
+  ) {
+    return this.request<{
+      success: boolean
+      invoice: any
+    }>(`/api/v1/finance/invoices/${invoiceId}/submit`, {
+      method: 'POST',
+      toolName: options.toolName || 'finance_submit_invoice',
+      humanApprover: options.approvedBy,
+      actingAgentId: options.actingAgentId,
+      agentDefinitionId: options.agentDefinitionId,
+      beforeState: { invoiceId, status: 'draft' },
+      afterState: { invoiceId, status: 'submitted' },
+    })
   }
 }

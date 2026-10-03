@@ -34,7 +34,19 @@ import {
   getFinancialSummarySchema,
   handleGetFinancialSummary,
 } from './summary.js'
-import type { EzityHubClient} from '../client.js';
+import {
+  prepareJournalSchema,
+  createExpenseDraftSchema,
+  proposeTransactionCategorySchema,
+  createInvoiceDraftSchema,
+  submitInvoiceSchema,
+  handlePrepareJournal,
+  handleCreateExpenseDraft,
+  handleProposeTransactionCategory,
+  handleCreateInvoiceDraft,
+  handleSubmitInvoiceForApproval,
+} from './writes.js'
+import type { EzityHubClient } from '../client.js'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 
 function formatToolResponse(data: unknown) {
@@ -273,6 +285,83 @@ export function registerFinanceTools(
     async (args) => {
       try {
         const result = await handleGetFinancialSummary(client, args)
+        return formatToolResponse(result)
+      } catch (err) {
+        return formatErrorResponse(err)
+      }
+    },
+  )
+
+  // --- Phase F: Controlled Draft Write Tools (Human Review Mandatory) ---
+
+  // 14. Prepare Journal Draft
+  server.tool(
+    'finance_prepare_journal',
+    'Prepare a balanced double-entry manual journal draft. Debits must equal credits. Creates a DRAFT submitted for supervisor review in EzityHub; does NOT post to general ledger.',
+    prepareJournalSchema.shape,
+    async (args) => {
+      try {
+        const result = await handlePrepareJournal(client, args)
+        return formatToolResponse(result)
+      } catch (err) {
+        return formatErrorResponse(err)
+      }
+    },
+  )
+
+  // 15. Create Expense Draft
+  server.tool(
+    'finance_create_expense_draft',
+    'Create an operating expense journal draft linking an expense account and paying bank account. Creates a DRAFT for supervisor review in EzityHub; does NOT autonomously post.',
+    createExpenseDraftSchema.shape,
+    async (args) => {
+      try {
+        const result = await handleCreateExpenseDraft(client, args)
+        return formatToolResponse(result)
+      } catch (err) {
+        return formatErrorResponse(err)
+      }
+    },
+  )
+
+  // 16. Propose Transaction Categorization
+  server.tool(
+    'finance_propose_transaction_category',
+    'Propose an accounting classification for an unreconciled bank transaction (e.g. domain renewal, software, supplies). Generates a structured proposal and records a linked draft journal for human supervisor approval.',
+    proposeTransactionCategorySchema.shape,
+    async (args) => {
+      try {
+        const result = await handleProposeTransactionCategory(client, args)
+        return formatToolResponse(result)
+      } catch (err) {
+        return formatErrorResponse(err)
+      }
+    },
+  )
+
+  // 17. Create Invoice Draft
+  server.tool(
+    'finance_create_invoice_draft',
+    'Create a draft sales invoice with customer and line items. Stays in DRAFT status in EzityHub. Does NOT send to customer or post to receivables without human approval.',
+    createInvoiceDraftSchema.shape,
+    async (args) => {
+      try {
+        const result = await handleCreateInvoiceDraft(client, args)
+        return formatToolResponse(result)
+      } catch (err) {
+        return formatErrorResponse(err)
+      }
+    },
+  )
+
+  // 18. Submit Invoice For Approval (Gated)
+  server.tool(
+    'finance_submit_invoice_for_approval',
+    'Submit an existing draft sales invoice for human review and approval in EzityHub. REQUIRES verified human approval (approvalId and approvedBy). Cannot execute autonomously.',
+    submitInvoiceSchema.shape,
+    async (args) => {
+      try {
+        const result = await handleSubmitInvoiceForApproval(client, args)
         return formatToolResponse(result)
       } catch (err) {
         return formatErrorResponse(err)

@@ -44,7 +44,12 @@ describe('Phase B: Built-in EZity Staff Definitions', () => {
     expect(accountant?.systemPrompt).toContain(
       'Never invent, extrapolate, or hallucinate',
     )
-    expect(accountant?.systemPrompt).toContain('strictly READ-ONLY')
+    expect(accountant?.systemPrompt).toContain('DRAFT-FIRST')
+    expect(accountant?.systemPrompt).toContain('human approval')
+    expect(accountant?.systemPrompt).toContain('[Draft]')
+    expect(accountant?.systemPrompt).toContain('[Pending Approval]')
+    expect(accountant?.systemPrompt).toContain('[Approved]')
+    expect(accountant?.systemPrompt).toContain('[Posted]')
     expect(accountant?.systemPrompt).toContain('Recorded data')
     expect(accountant?.systemPrompt).toContain('Calculations')
     expect(accountant?.systemPrompt).toContain('Assumptions')
