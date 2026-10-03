@@ -5,6 +5,7 @@
  * with OfficeSceneState.
  */
 
+import 'pixi.js/unsafe-eval'
 import { Application, Container, type Ticker } from 'pixi.js'
 import type { OfficeSceneState, OfficeZoneId } from '@/types/office-scene'
 import {

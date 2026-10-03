@@ -8,6 +8,7 @@
  * - Strict SSR-safe client boundary
  */
 
+import 'pixi.js/unsafe-eval'
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import type { OfficeSceneState, OfficeZoneId } from '@/types/office-scene'
 import type { OfficeRendererProps } from '../../types'
