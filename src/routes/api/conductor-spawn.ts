@@ -12,6 +12,9 @@ import {
   BEARER_TOKEN,
   ensureGatewayProbed,
 } from '../../server/gateway-capabilities'
+import { getAgent } from '../../server/agent-definitions-store'
+import { setSessionAgent } from '../../server/session-agent-store'
+import type { AgentDefinition } from '../../types/agent'
 
 let cachedSkill: string | null = null
 
@@ -22,6 +25,9 @@ type ConductorSpawnBody = {
   projectsDir?: unknown
   maxParallel?: unknown
   supervised?: unknown
+  ezity?: unknown
+  staffOrchestrated?: unknown
+  orchestratorAgentId?: unknown
 }
 
 function repoRoot(): string {
@@ -65,7 +71,7 @@ function readMaxParallel(value: unknown): number {
   return Math.min(5, Math.max(1, Math.round(value)))
 }
 
-function buildOrchestratorPrompt(
+export function buildOrchestratorPrompt(
   goal: string,
   skill: string,
   options: {
@@ -119,6 +125,99 @@ function buildOrchestratorPrompt(
     `- Workers should write output to ${outputPrefix} directories`,
     '- After spawning all workers, report your plan summary and finish. The UI tracks worker completion automatically.',
     '- Report a summary when all tasks are done',
+  ].join('\n')
+}
+
+export function buildEzityOrchestratorPrompt(
+  goal: string,
+  skill: string,
+  chiefOfStaff: AgentDefinition,
+  staffRoster: AgentDefinition[],
+  options: {
+    orchestratorModel: string
+    workerModel: string
+    projectsDir: string
+    maxParallel: number
+    supervised: boolean
+  },
+): string {
+  const outputBase = options.projectsDir || '/tmp'
+  const outputPrefix =
+    outputBase === '/tmp' ? '/tmp/dispatch-<slug>' : `${outputBase}/dispatch-<slug>`
+
+  const rosterLines =
+    staffRoster.length > 0
+      ? staffRoster
+          .map((member) => {
+            const modelNote = member.model ? ` (Model: ${member.model})` : ''
+            return [
+              `- **${member.name}** (\`${member.id}\`)${modelNote} — ${member.roleLabel}`,
+              `  Focus: ${member.tags.join(', ')}`,
+              `  Directives: ${member.systemPrompt.slice(0, 160).trim()}...`,
+            ].join('\n')
+          })
+          .join('\n\n')
+      : '(No specialized staff defined; spawn general workers as needed)'
+
+  return [
+    `# Orchestrator Persona: ${chiefOfStaff.name}`,
+    `You are ${chiefOfStaff.name}.`,
+    chiefOfStaff.systemPrompt.trim(),
+    '',
+    '## Dispatch Skill Instructions',
+    '',
+    skill ||
+      '(workspace-dispatch skill not found locally; proceed using create_task to spawn workers)',
+    '',
+    '## Available Staff Roster',
+    'You lead and coordinate the following specialized Ezity staff members:',
+    '',
+    rosterLines,
+    '',
+    '## Staff Delegation Directives',
+    '- **Finance, Accounting, Budget, or Ledger tasks**: Delegate explicitly to **Accountant** (`ezity-accountant`).',
+    '  Use worker label: `worker-accountant-<task-slug>`.',
+    '  Include in the task description: `[Assigned Staff: Accountant (ezity-accountant)]` with clear bookkeeping/accounting expectations.',
+    '- **Engineering, Code, Architecture, Technical, or Systems tasks**: Delegate explicitly to **Developer** (`ezity-developer`).',
+    '  Use worker label: `worker-developer-<task-slug>`.',
+    '  Include in the task description: `[Assigned Staff: Developer (ezity-developer)]` with clean architecture and implementation expectations.',
+    '- **Persona & Model Propagation**: Embed the staff member\'s role and core responsibilities directly into each worker prompt, along with any designated model requirements.',
+    '- **General or Uncategorized tasks**: If a task does not fit Accountant or Developer, delegate to a general worker labeled `worker-<task-slug>`.',
+    '- **Multi-domain missions**: Decompose the goal across your staff (e.g. Accountant handles financial/budget analysis while Developer handles technical implementation), collect all worker outputs, and synthesize a cohesive executive briefing.',
+    '- **Final Synthesis**: As Chief of Staff, synthesize all worker findings into an executive briefing for leadership.',
+    '',
+    '## Mission',
+    '',
+    `Goal: ${goal}`,
+    ...(options.orchestratorModel
+      ? ['', `Use model: ${options.orchestratorModel} for the Chief of Staff orchestrator`]
+      : []),
+    ...(options.workerModel
+      ? ['', `Use model: ${options.workerModel} for all workers`]
+      : []),
+    ...(options.maxParallel > 1
+      ? [
+          '',
+          `Run up to ${options.maxParallel} workers in parallel when tasks are independent`,
+        ]
+      : [
+          '',
+          'Spawn workers one at a time. Do NOT wait for workers to finish — the UI handles tracking.',
+        ]),
+    ...(options.supervised
+      ? ['', 'Supervised mode is enabled. Require approval before each task.']
+      : []),
+    '',
+    '## Critical Rules',
+    '- Use create_task / delegate_task to create worker agents for each task',
+    '- Do NOT do the domain work yourself — delegate to your specialized staff',
+    '- For simple tasks (single file, quick mockup), use ONLY 1 task with 1 worker — do not over-decompose',
+    '- Do NOT ask for confirmation — start immediately',
+    '- Follow worker naming conventions (`worker-accountant-<slug>`, `worker-developer-<slug>`, or `worker-<slug>`) so the office UI tracks staff identities',
+    '- Each worker gets a self-contained prompt with the task + exit criteria',
+    `- Workers should write output to ${outputPrefix} directories`,
+    '- After spawning all workers, report your plan summary and finish. The UI tracks worker completion automatically.',
+    '- Report an executive synthesis summary when all tasks are complete',
   ].join('\n')
 }
 
@@ -194,13 +293,47 @@ export const Route = createFileRoute('/api/conductor-spawn')({
           }
 
           const skill = loadDispatchSkill()
-          const prompt = buildOrchestratorPrompt(goal, skill, {
-            orchestratorModel,
-            workerModel,
-            projectsDir,
-            maxParallel,
-            supervised,
-          })
+
+          // Resolve Ezity Chief of Staff and Staff Roster
+          const isGeneric =
+            body.ezity === false ||
+            body.staffOrchestrated === false ||
+            body.orchestratorAgentId === 'generic'
+          const cosAgent = !isGeneric ? getAgent('ezity-chief-of-staff') : null
+          const accountant = !isGeneric ? getAgent('ezity-accountant') : null
+          const developer = !isGeneric ? getAgent('ezity-developer') : null
+
+          let prompt: string
+          let effectiveOrchestratorModel = orchestratorModel
+
+          if (cosAgent) {
+            effectiveOrchestratorModel =
+              orchestratorModel || cosAgent.model || ''
+            const roster = [accountant, developer].filter(
+              (a): a is AgentDefinition => a !== null,
+            )
+            prompt = buildEzityOrchestratorPrompt(
+              goal,
+              skill,
+              cosAgent,
+              roster,
+              {
+                orchestratorModel: effectiveOrchestratorModel,
+                workerModel,
+                projectsDir,
+                maxParallel,
+                supervised,
+              },
+            )
+          } else {
+            prompt = buildOrchestratorPrompt(goal, skill, {
+              orchestratorModel,
+              workerModel,
+              projectsDir,
+              maxParallel,
+              supervised,
+            })
+          }
 
           const jobName = `conductor-${Date.now()}`
           const result = await createHermesJob({
@@ -218,14 +351,34 @@ export const Route = createFileRoute('/api/conductor-spawn')({
           }
 
           const jobId = result.id ?? jobName
+          const sessionKey = `cron_${jobId}_pending`
+          const sessionKeyPrefix = `cron_${jobId}_`
+
+          // Map orchestrator job & session namespace to Chief of Staff
+          if (cosAgent) {
+            setSessionAgent(jobId, cosAgent.id)
+            setSessionAgent(sessionKey, cosAgent.id)
+            setSessionAgent(sessionKeyPrefix, cosAgent.id)
+          }
+
           return new Response(
             JSON.stringify({
               ok: true,
-              sessionKey: `cron_${jobId}_pending`,
-              sessionKeyPrefix: `cron_${jobId}_`,
+              sessionKey,
+              sessionKeyPrefix,
               jobId,
               jobName: result.name ?? jobName,
               runId: null,
+              isEzity: Boolean(cosAgent),
+              orchestrator: cosAgent
+                ? {
+                    id: cosAgent.id,
+                    name: cosAgent.name,
+                    emoji: cosAgent.emoji,
+                    role: cosAgent.roleLabel,
+                    model: effectiveOrchestratorModel,
+                  }
+                : null,
             }),
             { status: 200, headers: { 'Content-Type': 'application/json' } },
           )

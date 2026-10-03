@@ -13,6 +13,7 @@ export type ConductorSettings = {
   projectsDir: string
   maxParallel: number
   supervised: boolean
+  staffOrchestrated?: boolean
 }
 
 export type ConductorWorkerStatus = 'running' | 'complete' | 'stale' | 'idle'
@@ -28,6 +29,11 @@ export type ConductorWorker = {
   contextTokens: number
   tokenUsageLabel: string
   raw: import('@/lib/gateway-api').GatewaySession
+  agentId?: string | null
+  agentName?: string | null
+  agentEmoji?: string | null
+  agentRole?: string | null
+  agentColor?: string | null
 }
 
 export type ConductorTask = {
@@ -44,6 +50,8 @@ export type MissionHistoryWorkerDetail = {
   totalTokens: number
   personaEmoji: string
   personaName: string
+  agentId?: string | null
+  agentRole?: string | null
 }
 
 export type MissionHistoryEntry = {
@@ -62,6 +70,7 @@ export type MissionHistoryEntry = {
   completeSummary?: string
   workerDetails?: MissionHistoryWorkerDetail[]
   error?: string | null
+  isEzityStaff?: boolean
 }
 
 export type StreamEvent =
@@ -87,6 +96,7 @@ export type PersistedMission = {
   planText: string
   completedAt: string | null
   tasks: ConductorTask[]
+  isEzityStaff?: boolean
 }
 
 /** Default settings — empty model strings = Hermes default */
@@ -96,4 +106,5 @@ export const DEFAULT_CONDUCTOR_SETTINGS: ConductorSettings = {
   projectsDir: '',
   maxParallel: 1,
   supervised: false,
+  staffOrchestrated: true,
 }

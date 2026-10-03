@@ -227,6 +227,26 @@ export function ConductorSettingsDrawer({
 
           <div className="flex items-center justify-between">
             <div>
+              <span className="text-sm font-medium" style={{ color: 'var(--theme-text)' }}>Ezity Staff Orchestration</span>
+              <p className="text-xs" style={{ color: 'var(--theme-muted)' }}>Use Chief of Staff to delegate work to Accountant and Developer.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onUpdate({ staffOrchestrated: settings.staffOrchestrated === false ? true : false })}
+              className={cn(
+                'relative h-6 w-11 rounded-full transition-colors',
+                settings.staffOrchestrated !== false ? 'bg-emerald-500' : 'bg-neutral-600',
+              )}
+            >
+              <span className={cn(
+                'absolute top-0.5 left-0.5 size-5 rounded-full bg-white transition-transform',
+                settings.staffOrchestrated !== false && 'translate-x-5',
+              )} />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
               <span className="text-sm font-medium" style={{ color: 'var(--theme-text)' }}>Supervised Mode</span>
               <p className="text-xs" style={{ color: 'var(--theme-muted)' }}>Require approval before each task.</p>
             </div>

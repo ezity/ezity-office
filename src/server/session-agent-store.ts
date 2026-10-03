@@ -63,7 +63,33 @@ export function getSessionAgent(sessionKey?: string | null): string | null {
   if (typeof sessionKey !== 'string') return null
   const trimmedKey = sessionKey.trim()
   if (!trimmedKey) return null
-  return store.sessionAgents[trimmedKey] ?? null
+  if (store.sessionAgents[trimmedKey]) {
+    return store.sessionAgents[trimmedKey]
+  }
+
+  // Prefix matching for session namespaces / job prefixes (e.g. `cron_<jobId>_`)
+  for (const [key, agentId] of Object.entries(store.sessionAgents)) {
+    if (key.endsWith('_') || key.endsWith(':')) {
+      if (trimmedKey.startsWith(key)) {
+        store.sessionAgents[trimmedKey] = agentId
+        saveToDisk()
+        return agentId
+      }
+    }
+  }
+
+  // Job matching: if key is `cron_<jobId>_<runId>`, check if `jobId` or `cron_<jobId>_` is registered
+  if (trimmedKey.startsWith('cron_')) {
+    for (const [key, agentId] of Object.entries(store.sessionAgents)) {
+      if (key && trimmedKey.includes(key)) {
+        store.sessionAgents[trimmedKey] = agentId
+        saveToDisk()
+        return agentId
+      }
+    }
+  }
+
+  return null
 }
 
 export function deleteSessionAgent(sessionKey?: string | null): boolean {

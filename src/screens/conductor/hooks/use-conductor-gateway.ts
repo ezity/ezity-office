@@ -201,6 +201,7 @@ function loadPersistedMission(): PersistedMission | null {
     // Never restore running/decomposing — if the browser closed mid-mission, it's dead.
     // Only restore 'complete' (reviewable) or 'idle'.
     const isStale = phase === 'running' || phase === 'decomposing'
+    const isEzityStaff = parsed.isEzityStaff === false ? false : true
 
     return {
       goal: isStale ? '' : goal,
@@ -217,6 +218,7 @@ function loadPersistedMission(): PersistedMission | null {
       planText,
       completedAt,
       tasks,
+      isEzityStaff,
     }
   } catch {
     return null
@@ -248,6 +250,10 @@ function loadConductorSettings(): ConductorSettings {
       ),
       supervised:
         typeof parsed.supervised === 'boolean' ? parsed.supervised : DEFAULT_CONDUCTOR_SETTINGS.supervised,
+      staffOrchestrated:
+        typeof parsed.staffOrchestrated === 'boolean'
+          ? parsed.staffOrchestrated
+          : DEFAULT_CONDUCTOR_SETTINGS.staffOrchestrated,
     }
   } catch {
     return DEFAULT_CONDUCTOR_SETTINGS
@@ -357,9 +363,9 @@ function readContextTokens(session: GatewaySession): number {
 }
 
 function deriveWorkerStatus(session: GatewaySession, updatedAt: string | null): ConductorWorker['status'] {
-  const status = readString(session.status)?.toLowerCase()
-  if (status && ['complete', 'completed', 'done', 'success', 'succeeded'].includes(status)) return 'complete'
-  if (status && ['idle', 'waiting', 'sleeping'].includes(status)) return 'idle'
+  const status = (readString(session.status) ?? readString(session.state))?.toLowerCase()
+  if (status && ['complete', 'completed', 'done', 'success', 'succeeded', 'finished'].includes(status)) return 'complete'
+  if (status && ['idle', 'waiting', 'sleeping', 'paused'].includes(status)) return 'idle'
   if (status && ['error', 'errored', 'failed', 'cancelled', 'canceled', 'killed'].includes(status)) return 'stale'
 
   const updatedMs = updatedAt ? new Date(updatedAt).getTime() : 0
@@ -399,6 +405,9 @@ function prettifyCronLabel(value: string): string {
 }
 
 function formatDisplayName(session: GatewaySession): string {
+  const agentName = readString(session.agentName)
+  if (agentName) return agentName
+
   const label = readString(session.label)
   if (label) {
     if (/^cron[_:]|^conductor[-_]/i.test(label)) return prettifyCronLabel(label)
@@ -437,6 +446,11 @@ function toWorker(session: GatewaySession): ConductorWorker | null {
     totalTokens,
     contextTokens,
     tokenUsageLabel: formatTokenUsage(totalTokens, contextTokens),
+    agentId: readString(session.agentId) ?? undefined,
+    agentName: readString(session.agentName) ?? undefined,
+    agentEmoji: readString(session.agentEmoji) ?? undefined,
+    agentRole: readString(session.agentRole) ?? undefined,
+    agentColor: readString(session.agentColor) ?? undefined,
     raw: session,
   }
 }
@@ -1026,10 +1040,13 @@ export function useConductorGateway() {
         label: worker.label,
         model: worker.model ?? '',
         totalTokens: worker.totalTokens,
-        personaEmoji: persona.emoji,
-        personaName: persona.name,
+        personaEmoji: worker.agentEmoji ?? persona.emoji,
+        personaName: worker.agentName ?? persona.name,
+        agentId: worker.agentId,
+        agentRole: worker.agentRole,
       }
     })
+    const isEzityStaff = conductorSettings.staffOrchestrated !== false
     const entry: MissionHistoryEntry = {
       id: missionId,
       goal,
@@ -1045,6 +1062,7 @@ export function useConductorGateway() {
       streamText: streamText ? streamText.slice(0, 5000) : undefined,
       completeSummary,
       workerDetails: workerDetails.length > 0 ? workerDetails : undefined,
+      isEzityStaff,
       error: streamError ?? undefined,
     }
 
@@ -1097,6 +1115,7 @@ export function useConductorGateway() {
       planText: planText.slice(0, 10_000),
       completedAt,
       tasks,
+      isEzityStaff: conductorSettings.staffOrchestrated !== false,
     })
   }, [
     phase,
@@ -1370,6 +1389,7 @@ export function useConductorGateway() {
     workerOutputs,
     conductorSettings,
     setConductorSettings,
+    isEzityStaff: conductorSettings.staffOrchestrated !== false,
     sendMission: (nextGoal: string) =>
       sendMission.mutateAsync({ nextGoal, settings: conductorSettings }),
     pauseAgent: (sessionKey: string, pause: boolean) =>

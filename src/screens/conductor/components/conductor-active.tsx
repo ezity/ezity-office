@@ -120,9 +120,12 @@ export function ConductorActive({ conductor }: ConductorActiveProps) {
 
         return {
           id: worker.key,
-          name: persona.name,
+          name: worker.agentName ?? persona.name,
+          emoji: worker.agentEmoji ?? persona.emoji,
+          avatarEmoji: worker.agentEmoji ?? persona.emoji,
+          agentId: worker.agentId ?? undefined,
           modelId: worker.model || 'auto',
-          roleDescription: worker.displayName,
+          roleDescription: worker.agentRole ?? worker.displayName,
           status: isWorkerPaused ? 'paused' as const : worker.status === 'complete' ? 'idle' as const : worker.status === 'stale' ? 'error' as const : 'active' as const,
           lastLine: isWorkerPaused ? 'Paused' : lastLine || undefined,
           lastAt: worker.updatedAt ? new Date(worker.updatedAt).getTime() : undefined,
@@ -131,6 +134,23 @@ export function ConductorActive({ conductor }: ConductorActiveProps) {
           sessionKey: worker.key,
         }
       })
+    }
+
+    if (conductor.isEzityStaff) {
+      return [{
+        id: conductor.orchestratorSessionKey || 'conductor-chief-of-staff',
+        name: 'Chief of Staff',
+        emoji: '👔',
+        avatarEmoji: '👔',
+        agentId: 'ezity-chief-of-staff',
+        modelId: conductor.conductorSettings.orchestratorModel || 'auto',
+        roleDescription: 'Executive Orchestrator',
+        status: conductor.isPaused ? 'paused' as const : 'spawning' as const,
+        lastLine: conductor.isPaused ? 'Paused' : conductor.streamText ? 'Chief of Staff analyzing mission...' : 'Chief of Staff preparing staff team...',
+        taskCount: conductor.tasks.length,
+        currentTask: conductor.goal || 'Coordinating mission...',
+        sessionKey: conductor.orchestratorSessionKey || 'conductor-chief-of-staff',
+      }]
     }
 
     return [{
@@ -144,7 +164,18 @@ export function ConductorActive({ conductor }: ConductorActiveProps) {
       currentTask: conductor.goal || 'Preparing the office...',
       sessionKey: 'conductor-placeholder-agent',
     }]
-  }, [conductor.workers, conductor.tasks, conductor.workerOutputs, conductor.isPaused, conductor.goal, conductor.conductorSettings.workerModel])
+  }, [
+    conductor.workers,
+    conductor.tasks,
+    conductor.workerOutputs,
+    conductor.isPaused,
+    conductor.goal,
+    conductor.isEzityStaff,
+    conductor.orchestratorSessionKey,
+    conductor.streamText,
+    conductor.conductorSettings.orchestratorModel,
+    conductor.conductorSettings.workerModel,
+  ])
 
   // Clear stale selected task
   useEffect(() => {
@@ -370,10 +401,10 @@ function WorkerCards({
                 <div className="flex items-center gap-2">
                   <span className={cn('size-2.5 rounded-full', dot.dotClass)} />
                   <p className="truncate text-sm font-medium text-[var(--theme-text)]">
-                    {persona.emoji} {persona.name} <span className="text-[var(--theme-muted)]">&middot;</span> {worker.label}
+                    {worker.agentEmoji ?? persona.emoji} {worker.agentName ?? persona.name} <span className="text-[var(--theme-muted)]">&middot;</span> {worker.label}
                   </p>
                 </div>
-                <p className="mt-1 text-xs text-[var(--theme-muted-2)]">{worker.displayName}</p>
+                <p className="mt-1 text-xs text-[var(--theme-muted-2)]">{worker.agentRole ?? worker.displayName}</p>
               </div>
               <span className="rounded-full border border-[var(--theme-border)] bg-[var(--theme-card2)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--theme-muted)]">
                 {dot.label}

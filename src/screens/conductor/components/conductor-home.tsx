@@ -129,8 +129,49 @@ export function ConductorHome({ conductor, goalDraft, setGoalDraft, onSubmit, on
 
   // Build office rows for idle home view
   const homeOfficeRows = useMemo<AgentWorkingRow[]>(() => {
+    const isEzityStaff = conductor.conductorSettings.staffOrchestrated !== false
     const sessions = conductor.recentSessions
     if (sessions.length === 0) {
+      if (isEzityStaff) {
+        return [
+          {
+            id: 'ezity-chief-of-staff',
+            name: 'Chief of Staff',
+            emoji: '👔',
+            avatarEmoji: '👔',
+            agentId: 'ezity-chief-of-staff',
+            modelId: conductor.conductorSettings.orchestratorModel || 'auto',
+            status: 'idle' as const,
+            lastLine: 'Ready to coordinate missions...',
+            taskCount: 0,
+            roleDescription: 'Executive Orchestrator',
+          },
+          {
+            id: 'ezity-accountant',
+            name: 'Accountant',
+            emoji: '📊',
+            avatarEmoji: '📊',
+            agentId: 'ezity-accountant',
+            modelId: conductor.conductorSettings.workerModel || 'auto',
+            status: 'idle' as const,
+            lastLine: 'Standing by for finance and reporting...',
+            taskCount: 0,
+            roleDescription: 'Financial Analysis & Planning',
+          },
+          {
+            id: 'ezity-developer',
+            name: 'Developer',
+            emoji: '💻',
+            avatarEmoji: '💻',
+            agentId: 'ezity-developer',
+            modelId: conductor.conductorSettings.workerModel || 'auto',
+            status: 'idle' as const,
+            lastLine: 'Standing by for engineering tasks...',
+            taskCount: 0,
+            roleDescription: 'Engineering & Automation',
+          },
+        ]
+      }
       return OFFICE_NAMES.slice(0, 3).map((name, i) => ({
         id: `placeholder-${i}`,
         name,
@@ -148,19 +189,32 @@ export function ConductorHome({ conductor, goalDraft, setGoalDraft, onSubmit, on
       const status: AgentWorkingRow['status'] = /error|failed/.test(statusText) ? 'error'
         : /pause/.test(statusText) ? 'paused'
         : Date.now() - updatedAt < 120_000 ? 'active' : 'idle'
+      const agentName = typeof s.agentName === 'string' ? s.agentName : null
+      const agentEmoji = typeof s.agentEmoji === 'string' ? s.agentEmoji : null
+      const agentRole = typeof s.agentRole === 'string' ? s.agentRole : null
+      const agentId = typeof s.agentId === 'string' ? s.agentId : undefined
+
       return {
         id: s.key ?? `session-${i}`,
-        name: OFFICE_NAMES[i % OFFICE_NAMES.length],
+        name: agentName ?? OFFICE_NAMES[i % OFFICE_NAMES.length],
+        emoji: agentEmoji ?? undefined,
+        avatarEmoji: agentEmoji ?? undefined,
+        agentId,
         modelId: s.model ?? 'auto',
         status,
         lastLine: s.task ?? s.label ?? s.title ?? s.derivedTitle ?? 'Working...',
         lastAt: updatedAt || undefined,
         taskCount: 0,
-        roleDescription: s.label ?? 'Worker',
+        roleDescription: agentRole ?? s.label ?? 'Worker',
         sessionKey: s.key ?? undefined,
       }
     })
-  }, [conductor.recentSessions])
+  }, [
+    conductor.recentSessions,
+    conductor.conductorSettings.staffOrchestrated,
+    conductor.conductorSettings.orchestratorModel,
+    conductor.conductorSettings.workerModel,
+  ])
 
   // Activity list (history or recent sessions)
   const filteredHistory = useMemo(() => {

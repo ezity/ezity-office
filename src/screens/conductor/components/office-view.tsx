@@ -39,6 +39,9 @@ export type AgentWorkingRow = {
   currentTask?: string
   sessionKey?: string
   roleDescription?: string
+  emoji?: string | null
+  avatarEmoji?: string | null
+  agentId?: string | null
 }
 
 // ── Model preset helpers (self-contained) ──

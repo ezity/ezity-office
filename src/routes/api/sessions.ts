@@ -28,13 +28,30 @@ import {
   setSessionAgent,
 } from '../../server/session-agent-store'
 
-function decorateWithAgent(s: Record<string, unknown>): Record<string, unknown> {
+export function decorateWithAgent(s: Record<string, unknown>): Record<string, unknown> {
   const key =
     (typeof s.key === 'string' && s.key) ||
     (typeof s.friendlyId === 'string' && s.friendlyId) ||
     (typeof s.id === 'string' && s.id) ||
     ''
-  const agentId = key ? getSessionAgent(key) : null
+  let agentId = key ? getSessionAgent(key) : null
+
+  // If not explicitly mapped yet, inspect session metadata for Ezity staff worker conventions
+  if (!agentId && key) {
+    const label = typeof s.label === 'string' ? s.label.toLowerCase() : ''
+    const title = typeof s.title === 'string' ? s.title.toLowerCase() : ''
+    const derived = typeof s.derivedTitle === 'string' ? s.derivedTitle.toLowerCase() : ''
+    const searchTarget = `${label} ${title} ${derived}`
+
+    if (label.startsWith('worker-accountant') || searchTarget.includes('accountant')) {
+      agentId = 'ezity-accountant'
+      setSessionAgent(key, 'ezity-accountant')
+    } else if (label.startsWith('worker-developer') || searchTarget.includes('developer')) {
+      agentId = 'ezity-developer'
+      setSessionAgent(key, 'ezity-developer')
+    }
+  }
+
   const agent = agentId ? getAgent(agentId) : null
   if (!agent) return s
   return {
