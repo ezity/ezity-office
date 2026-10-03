@@ -316,9 +316,23 @@ export function synthesizeOfficeSceneState(
           ? new Date(worker.updatedAt).getTime()
           : undefined
 
+        const baseAgentId =
+          worker.agentId ||
+          (worker.key.includes('accountant')
+            ? 'ezity-accountant'
+            : worker.key.includes('developer')
+              ? 'ezity-developer'
+              : worker.key.includes('chief-of-staff')
+                ? 'ezity-chief-of-staff'
+                : (index === 0 ? 'ezity-developer' : index === 1 ? 'ezity-accountant' : `worker-${index}`))
+
+        const resolvedNodeId = agentNodes.some((a) => a.id === baseAgentId)
+          ? `${baseAgentId}-${worker.key}`
+          : baseAgentId
+
         agentNodes.push({
-          id: worker.key,
-          agentDefinitionId: agentId,
+          id: resolvedNodeId,
+          agentDefinitionId: baseAgentId,
           name: worker.agentName ?? persona.name,
           roleTitle: role,
           department,
@@ -353,7 +367,7 @@ export function synthesizeOfficeSceneState(
         if (!hasCos) {
           const isPaused = Boolean(conductor.isPaused)
           agentNodes.unshift({
-            id: conductor.orchestratorSessionKey || 'conductor-chief-of-staff',
+            id: cosDef.agentDefinitionId,
             agentDefinitionId: cosDef.agentDefinitionId,
             name: cosDef.name,
             roleTitle: cosDef.roleTitle,
@@ -432,7 +446,7 @@ export function synthesizeOfficeSceneState(
         const cosDef = CANONICAL_STAFF_DEFS['ezity-chief-of-staff']
         const isPaused = Boolean(conductor.isPaused)
         agentNodes.push({
-          id: conductor.orchestratorSessionKey || 'conductor-chief-of-staff',
+          id: cosDef.agentDefinitionId,
           agentDefinitionId: cosDef.agentDefinitionId,
           name: cosDef.name,
           roleTitle: cosDef.roleTitle,
@@ -457,6 +471,51 @@ export function synthesizeOfficeSceneState(
           pendingApprovalIds: [],
           activeWorkItemIds: [],
         })
+
+        // Also ensure home staff remain at their desks during mission preparation
+        const acctDef = CANONICAL_STAFF_DEFS['ezity-accountant']
+        if (!agentNodes.some((a) => a.agentDefinitionId === acctDef.agentDefinitionId)) {
+          agentNodes.push({
+            id: acctDef.agentDefinitionId,
+            agentDefinitionId: acctDef.agentDefinitionId,
+            name: acctDef.name,
+            roleTitle: acctDef.roleTitle,
+            department: acctDef.department,
+            emoji: acctDef.emoji,
+            colorHex: acctDef.colorHex,
+            modelId: 'auto',
+            status: 'idle',
+            attentionState: 'nominal',
+            lastActivityText: acctDef.defaultIdleLine,
+            homeDeskId: acctDef.homeDeskId,
+            currentZoneId: acctDef.homeZoneId,
+            isMoving: false,
+            pendingApprovalIds: [],
+            activeWorkItemIds: [],
+          })
+        }
+
+        const devDef = CANONICAL_STAFF_DEFS['ezity-developer']
+        if (!agentNodes.some((a) => a.agentDefinitionId === devDef.agentDefinitionId)) {
+          agentNodes.push({
+            id: devDef.agentDefinitionId,
+            agentDefinitionId: devDef.agentDefinitionId,
+            name: devDef.name,
+            roleTitle: devDef.roleTitle,
+            department: devDef.department,
+            emoji: devDef.emoji,
+            colorHex: devDef.colorHex,
+            modelId: 'auto',
+            status: 'idle',
+            attentionState: 'nominal',
+            lastActivityText: devDef.defaultIdleLine,
+            homeDeskId: devDef.homeDeskId,
+            currentZoneId: devDef.homeZoneId,
+            isMoving: false,
+            pendingApprovalIds: [],
+            activeWorkItemIds: [],
+          })
+        }
       } else {
         const persona = getAgentPersona(0)
         agentNodes.push({

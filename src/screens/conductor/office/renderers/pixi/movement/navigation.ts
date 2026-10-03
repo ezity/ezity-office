@@ -222,19 +222,33 @@ export function calculateOfficeRoute(
   const fromDef = ZONE_DEFINITIONS[fromZone]
   const targetPoint = destinationPos || targetDef.primaryAnchor
 
+  // If already at destination anchor, no path needed
+  if (Math.hypot(targetPoint.x - startPos.x, targetPoint.y - startPos.y) < 0.1) {
+    return []
+  }
+
   // If in the same zone, move directly
   if (fromZone === targetZone) {
-    return [
+    return deduplicateWaypoints([
       { x: startPos.x, y: startPos.y },
       { x: targetPoint.x, y: targetPoint.y },
-    ]
+    ])
   }
 
   // Multi-segment path through doorways and central hall
   const path: WorldPoint[] = [{ x: startPos.x, y: startPos.y }]
 
-  // Step 1: Step out to doorway of origin room
-  path.push({ x: fromDef.doorway.x, y: fromDef.doorway.y })
+  // Step 1: Step out to doorway of origin room only if currently inside that room's bounds
+  const isInsideOrigin =
+    fromDef &&
+    startPos.x >= fromDef.bounds.minX &&
+    startPos.x <= fromDef.bounds.maxX &&
+    startPos.y >= fromDef.bounds.minY &&
+    startPos.y <= fromDef.bounds.maxY
+
+  if (isInsideOrigin && fromDef.doorway) {
+    path.push({ x: fromDef.doorway.x, y: fromDef.doorway.y })
+  }
 
   // Step 2: Step into connecting corridor/junction
   const startJunction = getNearestJunction(fromZone)

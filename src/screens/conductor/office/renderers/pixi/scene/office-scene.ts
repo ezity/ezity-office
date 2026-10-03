@@ -146,7 +146,7 @@ export class OfficeScene {
     // 1. Sync Agents & Routes
     for (const agent of sceneState.agents) {
       const destinationZone: OfficeZoneId = agent.targetZoneId || agent.currentZoneId
-      const lastZone = this.lastAgentZones.get(agent.id)
+      let lastZone = this.lastAgentZones.get(agent.id)
 
       const zoneDef = ZONE_DEFINITIONS[destinationZone] || ZONE_DEFINITIONS.executive
 
@@ -161,6 +161,7 @@ export class OfficeScene {
           initialDef.contextualPose,
         )
         this.lastAgentZones.set(agent.id, agent.currentZoneId)
+        lastZone = agent.currentZoneId
       }
 
       // Check if destination zone has changed
@@ -175,12 +176,14 @@ export class OfficeScene {
           zoneDef.primaryAnchor,
         )
 
-        this.movementController.startNavigation(
-          agent.id,
-          waypoints,
-          zoneDef.contextualPose,
-          zoneDef.facing,
-        )
+        if (waypoints.length > 0) {
+          this.movementController.startNavigation(
+            agent.id,
+            waypoints,
+            zoneDef.contextualPose,
+            zoneDef.facing,
+          )
+        }
       }
     }
 
