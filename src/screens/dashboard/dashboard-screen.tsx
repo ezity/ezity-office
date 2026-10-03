@@ -14,6 +14,7 @@ import type { ReactNode } from 'react'
 import type { HermesSession } from '@/server/hermes-api'
 import { cn } from '@/lib/utils'
 import { EZityLogoMark } from '@/components/brand/ezity-brand'
+import { DailyBriefCard } from './components/daily-brief-card'
 
 // ── Helpers ──────────────────────────────────────────────────────
 
@@ -748,6 +749,9 @@ export function DashboardScreen() {
           accentColor="#a855f7"
         />
       </div>
+
+      {/* ── Chief of Staff Daily Executive Brief (Phase I) ── */}
+      <DailyBriefCard />
 
       {/* ── Work Inbox Department Widget (Phase H) ── */}
       <GlassCard

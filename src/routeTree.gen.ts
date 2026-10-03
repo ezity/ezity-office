@@ -72,6 +72,7 @@ import { Route as ApiConnectionStatusRouteImport } from './routes/api/connection
 import { Route as ApiConductorStopRouteImport } from './routes/api/conductor-stop'
 import { Route as ApiConductorSpawnRouteImport } from './routes/api/conductor-spawn'
 import { Route as ApiChatEventsRouteImport } from './routes/api/chat-events'
+import { Route as ApiBriefingsRouteImport } from './routes/api/briefings'
 import { Route as ApiAuthCheckRouteImport } from './routes/api/auth-check'
 import { Route as ApiAuthRouteImport } from './routes/api/auth'
 import { Route as ApiTasksIndexRouteImport } from './routes/api/tasks/index'
@@ -108,6 +109,8 @@ import { Route as ApiHermesJobsJobIdRouteImport } from './routes/api/hermes-jobs
 import { Route as ApiFinanceEventsRouteImport } from './routes/api/finance.events'
 import { Route as ApiEventsReplayRouteImport } from './routes/api/events/replay'
 import { Route as ApiCrewsCrewIdRouteImport } from './routes/api/crews/$crewId'
+import { Route as ApiBriefingsLatestRouteImport } from './routes/api/briefings.latest'
+import { Route as ApiBriefingsBriefingIdRouteImport } from './routes/api/briefings.$briefingId'
 import { Route as ApiAgentsAgentIdRouteImport } from './routes/api/agents/$agentId'
 import { Route as ApiCrewsTemplatesIndexRouteImport } from './routes/api/crews/templates/index'
 import { Route as ApiTasksTaskIdMoveRouteImport } from './routes/api/tasks/$taskId.move'
@@ -437,6 +440,11 @@ const ApiChatEventsRoute = ApiChatEventsRouteImport.update({
   path: '/api/chat-events',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBriefingsRoute = ApiBriefingsRouteImport.update({
+  id: '/api/briefings',
+  path: '/api/briefings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthCheckRoute = ApiAuthCheckRouteImport.update({
   id: '/api/auth-check',
   path: '/api/auth-check',
@@ -617,6 +625,16 @@ const ApiCrewsCrewIdRoute = ApiCrewsCrewIdRouteImport.update({
   path: '/api/crews/$crewId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBriefingsLatestRoute = ApiBriefingsLatestRouteImport.update({
+  id: '/latest',
+  path: '/latest',
+  getParentRoute: () => ApiBriefingsRoute,
+} as any)
+const ApiBriefingsBriefingIdRoute = ApiBriefingsBriefingIdRouteImport.update({
+  id: '/$briefingId',
+  path: '/$briefingId',
+  getParentRoute: () => ApiBriefingsRoute,
+} as any)
 const ApiAgentsAgentIdRoute = ApiAgentsAgentIdRouteImport.update({
   id: '/api/agents/$agentId',
   path: '/api/agents/$agentId',
@@ -713,6 +731,7 @@ export interface FileRoutesByFullPath {
   '/terminal': typeof TerminalRoute
   '/api/auth': typeof ApiAuthRoute
   '/api/auth-check': typeof ApiAuthCheckRoute
+  '/api/briefings': typeof ApiBriefingsRouteWithChildren
   '/api/chat-events': typeof ApiChatEventsRoute
   '/api/conductor-spawn': typeof ApiConductorSpawnRoute
   '/api/conductor-stop': typeof ApiConductorStopRoute
@@ -755,6 +774,8 @@ export interface FileRoutesByFullPath {
   '/crews/': typeof CrewsIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/api/agents/$agentId': typeof ApiAgentsAgentIdRoute
+  '/api/briefings/$briefingId': typeof ApiBriefingsBriefingIdRoute
+  '/api/briefings/latest': typeof ApiBriefingsLatestRoute
   '/api/crews/$crewId': typeof ApiCrewsCrewIdRouteWithChildren
   '/api/events/replay': typeof ApiEventsReplayRoute
   '/api/finance/events': typeof ApiFinanceEventsRoute
@@ -826,6 +847,7 @@ export interface FileRoutesByTo {
   '/terminal': typeof TerminalRoute
   '/api/auth': typeof ApiAuthRoute
   '/api/auth-check': typeof ApiAuthCheckRoute
+  '/api/briefings': typeof ApiBriefingsRouteWithChildren
   '/api/chat-events': typeof ApiChatEventsRoute
   '/api/conductor-spawn': typeof ApiConductorSpawnRoute
   '/api/conductor-stop': typeof ApiConductorStopRoute
@@ -868,6 +890,8 @@ export interface FileRoutesByTo {
   '/crews': typeof CrewsIndexRoute
   '/settings': typeof SettingsIndexRoute
   '/api/agents/$agentId': typeof ApiAgentsAgentIdRoute
+  '/api/briefings/$briefingId': typeof ApiBriefingsBriefingIdRoute
+  '/api/briefings/latest': typeof ApiBriefingsLatestRoute
   '/api/crews/$crewId': typeof ApiCrewsCrewIdRouteWithChildren
   '/api/events/replay': typeof ApiEventsReplayRoute
   '/api/finance/events': typeof ApiFinanceEventsRoute
@@ -941,6 +965,7 @@ export interface FileRoutesById {
   '/terminal': typeof TerminalRoute
   '/api/auth': typeof ApiAuthRoute
   '/api/auth-check': typeof ApiAuthCheckRoute
+  '/api/briefings': typeof ApiBriefingsRouteWithChildren
   '/api/chat-events': typeof ApiChatEventsRoute
   '/api/conductor-spawn': typeof ApiConductorSpawnRoute
   '/api/conductor-stop': typeof ApiConductorStopRoute
@@ -983,6 +1008,8 @@ export interface FileRoutesById {
   '/crews/': typeof CrewsIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/api/agents/$agentId': typeof ApiAgentsAgentIdRoute
+  '/api/briefings/$briefingId': typeof ApiBriefingsBriefingIdRoute
+  '/api/briefings/latest': typeof ApiBriefingsLatestRoute
   '/api/crews/$crewId': typeof ApiCrewsCrewIdRouteWithChildren
   '/api/events/replay': typeof ApiEventsReplayRoute
   '/api/finance/events': typeof ApiFinanceEventsRoute
@@ -1057,6 +1084,7 @@ export interface FileRouteTypes {
     | '/terminal'
     | '/api/auth'
     | '/api/auth-check'
+    | '/api/briefings'
     | '/api/chat-events'
     | '/api/conductor-spawn'
     | '/api/conductor-stop'
@@ -1099,6 +1127,8 @@ export interface FileRouteTypes {
     | '/crews/'
     | '/settings/'
     | '/api/agents/$agentId'
+    | '/api/briefings/$briefingId'
+    | '/api/briefings/latest'
     | '/api/crews/$crewId'
     | '/api/events/replay'
     | '/api/finance/events'
@@ -1170,6 +1200,7 @@ export interface FileRouteTypes {
     | '/terminal'
     | '/api/auth'
     | '/api/auth-check'
+    | '/api/briefings'
     | '/api/chat-events'
     | '/api/conductor-spawn'
     | '/api/conductor-stop'
@@ -1212,6 +1243,8 @@ export interface FileRouteTypes {
     | '/crews'
     | '/settings'
     | '/api/agents/$agentId'
+    | '/api/briefings/$briefingId'
+    | '/api/briefings/latest'
     | '/api/crews/$crewId'
     | '/api/events/replay'
     | '/api/finance/events'
@@ -1284,6 +1317,7 @@ export interface FileRouteTypes {
     | '/terminal'
     | '/api/auth'
     | '/api/auth-check'
+    | '/api/briefings'
     | '/api/chat-events'
     | '/api/conductor-spawn'
     | '/api/conductor-stop'
@@ -1326,6 +1360,8 @@ export interface FileRouteTypes {
     | '/crews/'
     | '/settings/'
     | '/api/agents/$agentId'
+    | '/api/briefings/$briefingId'
+    | '/api/briefings/latest'
     | '/api/crews/$crewId'
     | '/api/events/replay'
     | '/api/finance/events'
@@ -1399,6 +1435,7 @@ export interface RootRouteChildren {
   TerminalRoute: typeof TerminalRoute
   ApiAuthRoute: typeof ApiAuthRoute
   ApiAuthCheckRoute: typeof ApiAuthCheckRoute
+  ApiBriefingsRoute: typeof ApiBriefingsRouteWithChildren
   ApiChatEventsRoute: typeof ApiChatEventsRoute
   ApiConductorSpawnRoute: typeof ApiConductorSpawnRoute
   ApiConductorStopRoute: typeof ApiConductorStopRoute
@@ -1910,6 +1947,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/briefings': {
+      id: '/api/briefings'
+      path: '/api/briefings'
+      fullPath: '/api/briefings'
+      preLoaderRoute: typeof ApiBriefingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth-check': {
       id: '/api/auth-check'
       path: '/api/auth-check'
@@ -2162,6 +2206,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCrewsCrewIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/briefings/latest': {
+      id: '/api/briefings/latest'
+      path: '/latest'
+      fullPath: '/api/briefings/latest'
+      preLoaderRoute: typeof ApiBriefingsLatestRouteImport
+      parentRoute: typeof ApiBriefingsRoute
+    }
+    '/api/briefings/$briefingId': {
+      id: '/api/briefings/$briefingId'
+      path: '/$briefingId'
+      fullPath: '/api/briefings/$briefingId'
+      preLoaderRoute: typeof ApiBriefingsBriefingIdRouteImport
+      parentRoute: typeof ApiBriefingsRoute
+    }
     '/api/agents/$agentId': {
       id: '/api/agents/$agentId'
       path: '/api/agents/$agentId'
@@ -2270,6 +2328,20 @@ const SettingsRouteChildren: SettingsRouteChildren = {
 
 const SettingsRouteWithChildren = SettingsRoute._addFileChildren(
   SettingsRouteChildren,
+)
+
+interface ApiBriefingsRouteChildren {
+  ApiBriefingsBriefingIdRoute: typeof ApiBriefingsBriefingIdRoute
+  ApiBriefingsLatestRoute: typeof ApiBriefingsLatestRoute
+}
+
+const ApiBriefingsRouteChildren: ApiBriefingsRouteChildren = {
+  ApiBriefingsBriefingIdRoute: ApiBriefingsBriefingIdRoute,
+  ApiBriefingsLatestRoute: ApiBriefingsLatestRoute,
+}
+
+const ApiBriefingsRouteWithChildren = ApiBriefingsRoute._addFileChildren(
+  ApiBriefingsRouteChildren,
 )
 
 interface ApiEventsRouteChildren {
@@ -2415,6 +2487,7 @@ const rootRouteChildren: RootRouteChildren = {
   TerminalRoute: TerminalRoute,
   ApiAuthRoute: ApiAuthRoute,
   ApiAuthCheckRoute: ApiAuthCheckRoute,
+  ApiBriefingsRoute: ApiBriefingsRouteWithChildren,
   ApiChatEventsRoute: ApiChatEventsRoute,
   ApiConductorSpawnRoute: ApiConductorSpawnRoute,
   ApiConductorStopRoute: ApiConductorStopRoute,

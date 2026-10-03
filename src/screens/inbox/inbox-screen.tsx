@@ -15,6 +15,8 @@ import {
 import { Link } from '@tanstack/react-router'
 import type { WorkItem, WorkItemStatus } from '@/types/task'
 import { fetchWorkItems, updateWorkItemStatus } from '@/lib/work-items-api'
+import { fetchLatestBriefing } from '@/lib/briefings-api'
+import { DailyBriefModal } from '@/screens/dashboard/components/daily-brief-modal'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -52,6 +54,13 @@ export function InboxScreen() {
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<'all' | WorkItemStatus>('needs_attention')
   const [selectedAgent, setSelectedAgent] = useState<string | 'all'>('all')
+  const [briefModalOpen, setBriefModalOpen] = useState(false)
+
+  const { data: latestBriefing } = useQuery({
+    queryKey: ['daily-brief', 'latest'],
+    queryFn: () => fetchLatestBriefing(false),
+    staleTime: 60_000,
+  })
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['work-items'],
@@ -112,6 +121,46 @@ export function InboxScreen() {
           </Button>
         </div>
       </div>
+
+      {/* Chief of Staff Daily Brief Banner */}
+      {latestBriefing && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-indigo-500/30 bg-indigo-950/20 text-xs">
+          <div className="flex items-center gap-2.5">
+            <span className="text-xl p-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
+              👔
+            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-indigo-300">
+                  Chief of Staff Brief — {latestBriefing.periodCovered}
+                </span>
+                <span className="text-[10px] uppercase font-bold px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300">
+                  {latestBriefing.isManual ? 'Manual' : 'Scheduled'}
+                </span>
+              </div>
+              <p className="text-neutral-300 mt-0.5 line-clamp-1">{latestBriefing.summary}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {latestBriefing.urgentWorkItemIds.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('needs_attention')}
+                className="px-2.5 py-1 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-[11px] font-medium transition-colors cursor-pointer"
+              >
+                {latestBriefing.urgentWorkItemIds.length} Urgent Item(s)
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setBriefModalOpen(true)}
+              className="px-2.5 py-1 rounded bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/40 text-[11px] font-medium transition-colors cursor-pointer"
+            >
+              Open Full Brief &rarr;
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Metrics Summary Strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -378,6 +427,13 @@ export function InboxScreen() {
           })
         )}
       </div>
+
+      {/* Daily Brief Modal */}
+      <DailyBriefModal
+        open={briefModalOpen}
+        onOpenChange={setBriefModalOpen}
+        briefing={latestBriefing || null}
+      />
     </div>
   )
 }
