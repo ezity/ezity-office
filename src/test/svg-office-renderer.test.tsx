@@ -179,7 +179,8 @@ describe('Phase I-B: Modern SVG Virtual Office with Department Rooms', () => {
 
       render(<SvgOfficeRenderer scene={activeMissionScene} />)
 
-      expect(screen.getByText('Automate weekly financial dispatch')).toBeTruthy()
+      const matches = screen.getAllByText('Automate weekly financial dispatch')
+      expect(matches.length).toBeGreaterThanOrEqual(1)
       expect(screen.getByText('Active Mission Session')).toBeTruthy()
     })
   })

@@ -55,7 +55,7 @@ export function SvgOfficeRenderer({
         />
 
         {/* 3. Workstations & Furniture */}
-        <SvgOfficeFurniture />
+        <SvgOfficeFurniture scene={scene} />
 
         {/* 4. Interactive Operations & Mission Boards */}
         <SvgOfficeBoard
@@ -73,6 +73,7 @@ export function SvgOfficeRenderer({
               agent={agent}
               index={index}
               isSelected={selectedAgentId === agent.id}
+              enableReducedMotion={enableReducedMotion}
               onClick={onAgentClick}
             />
           ))}

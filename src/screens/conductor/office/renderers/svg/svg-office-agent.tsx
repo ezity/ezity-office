@@ -5,18 +5,26 @@
  * Eliminates coordinate drift bugs and random fake speech loops.
  */
 
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import type { OfficeAgentSceneNode } from '@/types/office-scene'
 import {
   getAttentionBadgeMeta,
   getCleanMonitorText,
   getStatusColorHex,
 } from './svg-office-status'
+import {
+  calculateNavPath,
+  getDistance,
+  getNavNodeKeyForZone,
+  interpolatePath,
+  type SvgPoint,
+} from './svg-office-pathing'
 
 export interface SvgOfficeAgentProps {
   agent: OfficeAgentSceneNode
   index?: number
   isSelected?: boolean
+  enableReducedMotion?: boolean
   onClick?: (agentId: string, sessionKey?: string) => void
 }
 
@@ -73,9 +81,80 @@ export function SvgOfficeAgent({
   agent,
   index = 0,
   isSelected = false,
+  enableReducedMotion = false,
   onClick,
 }: SvgOfficeAgentProps) {
-  const { x, y } = getAgentSvgCoordinates(agent, index)
+  const targetCoords = getAgentSvgCoordinates(agent, index)
+
+  // Track position for smooth waypoint path traversal
+  const [pos, setPos] = useState<SvgPoint>(targetCoords)
+  const currentZoneRef = useRef(agent.targetZoneId || agent.currentZoneId)
+  const animationFrameRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    const destinationZone = agent.targetZoneId || agent.currentZoneId
+    if (destinationZone === currentZoneRef.current) {
+      setPos(targetCoords)
+      return
+    }
+
+    // When reduced motion is preferred, jump instantly without animation
+    if (enableReducedMotion) {
+      currentZoneRef.current = destinationZone
+      setPos(targetCoords)
+      return
+    }
+
+    // Compute navigation path through doorways and central hallway
+    const fromKey = getNavNodeKeyForZone(currentZoneRef.current, agent.department)
+    const toKey = getNavNodeKeyForZone(destinationZone, agent.department)
+    const path = calculateNavPath(fromKey, toKey)
+
+    currentZoneRef.current = destinationZone
+
+    if (path.length <= 1) {
+      setPos(targetCoords)
+      return
+    }
+
+    const startTime = performance.now()
+    // Proportional speed: 1.2ms per SVG coordinate unit (min 500ms, max 1600ms)
+    let totalDist = 0
+    for (let i = 0; i < path.length - 1; i++) {
+      totalDist += getDistance(path[i], path[i + 1])
+    }
+    const duration = Math.min(1600, Math.max(500, totalDist * 1.2))
+
+    const step = (now: number) => {
+      const elapsed = now - startTime
+      const progress = Math.min(1, elapsed / duration)
+      // Smooth cubic ease-in-out
+      const eased =
+        progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2
+
+      const pt = interpolatePath(path, eased)
+      setPos(pt)
+
+      if (progress < 1) {
+        animationFrameRef.current = requestAnimationFrame(step)
+      } else {
+        setPos(targetCoords)
+      }
+    }
+
+    animationFrameRef.current = requestAnimationFrame(step)
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+  }, [agent.targetZoneId, agent.currentZoneId, agent.department, enableReducedMotion, targetCoords.x, targetCoords.y])
+
+  const x = pos.x
+  const y = pos.y
   const statusColor = getStatusColorHex(agent.status)
   const attentionBadge = getAttentionBadgeMeta(agent.attentionState)
   const monitorText = getCleanMonitorText(

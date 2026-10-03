@@ -37,6 +37,17 @@ export type OfficeAgentOperationalStatus =
   | 'error'
   | 'offline'
 
+export type OfficeMovementReason =
+  | 'return_home'
+  | 'approval_required'
+  | 'needs_input'
+  | 'inbox_processing'
+  | 'mission_collaboration'
+  | 'paused'
+  | 'task_started'
+  | 'task_completed'
+  | 'error'
+
 export type OfficeAgentSceneNode = {
   id: string
   agentDefinitionId: string
@@ -59,6 +70,9 @@ export type OfficeAgentSceneNode = {
   currentZoneId: OfficeZoneId
   targetZoneId?: OfficeZoneId
   isMoving: boolean
+  movementReason?: OfficeMovementReason
+  movementStartedAt?: number
+  movementCompletedAt?: number
 
   // Relational Links
   sessionKey?: string

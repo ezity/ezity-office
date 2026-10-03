@@ -6,8 +6,18 @@
  */
 
 import React from 'react'
+import type { OfficeSceneState } from '@/types/office-scene'
 
-export function SvgOfficeFurniture() {
+export function SvgOfficeFurniture({ scene }: { scene?: OfficeSceneState }) {
+  // Check if home staff are away from desk
+  const cos = scene?.agents.find((a) => a.agentDefinitionId === 'ezity-chief-of-staff')
+  const isCosAway = Boolean(cos?.targetZoneId && cos.targetZoneId !== 'executive')
+
+  const acct = scene?.agents.find((a) => a.agentDefinitionId === 'ezity-accountant')
+  const isAcctAway = Boolean(acct?.targetZoneId && acct.targetZoneId !== 'finance')
+
+  const dev = scene?.agents.find((a) => a.agentDefinitionId === 'ezity-developer')
+  const isDevAway = Boolean(dev?.targetZoneId && dev.targetZoneId !== 'engineering')
   return (
     <g id="office-furniture-layer" pointerEvents="none">
       {/* ─────────────────────────────────────────────────────────────
@@ -39,6 +49,15 @@ export function SvgOfficeFurniture() {
         {/* Decorative Desk Plant */}
         <circle cx="115" cy="168" r="8" fill="#065f46" stroke="#10b981" strokeWidth="1" />
         <circle cx="115" cy="168" r="4" fill="#34d399" />
+        {/* Away at Meeting Badge */}
+        {isCosAway && (
+          <g transform="translate(185, 236)" textAnchor="middle">
+            <rect x="-42" y="-9" width="84" height="18" rx="9" fill="#1e1b4b" stroke="#a855f7" strokeWidth="1" />
+            <text x="0" y="3" fill="#e9d5ff" fontSize="9" fontWeight="600">
+              In Meeting ↗
+            </text>
+          </g>
+        )}
       </g>
 
       {/* ─────────────────────────────────────────────────────────────
@@ -105,6 +124,15 @@ export function SvgOfficeFurniture() {
         <line x1="110" y1="548" x2="122" y2="548" stroke="#6ee7b7" strokeWidth="1" />
         {/* Accountant Chair */}
         <rect x="160" y="605" width="50" height="16" rx="7" fill="#1e293b" stroke="#059669" strokeWidth="1.2" />
+        {/* Away at Review Station Badge */}
+        {isAcctAway && (
+          <g transform="translate(185, 595)" textAnchor="middle">
+            <rect x="-44" y="-9" width="88" height="18" rx="9" fill="#451a03" stroke="#f59e0b" strokeWidth="1" />
+            <text x="0" y="3" fill="#fef3c7" fontSize="9" fontWeight="600">
+              In Review ↗
+            </text>
+          </g>
+        )}
       </g>
 
       {/* ─────────────────────────────────────────────────────────────
@@ -167,6 +195,15 @@ export function SvgOfficeFurniture() {
         <line x1="1015" y1="536" x2="1035" y2="536" stroke="#7dd3fc" strokeWidth="1" strokeOpacity="0.6" />
         {/* Developer Ergonomic Chair */}
         <rect x="970" y="605" width="50" height="16" rx="7" fill="#1e293b" stroke="#0284c7" strokeWidth="1.2" />
+        {/* Away Badge */}
+        {isDevAway && (
+          <g transform="translate(995, 595)" textAnchor="middle">
+            <rect x="-48" y="-9" width="96" height="18" rx="9" fill="#082f49" stroke="#38bdf8" strokeWidth="1" />
+            <text x="0" y="3" fill="#e0f2fe" fontSize="9" fontWeight="600">
+              Working Away ↗
+            </text>
+          </g>
+        )}
       </g>
 
       {/* ─────────────────────────────────────────────────────────────

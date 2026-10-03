@@ -204,43 +204,66 @@ export function OfficeRendererHost({
 
         {/* Staff Card Fallback */}
         <div className="flex-1 space-y-2.5 overflow-y-auto">
-          {scene.agents.map((agent) => (
-            <div
-              key={agent.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => handleAgentClick(agent.id, agent.sessionKey)}
-              className="flex items-center gap-3 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] p-3 shadow-sm transition hover:border-[var(--theme-border-strong)]"
-            >
+          {scene.agents.map((agent) => {
+            const currentZone = agent.targetZoneId || agent.currentZoneId
+            const zoneLabel =
+              currentZone === 'review_station'
+                ? 'Review Station'
+                : currentZone === 'meeting_room'
+                  ? 'Conference Room'
+                  : currentZone === 'inbox_board'
+                    ? 'Work Inbox'
+                    : currentZone === 'lounge_break'
+                      ? 'Staff Lounge'
+                      : agent.department === 'executive'
+                        ? 'Executive Suite'
+                        : agent.department === 'finance'
+                          ? 'Finance Wing'
+                          : 'Engineering Bay'
+
+            return (
               <div
-                className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/10 text-xl"
-                style={{ backgroundColor: `${agent.colorHex}22` }}
+                key={agent.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => handleAgentClick(agent.id, agent.sessionKey)}
+                className="flex items-center gap-3 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] p-3 shadow-sm transition hover:border-[var(--theme-border-strong)]"
               >
-                {agent.emoji || '🤖'}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-[var(--theme-text)] text-sm">
-                    {agent.name}
-                  </span>
-                  <span
-                    className={`inline-block size-2 rounded-full ${
-                      agent.status === 'working'
-                        ? 'bg-emerald-500'
-                        : agent.status === 'error'
-                          ? 'bg-red-500'
-                          : agent.status === 'waiting'
-                            ? 'bg-amber-500'
-                            : 'bg-slate-400'
-                    }`}
-                  />
+                <div
+                  className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/10 text-xl"
+                  style={{ backgroundColor: `${agent.colorHex}22` }}
+                >
+                  {agent.emoji || '🤖'}
                 </div>
-                <p className="truncate text-xs text-[var(--theme-muted)]">
-                  {agent.currentTaskTitle || agent.roleTitle}
-                </p>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-[var(--theme-text)] text-sm">
+                      {agent.name}
+                    </span>
+                    <span className="rounded-md bg-slate-800/80 px-2 py-0.5 text-[10px] font-medium text-slate-300">
+                      📍 {zoneLabel}
+                    </span>
+                  </div>
+                  <p className="truncate text-xs text-[var(--theme-muted)]">
+                    {agent.currentTaskTitle || agent.roleTitle}
+                  </p>
+                  {agent.movementReason && agent.movementReason !== 'return_home' && (
+                    <p className="text-[10px] text-sky-400 font-medium mt-0.5">
+                      {agent.movementReason === 'approval_required'
+                        ? '⚠️ Approval Required'
+                        : agent.movementReason === 'mission_collaboration'
+                          ? '⚡ Active Mission Session'
+                          : agent.movementReason === 'needs_input'
+                            ? '💬 Needs Input'
+                            : agent.movementReason === 'paused'
+                              ? '☕ Paused'
+                              : agent.movementReason}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </div>

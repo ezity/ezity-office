@@ -20,6 +20,7 @@ import { OFFICE_ZONES } from '@/types/office-scene'
 import type { AgentWorkingRow } from '@/screens/conductor/components/office-view'
 import { getAgentPersona } from '@/screens/conductor/components/agent-avatar'
 import type { WorkItem } from '@/types/task'
+import { deriveAgentOfficeLocation } from './office-movement-rules'
 
 export const CANONICAL_STAFF_DEFS = {
   'ezity-chief-of-staff': {
@@ -339,6 +340,91 @@ export function synthesizeOfficeSceneState(
           activeWorkItemIds: [],
         })
       })
+
+      // In EZity staff mode, ensure the Chief of Staff orchestrator is present in the scene
+      const isEZityStaff =
+        conductor.isEZityStaff === true ||
+        conductor.conductorSettings?.staffOrchestrated === true
+      if (isEZityStaff) {
+        const cosDef = CANONICAL_STAFF_DEFS['ezity-chief-of-staff']
+        const hasCos = agentNodes.some(
+          (a) => a.agentDefinitionId === cosDef.agentDefinitionId,
+        )
+        if (!hasCos) {
+          const isPaused = Boolean(conductor.isPaused)
+          agentNodes.unshift({
+            id: conductor.orchestratorSessionKey || 'conductor-chief-of-staff',
+            agentDefinitionId: cosDef.agentDefinitionId,
+            name: cosDef.name,
+            roleTitle: cosDef.roleTitle,
+            department: cosDef.department,
+            emoji: cosDef.emoji,
+            colorHex: cosDef.colorHex,
+            modelId: conductor.conductorSettings?.orchestratorModel || 'auto',
+            status: isPaused ? 'idle' : 'working',
+            attentionState: isPaused ? 'nominal' : 'working',
+            currentTaskTitle: conductor.goal || 'Coordinating mission...',
+            lastActivityText: isPaused
+              ? 'Paused'
+              : conductor.streamText
+                ? 'Chief of Staff coordinating mission...'
+                : 'Chief of Staff leading mission...',
+            homeDeskId: cosDef.homeDeskId,
+            currentZoneId: cosDef.homeZoneId,
+            targetZoneId: 'meeting_room',
+            isMoving: true,
+            sessionKey:
+              conductor.orchestratorSessionKey || 'conductor-chief-of-staff',
+            pendingApprovalIds: [],
+            activeWorkItemIds: [],
+          })
+        }
+
+        // Also ensure home staff not assigned to the mission remain at their desks
+        const acctDef = CANONICAL_STAFF_DEFS['ezity-accountant']
+        if (!agentNodes.some((a) => a.agentDefinitionId === acctDef.agentDefinitionId)) {
+          agentNodes.push({
+            id: acctDef.agentDefinitionId,
+            agentDefinitionId: acctDef.agentDefinitionId,
+            name: acctDef.name,
+            roleTitle: acctDef.roleTitle,
+            department: acctDef.department,
+            emoji: acctDef.emoji,
+            colorHex: acctDef.colorHex,
+            modelId: 'auto',
+            status: 'idle',
+            attentionState: 'nominal',
+            lastActivityText: acctDef.defaultIdleLine,
+            homeDeskId: acctDef.homeDeskId,
+            currentZoneId: acctDef.homeZoneId,
+            isMoving: false,
+            pendingApprovalIds: [],
+            activeWorkItemIds: [],
+          })
+        }
+
+        const devDef = CANONICAL_STAFF_DEFS['ezity-developer']
+        if (!agentNodes.some((a) => a.agentDefinitionId === devDef.agentDefinitionId)) {
+          agentNodes.push({
+            id: devDef.agentDefinitionId,
+            agentDefinitionId: devDef.agentDefinitionId,
+            name: devDef.name,
+            roleTitle: devDef.roleTitle,
+            department: devDef.department,
+            emoji: devDef.emoji,
+            colorHex: devDef.colorHex,
+            modelId: 'auto',
+            status: 'idle',
+            attentionState: 'nominal',
+            lastActivityText: devDef.defaultIdleLine,
+            homeDeskId: devDef.homeDeskId,
+            currentZoneId: devDef.homeZoneId,
+            isMoving: false,
+            pendingApprovalIds: [],
+            activeWorkItemIds: [],
+          })
+        }
+      }
     } else {
       // Mission decomposing / preparing before workers spawn
       const isEZityStaff = conductor.isEZityStaff !== false
@@ -601,34 +687,46 @@ export function synthesizeOfficeSceneState(
       if (node.status !== 'error') {
         node.status = 'waiting'
       }
-      node.targetZoneId = 'review_station'
     } else if (
       assignedItems.some((i) => i.status === 'needs_attention') &&
       node.status !== 'error'
     ) {
       node.attentionState = 'needs_input'
-      if (!node.targetZoneId && !isMissionActive) {
-        node.targetZoneId = 'inbox_board'
-      }
-    } else if (
-      node.activeWorkItemIds.length > 0 &&
-      node.status === 'idle' &&
-      !node.targetZoneId &&
-      !isMissionActive
-    ) {
-      // Active work item processing
-      node.targetZoneId = 'inbox_board'
     }
 
-    // Chief of Staff multi-agent mission target
-    if (
+    // Determine mission participation linkage
+    const isWorkerExplicitlyInMission =
       isMissionActive &&
       node.department === 'executive' &&
-      !node.pendingApprovalIds.length &&
-      node.targetZoneId !== 'lounge_break'
-    ) {
-      node.targetZoneId = 'meeting_room'
-    }
+      !node.pendingApprovalIds.length
+
+    const isProcessingInbox =
+      node.activeWorkItemIds.length > 0 &&
+      node.status === 'working' &&
+      !isMissionActive &&
+      node.pendingApprovalIds.length === 0
+
+    const isExplicitlyPaused =
+      Boolean(conductor.isPaused) || node.targetZoneId === 'lounge_break'
+
+    // Centralized location and movement reason derivation
+    const derivedLocation = deriveAgentOfficeLocation({
+      agentDefinitionId: node.agentDefinitionId,
+      department: node.department,
+      homeZoneId: node.currentZoneId,
+      status: node.status,
+      attentionState: node.attentionState,
+      isMissionActive,
+      isParticipatingInMission: isWorkerExplicitlyInMission,
+      isPaused: isExplicitlyPaused,
+      pendingApprovalCount: node.pendingApprovalIds.length,
+      activeWorkItemCount: node.activeWorkItemIds.length,
+      isProcessingInboxItem: isProcessingInbox,
+    })
+
+    node.targetZoneId = derivedLocation.targetZoneId
+    node.movementReason = derivedLocation.movementReason
+    node.isMoving = derivedLocation.isMoving
 
     // Fallback current task title from active work item if none set
     if (!node.currentTaskTitle && assignedItems.length > 0) {
