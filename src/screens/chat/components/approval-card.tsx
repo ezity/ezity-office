@@ -37,9 +37,7 @@ export function ApprovalCard({ approval, onResolve }: ApprovalCardProps) {
             : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400',
         )}
       >
-        <span className="shrink-0 font-bold">
-          {wasApproved ? '✓' : '✗'}
-        </span>
+        <span className="shrink-0 font-bold">{wasApproved ? '✓' : '✗'}</span>
         <span className="font-medium">
           {wasApproved ? 'Approved' : 'Denied'}:
         </span>

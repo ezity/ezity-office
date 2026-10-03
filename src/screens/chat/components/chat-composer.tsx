@@ -1579,7 +1579,14 @@ function ChatComposerComponent({
         setAttachments: setComposerAttachments,
       })
     },
-    [focusPrompt, onSubmit, persistDraft, reset, setComposerAttachments, setComposerValue],
+    [
+      focusPrompt,
+      onSubmit,
+      persistDraft,
+      reset,
+      setComposerAttachments,
+      setComposerValue,
+    ],
   )
 
   const handleDismissSlashMenu = useCallback(() => {
@@ -2611,7 +2618,13 @@ function ChatComposerComponent({
                   )}
                 </div>
                 {/* Fast Mode toggle — priority queue for OpenAI/Anthropic (v0.9.0) */}
-                <PromptInputAction tooltip={fastMode ? 'Fast Mode on — click to disable' : 'Fast Mode — priority queue (OpenAI/Anthropic)'}>
+                <PromptInputAction
+                  tooltip={
+                    fastMode
+                      ? 'Fast Mode on — click to disable'
+                      : 'Fast Mode — priority queue (OpenAI/Anthropic)'
+                  }
+                >
                   <Button
                     type="button"
                     size="icon-sm"
@@ -2623,10 +2636,16 @@ function ChatComposerComponent({
                         ? 'text-accent-500 bg-[var(--theme-accent-subtle)] hover:bg-[var(--theme-accent-subtle)]'
                         : 'text-[var(--theme-muted)] hover:bg-[var(--theme-hover)] dark:hover:bg-primary-800 hover:text-[var(--theme-text)]',
                     )}
-                    aria-label={fastMode ? 'Disable Fast Mode' : 'Enable Fast Mode'}
+                    aria-label={
+                      fastMode ? 'Disable Fast Mode' : 'Enable Fast Mode'
+                    }
                     aria-pressed={fastMode}
                   >
-                    <HugeiconsIcon icon={FlashIcon} size={16} strokeWidth={1.5} />
+                    <HugeiconsIcon
+                      icon={FlashIcon}
+                      size={16}
+                      strokeWidth={1.5}
+                    />
                   </Button>
                 </PromptInputAction>
               </div>

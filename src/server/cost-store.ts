@@ -8,7 +8,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import type { CrewUsage, CostStoreData } from '../types/cost'
+import type { CostStoreData, CrewUsage } from '../types/cost'
 
 const DATA_DIR = join(process.cwd(), '.runtime')
 const COSTS_FILE = join(DATA_DIR, 'costs.json')
@@ -18,29 +18,29 @@ const COSTS_FILE = join(DATA_DIR, 'costs.json')
 const PRICE_TABLE: Record<string, { inputPer1M: number; outputPer1M: number }> =
   {
     // Anthropic
-    'claude-opus-4-6':   { inputPer1M: 15.0,  outputPer1M: 75.0 },
-    'claude-opus-4-5':   { inputPer1M: 15.0,  outputPer1M: 75.0 },
-    'claude-sonnet-4-6': { inputPer1M:  3.0,  outputPer1M: 15.0 },
-    'claude-sonnet-4-5': { inputPer1M:  3.0,  outputPer1M: 15.0 },
-    'claude-sonnet-4':   { inputPer1M:  3.0,  outputPer1M: 15.0 },
-    'claude-haiku-4-5':  { inputPer1M:  0.8,  outputPer1M:  4.0 },
-    'claude-haiku-3.5':  { inputPer1M:  0.8,  outputPer1M:  4.0 },
-    'claude-3-5-sonnet': { inputPer1M:  3.0,  outputPer1M: 15.0 },
-    'claude-3-opus':     { inputPer1M: 15.0,  outputPer1M: 75.0 },
+    'claude-opus-4-6': { inputPer1M: 15.0, outputPer1M: 75.0 },
+    'claude-opus-4-5': { inputPer1M: 15.0, outputPer1M: 75.0 },
+    'claude-sonnet-4-6': { inputPer1M: 3.0, outputPer1M: 15.0 },
+    'claude-sonnet-4-5': { inputPer1M: 3.0, outputPer1M: 15.0 },
+    'claude-sonnet-4': { inputPer1M: 3.0, outputPer1M: 15.0 },
+    'claude-haiku-4-5': { inputPer1M: 0.8, outputPer1M: 4.0 },
+    'claude-haiku-3.5': { inputPer1M: 0.8, outputPer1M: 4.0 },
+    'claude-3-5-sonnet': { inputPer1M: 3.0, outputPer1M: 15.0 },
+    'claude-3-opus': { inputPer1M: 15.0, outputPer1M: 75.0 },
     // OpenAI
-    'gpt-4.1':           { inputPer1M:  2.0,  outputPer1M:  8.0 },
-    'gpt-4.1-mini':      { inputPer1M:  0.4,  outputPer1M:  1.6 },
-    'gpt-4o':            { inputPer1M:  2.5,  outputPer1M: 10.0 },
-    'gpt-4o-mini':       { inputPer1M:  0.15, outputPer1M:  0.6 },
-    'gpt-4-turbo':       { inputPer1M: 10.0,  outputPer1M: 30.0 },
-    'o1':                { inputPer1M: 15.0,  outputPer1M: 60.0 },
-    'o3-mini':           { inputPer1M:  1.1,  outputPer1M:  4.4 },
+    'gpt-4.1': { inputPer1M: 2.0, outputPer1M: 8.0 },
+    'gpt-4.1-mini': { inputPer1M: 0.4, outputPer1M: 1.6 },
+    'gpt-4o': { inputPer1M: 2.5, outputPer1M: 10.0 },
+    'gpt-4o-mini': { inputPer1M: 0.15, outputPer1M: 0.6 },
+    'gpt-4-turbo': { inputPer1M: 10.0, outputPer1M: 30.0 },
+    o1: { inputPer1M: 15.0, outputPer1M: 60.0 },
+    'o3-mini': { inputPer1M: 1.1, outputPer1M: 4.4 },
     // Google
-    'gemini-2.5-pro':    { inputPer1M:  1.25, outputPer1M:  5.0 },
-    'gemini-2.5-flash':  { inputPer1M:  0.15, outputPer1M:  0.6 },
-    'gemini-2.0-flash':  { inputPer1M:  0.075, outputPer1M: 0.3 },
+    'gemini-2.5-pro': { inputPer1M: 1.25, outputPer1M: 5.0 },
+    'gemini-2.5-flash': { inputPer1M: 0.15, outputPer1M: 0.6 },
+    'gemini-2.0-flash': { inputPer1M: 0.075, outputPer1M: 0.3 },
     // Fallback
-    __unknown__:         { inputPer1M:  1.0,  outputPer1M:  5.0 },
+    __unknown__: { inputPer1M: 1.0, outputPer1M: 5.0 },
   }
 
 function estimateCost(

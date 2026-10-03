@@ -3,11 +3,18 @@
  */
 import type { CrewUsage } from '@/types/cost'
 import type { QueryClient } from '@tanstack/react-query'
+
 export type { CrewUsage, MemberUsage } from '@/types/cost'
 
-export async function fetchCrewUsage(crewId: string): Promise<CrewUsage | null> {
+export async function fetchCrewUsage(
+  crewId: string,
+): Promise<CrewUsage | null> {
   const res = await fetch(`/api/crews/${crewId}/usage`)
-  const data = (await res.json()) as { ok: boolean; usage?: CrewUsage | null; error?: string }
+  const data = (await res.json()) as {
+    ok: boolean
+    usage?: CrewUsage | null
+    error?: string
+  }
   if (!data.ok) throw new Error(data.error ?? 'Failed to fetch usage')
   return data.usage ?? null
 }
@@ -27,7 +34,11 @@ export async function recordMemberUsage(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   })
-  const data = (await res.json()) as { ok: boolean; usage?: CrewUsage; error?: string }
+  const data = (await res.json()) as {
+    ok: boolean
+    usage?: CrewUsage
+    error?: string
+  }
   if (!data.ok) throw new Error(data.error ?? 'Failed to record usage')
   return data.usage!
 }

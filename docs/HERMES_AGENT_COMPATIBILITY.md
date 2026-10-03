@@ -10,6 +10,7 @@
 Hermes Studio is designed to work with Hermes Agent v0.8.0 and later. However, for optimal compatibility and access to all features, **v0.18.0 or later is strongly recommended**.
 
 This guide covers:
+
 - Version compatibility matrix
 - Known issues and workarounds
 - Deployment best practices
@@ -18,11 +19,11 @@ This guide covers:
 ## Version Compatibility Matrix
 
 | Studio Version | Min Agent | Recommended Agent | Full Features |
-|---|---|---|---|
-| 1.20.0+ | 0.8.0 | 0.18.0+ | ✅ Yes |
-| 1.19.0-1.20.0 | 0.8.0 | 0.15.0+ | ⚠️ Partial |
-| 1.18.0-1.18.1 | 0.8.0 | 0.14.0+ | ⚠️ Partial |
-| Earlier | 0.8.0 | 0.12.0+ | ❌ Limited |
+| -------------- | --------- | ----------------- | ------------- |
+| 1.20.0+        | 0.8.0     | 0.18.0+           | ✅ Yes        |
+| 1.19.0-1.20.0  | 0.8.0     | 0.15.0+           | ⚠️ Partial    |
+| 1.18.0-1.18.1  | 0.8.0     | 0.14.0+           | ⚠️ Partial    |
+| Earlier        | 0.8.0     | 0.12.0+           | ❌ Limited    |
 
 ## What's New in Agent v0.18.0
 
@@ -95,6 +96,7 @@ hermes gateway run  # or --gateway flag
 **Cause:** Running against older Hermes Agent version (< 0.15.0)
 
 **Solution:**
+
 ```bash
 # Update to v0.18.0
 cd hermes-agent && git pull && git checkout v0.18.0
@@ -111,6 +113,7 @@ HERMES_AGENT_VERSION=0.18.0 docker compose up
 **Cause:** Sessions API response format differs from expected
 
 **Solution:**
+
 ```bash
 # Check your Agent version
 curl http://localhost:8642/version
@@ -127,6 +130,7 @@ pip install -e .
 **Cause:** Agent built without optional features
 
 **Solution:**
+
 ```bash
 # Reinstall with all features
 cd hermes-agent
@@ -140,6 +144,7 @@ pip install -e ".[dev]"  # Includes all extras
 **Cause:** Invalid `HERMES_AGENT_VERSION` specified
 
 **Solution:**
+
 ```bash
 # Verify version exists
 git ls-remote --tags https://github.com/outsourc-e/hermes-agent.git | grep v0.18
@@ -221,27 +226,30 @@ if (!compat.compatible) {
 
 ### Memory Usage
 
-| Agent Version | Min RAM | Recommended |
-|---|---|---|
-| 0.8.0 - 0.14.0 | 1 GB | 2 GB |
-| 0.15.0 - 0.17.0 | 1 GB | 2 GB |
-| 0.18.0+ | 1 GB | 2 GB (better GC) |
+| Agent Version   | Min RAM | Recommended      |
+| --------------- | ------- | ---------------- |
+| 0.8.0 - 0.14.0  | 1 GB    | 2 GB             |
+| 0.15.0 - 0.17.0 | 1 GB    | 2 GB             |
+| 0.18.0+         | 1 GB    | 2 GB (better GC) |
 
 ## Migration Path
 
 ### From 0.15.x to 0.18.0
 
 1. **Backup sessions:**
+
    ```bash
    tar -czf hermes-sessions-backup-$(date +%s).tar.gz ~/.hermes
    ```
 
 2. **Update Agent:**
+
    ```bash
    cd hermes-agent && git checkout v0.18.0 && pip install -e .
    ```
 
 3. **Restart Studio:**
+
    ```bash
    pkill -f "node server-entry.js"
    npm run start
@@ -258,16 +266,19 @@ if (!compat.compatible) {
 If you're running an Agent version older than 0.15.0, migration is more involved:
 
 1. **Backup everything:**
+
    ```bash
    tar -czf hermes-full-backup-$(date +%s).tar.gz ~/.hermes /app/.runtime
    ```
 
 2. **Check Agent version:**
+
    ```bash
    hermes --version
    ```
 
 3. **Update Agent (may require config migration):**
+
    ```bash
    cd hermes-agent
    git pull
@@ -277,6 +288,7 @@ If you're running an Agent version older than 0.15.0, migration is more involved
    ```
 
 4. **Test locally:**
+
    ```bash
    hermes gateway run
    # In another terminal:
@@ -290,16 +302,19 @@ If you're running an Agent version older than 0.15.0, migration is more involved
 ### Known Issues
 
 **Agent 0.17.x:**
+
 - Crew session pooling not available
 - Memory snapshots return stale data after first write
 - **Workaround:** Upgrade to 0.18.0
 
 **Agent 0.16.x:**
+
 - Job scheduling has 5-second latency
 - Message streaming may drop final event
 - **Workaround:** Upgrade to 0.18.0
 
 **Agent 0.15.x:**
+
 - No pagination support for sessions
 - Limited bearer token support
 - **Workaround:** Upgrade to 0.18.0
@@ -314,11 +329,13 @@ If you're running an Agent version older than 0.15.0, migration is more involved
 If you encounter version-related issues:
 
 1. **Check the version:**
+
    ```bash
    curl http://localhost:8642/version
    ```
 
 2. **Enable debug logging:**
+
    ```bash
    DEBUG=hermes* npm run dev
    ```

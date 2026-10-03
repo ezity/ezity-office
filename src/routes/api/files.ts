@@ -359,7 +359,10 @@ export const Route = createFileRoute('/api/files')({
               return json({ error: 'Missing file' }, { status: 400 })
             }
             const uploadRoot = getEffectiveRoot(uploadProfile || undefined)
-            const resolvedTarget = ensureWorkspacePathFor(targetPath, uploadRoot)
+            const resolvedTarget = ensureWorkspacePathFor(
+              targetPath,
+              uploadRoot,
+            )
             const isDir = (await fs.stat(resolvedTarget)).isDirectory()
             const destination = isDir
               ? path.join(resolvedTarget, file.name)
@@ -367,7 +370,10 @@ export const Route = createFileRoute('/api/files')({
             await fs.mkdir(path.dirname(destination), { recursive: true })
             const buffer = Buffer.from(await file.arrayBuffer())
             await fs.writeFile(destination, buffer)
-            return json({ ok: true, path: toRelativeFor(destination, uploadRoot) })
+            return json({
+              ok: true,
+              path: toRelativeFor(destination, uploadRoot),
+            })
           }
 
           const body = (await request.json().catch(() => ({}))) as Record<
@@ -380,14 +386,23 @@ export const Route = createFileRoute('/api/files')({
           const postRoot = getEffectiveRoot(postProfile)
 
           if (action === 'mkdir') {
-            const dirPath = ensureWorkspacePathFor(String(body.path || ''), postRoot)
+            const dirPath = ensureWorkspacePathFor(
+              String(body.path || ''),
+              postRoot,
+            )
             await fs.mkdir(dirPath, { recursive: true })
             return json({ ok: true, path: toRelativeFor(dirPath, postRoot) })
           }
 
           if (action === 'rename') {
-            const fromPath = ensureWorkspacePathFor(String(body.from || ''), postRoot)
-            const toPath = ensureWorkspacePathFor(String(body.to || ''), postRoot)
+            const fromPath = ensureWorkspacePathFor(
+              String(body.from || ''),
+              postRoot,
+            )
+            const toPath = ensureWorkspacePathFor(
+              String(body.to || ''),
+              postRoot,
+            )
             await fs.mkdir(path.dirname(toPath), { recursive: true })
             await fs.rename(fromPath, toPath)
             return json({ ok: true, path: toRelativeFor(toPath, postRoot) })
@@ -397,7 +412,10 @@ export const Route = createFileRoute('/api/files')({
             if (!requireLocalOrAuth(request)) {
               return json({ ok: false, error: 'Unauthorized' }, { status: 401 })
             }
-            const targetPath = ensureWorkspacePathFor(String(body.path || ''), postRoot)
+            const targetPath = ensureWorkspacePathFor(
+              String(body.path || ''),
+              postRoot,
+            )
             try {
               // Try macOS trash command first
               await execFileAsync('trash', [targetPath])
@@ -408,7 +426,10 @@ export const Route = createFileRoute('/api/files')({
             return json({ ok: true })
           }
 
-          const filePath = ensureWorkspacePathFor(String(body.path || ''), postRoot)
+          const filePath = ensureWorkspacePathFor(
+            String(body.path || ''),
+            postRoot,
+          )
           const content = typeof body.content === 'string' ? body.content : ''
           await fs.mkdir(path.dirname(filePath), { recursive: true })
           await fs.writeFile(filePath, content, 'utf8')

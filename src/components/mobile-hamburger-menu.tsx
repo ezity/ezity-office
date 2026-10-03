@@ -216,10 +216,10 @@ export function MobileHamburgerMenu() {
                 style={
                   isActive
                     ? {
-                      background:
-                        'var(--color-accent-muted, rgba(99,102,241,0.12))',
-                      color: 'var(--color-accent, #6366f1)',
-                    }
+                        background:
+                          'var(--color-accent-muted, rgba(99,102,241,0.12))',
+                        color: 'var(--color-accent, #6366f1)',
+                      }
                     : { color: 'var(--color-ink-muted, #555)' }
                 }
               >

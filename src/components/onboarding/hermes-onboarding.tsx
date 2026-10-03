@@ -171,7 +171,7 @@ export function HermesOnboarding() {
       if (data.activeProvider) {
         setSelectedProvider((current) => current || data.activeProvider || null)
       }
-    } catch { }
+    } catch {}
   }, [])
 
   const loadModels = useCallback(async () => {
@@ -416,7 +416,7 @@ export function HermesOnboarding() {
             setOauthError(pollData.message || 'Authentication failed')
             setOauthStep('error')
           }
-        } catch { }
+        } catch {}
       }, intervalMs)
     } catch (err) {
       setOauthError(
@@ -493,11 +493,11 @@ export function HermesOnboarding() {
           {step === 'welcome' && (
             <div className="space-y-4 text-center">
               <img
-                src="/hermes-avatar.webp"
-                alt="Hermes"
-                className="mx-auto size-20 rounded-2xl"
+                src="/ezity-logo.png"
+                alt="EZity AI Office"
+                className="mx-auto size-20 object-contain"
                 style={{
-                  filter: 'drop-shadow(0 8px 24px rgba(99,102,241,0.3))',
+                  filter: 'drop-shadow(0 8px 24px rgba(0,198,247,0.3))',
                 }}
               />
               <h2 className="text-xl font-bold">Welcome to EZity AI Office</h2>
@@ -886,8 +886,8 @@ export function HermesOnboarding() {
 
               <div className="flex gap-2">
                 {selectedProvider &&
-                  canEditConfig &&
-                  (needsApiKey || needsBaseUrl) ? (
+                canEditConfig &&
+                (needsApiKey || needsBaseUrl) ? (
                   <button
                     onClick={() => void saveProviderConfig()}
                     disabled={
@@ -1002,7 +1002,7 @@ export function HermesOnboarding() {
                       {testMessage}
                     </p>
                     {testMessage.includes('401') ||
-                      testMessage.toLowerCase().includes('key') ? (
+                    testMessage.toLowerCase().includes('key') ? (
                       <p className="mt-2 text-xs text-yellow-400">
                         Check your provider credentials and account access.
                       </p>

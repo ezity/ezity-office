@@ -8,9 +8,9 @@ import { json } from '@tanstack/react-start'
 import { isAuthenticated } from '../../../server/auth-middleware'
 import { requireJsonContentType } from '../../../server/rate-limit'
 import {
+  deleteAgent,
   getAgent,
   updateAgent,
-  deleteAgent,
 } from '../../../server/agent-definitions-store'
 
 export const Route = createFileRoute('/api/agents/$agentId')({
@@ -21,7 +21,8 @@ export const Route = createFileRoute('/api/agents/$agentId')({
           return json({ ok: false, error: 'Unauthorized' }, { status: 401 })
         }
         const agent = getAgent(params.agentId)
-        if (!agent) return json({ ok: false, error: 'Not found' }, { status: 404 })
+        if (!agent)
+          return json({ ok: false, error: 'Not found' }, { status: 404 })
         return json({ ok: true, agent })
       },
 
@@ -33,12 +34,19 @@ export const Route = createFileRoute('/api/agents/$agentId')({
         if (csrfCheck) return csrfCheck
 
         const existing = getAgent(params.agentId)
-        if (!existing) return json({ ok: false, error: 'Not found' }, { status: 404 })
+        if (!existing)
+          return json({ ok: false, error: 'Not found' }, { status: 404 })
         if (existing.isBuiltIn) {
-          return json({ ok: false, error: 'Built-in agents cannot be modified' }, { status: 403 })
+          return json(
+            { ok: false, error: 'Built-in agents cannot be modified' },
+            { status: 403 },
+          )
         }
 
-        const body = (await request.json().catch(() => ({}))) as Record<string, unknown>
+        const body = (await request.json().catch(() => ({}))) as Record<
+          string,
+          unknown
+        >
         const updates: Parameters<typeof updateAgent>[1] = {}
 
         if (typeof body.name === 'string' && body.name.trim()) {
@@ -56,17 +64,22 @@ export const Route = createFileRoute('/api/agents/$agentId')({
         if (typeof body.systemPrompt === 'string') {
           updates.systemPrompt = body.systemPrompt.trim()
         }
-        if (body.model === null || (typeof body.model === 'string' && body.model.trim())) {
-          updates.model = body.model === null ? null : (body.model as string).trim()
+        if (
+          body.model === null ||
+          (typeof body.model === 'string' && body.model.trim())
+        ) {
+          updates.model =
+            body.model === null ? null : (body.model).trim()
         }
         if (Array.isArray(body.tags)) {
-          updates.tags = (body.tags as unknown[])
+          updates.tags = (body.tags as Array<unknown>)
             .filter((t): t is string => typeof t === 'string')
             .slice(0, 10)
         }
 
         const agent = updateAgent(params.agentId, updates)
-        if (!agent) return json({ ok: false, error: 'Not found' }, { status: 404 })
+        if (!agent)
+          return json({ ok: false, error: 'Not found' }, { status: 404 })
         return json({ ok: true, agent })
       },
 
@@ -76,9 +89,13 @@ export const Route = createFileRoute('/api/agents/$agentId')({
         }
 
         const existing = getAgent(params.agentId)
-        if (!existing) return json({ ok: false, error: 'Not found' }, { status: 404 })
+        if (!existing)
+          return json({ ok: false, error: 'Not found' }, { status: 404 })
         if (existing.isBuiltIn) {
-          return json({ ok: false, error: 'Built-in agents cannot be deleted' }, { status: 403 })
+          return json(
+            { ok: false, error: 'Built-in agents cannot be deleted' },
+            { status: 403 },
+          )
         }
 
         const ok = deleteAgent(params.agentId)

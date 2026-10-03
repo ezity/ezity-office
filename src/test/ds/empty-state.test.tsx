@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { EmptyState } from '@/components/ds/empty-state'
 
@@ -15,13 +15,15 @@ describe('EmptyState', () => {
   })
 
   it('renders description when provided', () => {
-    render(<EmptyState icon={<span />} title="T" description="Try adding one" />)
+    render(
+      <EmptyState icon={<span />} title="T" description="Try adding one" />,
+    )
     expect(screen.getByText('Try adding one')).toBeTruthy()
   })
 
   it('renders action when provided', () => {
     render(
-      <EmptyState icon={<span />} title="T" action={<button>Create</button>} />
+      <EmptyState icon={<span />} title="T" action={<button>Create</button>} />,
     )
     expect(screen.getByRole('button', { name: 'Create' })).toBeTruthy()
   })

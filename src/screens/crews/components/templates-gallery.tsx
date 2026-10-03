@@ -4,22 +4,22 @@ import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
+  Add01Icon,
   Cancel01Icon,
   Delete01Icon,
-  Add01Icon,
 } from '@hugeicons/core-free-icons'
-import {
-  fetchTemplates,
-  deleteUserTemplate,
-} from '@/lib/templates-api'
 import type { CrewTemplate, CrewTemplateCategory } from '@/lib/templates-api'
-import { fetchAgents } from '@/lib/agents-api'
 import type { AgentDefinition } from '@/types/agent'
+import { deleteUserTemplate, fetchTemplates } from '@/lib/templates-api'
+import { fetchAgents } from '@/lib/agents-api'
 import { AGENT_PERSONAS } from '@/lib/agent-personas'
 import { toast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils'
 
-const CATEGORIES: Array<{ value: 'all' | CrewTemplateCategory; label: string }> = [
+const CATEGORIES: Array<{
+  value: 'all' | CrewTemplateCategory
+  label: string
+}> = [
   { value: 'all', label: 'All' },
   { value: 'research', label: 'Research' },
   { value: 'engineering', label: 'Engineering' },
@@ -50,7 +50,7 @@ function TemplateCard({
   isDeleting,
 }: {
   template: CrewTemplate
-  agents: AgentDefinition[]
+  agents: Array<AgentDefinition>
   onSelect: () => void
   onDelete: () => void
   isDeleting: boolean
@@ -99,7 +99,9 @@ function TemplateCard({
       <div className="mb-4 flex flex-wrap gap-1">
         {template.defaultMembers.map((m, i) => {
           const agent = agents.find((a) => a.name.toLowerCase() === m.persona)
-          const builtIn = AGENT_PERSONAS.find((p) => p.name.toLowerCase() === m.persona)
+          const builtIn = AGENT_PERSONAS.find(
+            (p) => p.name.toLowerCase() === m.persona,
+          )
           const emoji = agent?.emoji ?? builtIn?.emoji ?? '🤖'
           const displayName = agent?.name ?? builtIn?.name ?? m.persona
           return (
@@ -127,8 +129,14 @@ function TemplateCard({
   )
 }
 
-export function TemplatesGallery({ open, onOpenChange, onSelectTemplate }: Props) {
-  const [activeCategory, setActiveCategory] = useState<'all' | CrewTemplateCategory>('all')
+export function TemplatesGallery({
+  open,
+  onOpenChange,
+  onSelectTemplate,
+}: Props) {
+  const [activeCategory, setActiveCategory] = useState<
+    'all' | CrewTemplateCategory
+  >('all')
   const queryClient = useQueryClient()
 
   const templatesQuery = useQuery({
@@ -188,8 +196,10 @@ export function TemplatesGallery({ open, onOpenChange, onSelectTemplate }: Props
       />
 
       {/* Dialog */}
-      <div className="relative z-10 flex w-full max-w-3xl flex-col rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] shadow-2xl"
-        style={{ maxHeight: 'min(680px, 90vh)' }}>
+      <div
+        className="relative z-10 flex w-full max-w-3xl flex-col rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] shadow-2xl"
+        style={{ maxHeight: 'min(680px, 90vh)' }}
+      >
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-[var(--theme-border)] px-6 py-4">
           <div>
@@ -248,7 +258,10 @@ export function TemplatesGallery({ open, onOpenChange, onSelectTemplate }: Props
                     onSelectTemplate(template)
                   }}
                   onDelete={() => deleteMutation.mutate(template.id)}
-                  isDeleting={deleteMutation.isPending && deleteMutation.variables === template.id}
+                  isDeleting={
+                    deleteMutation.isPending &&
+                    deleteMutation.variables === template.id
+                  }
                 />
               ))}
             </div>

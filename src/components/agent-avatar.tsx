@@ -142,12 +142,12 @@ function AgentAvatar({
             </span>
           ) : (
             <img
-              src="/hermes-avatar.webp"
-              alt="Hermes"
+              src="/ezity-logo.png"
+              alt="EZity"
               className={cn(
                 getLogoSizeClassName(size),
                 iconClassName,
-                'rounded-xl',
+                'rounded-xl object-contain',
               )}
             />
           )}

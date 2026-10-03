@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ConsoleIcon, Cancel01Icon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon, ConsoleIcon } from '@hugeicons/core-free-icons'
 import { EmptyState } from '@/components/ds'
 
 type LogLevel = 'all' | 'errors'
@@ -50,7 +50,10 @@ export function LogsScreen() {
         .filter(Boolean)
         .map((raw) => ({ raw, level: parseLevel(raw) }))
       setLines(parsed)
-      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+      setTimeout(
+        () => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }),
+        50,
+      )
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch logs')
     } finally {
@@ -71,8 +74,14 @@ export function LogsScreen() {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[var(--theme-border)] px-4 py-3">
         <div className="flex items-center gap-2">
-          <HugeiconsIcon icon={ConsoleIcon} size={18} className="text-[var(--theme-accent)]" />
-          <h1 className="text-base font-semibold text-[var(--theme-text)]">Logs</h1>
+          <HugeiconsIcon
+            icon={ConsoleIcon}
+            size={18}
+            className="text-[var(--theme-accent)]"
+          />
+          <h1 className="text-base font-semibold text-[var(--theme-text)]">
+            Logs
+          </h1>
           {lines.length > 0 && (
             <span className="rounded-full bg-[var(--theme-panel)] px-2 py-0.5 text-xs text-[var(--theme-muted)]">
               {visible.length}
@@ -89,7 +98,8 @@ export function LogsScreen() {
                 onClick={() => setFilter(lvl)}
                 className="rounded-md px-3 py-1 text-xs font-medium transition-colors"
                 style={{
-                  background: filter === lvl ? 'var(--theme-accent)' : 'transparent',
+                  background:
+                    filter === lvl ? 'var(--theme-accent)' : 'transparent',
                   color: filter === lvl ? '#fff' : 'var(--theme-muted)',
                 }}
               >

@@ -1,16 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { fetchSessions, type GatewaySession } from '@/lib/gateway-api'
+import type {GatewaySession} from '@/lib/gateway-api';
+import type {ConductorSettings, ConductorTask, ConductorWorker, MissionHistoryEntry, MissionHistoryWorkerDetail, MissionPhase, PersistedMission, StreamEvent} from '@/types/conductor';
+import {  fetchSessions } from '@/lib/gateway-api'
 import {
-  type MissionPhase,
-  type ConductorSettings,
-  type ConductorWorker,
-  type ConductorTask,
-  type MissionHistoryEntry,
-  type MissionHistoryWorkerDetail,
-  type StreamEvent,
-  type PersistedMission,
-  DEFAULT_CONDUCTOR_SETTINGS,
+  
+  
+  
+  DEFAULT_CONDUCTOR_SETTINGS
+  
+  
+  
+  
+  
 } from '@/types/conductor'
 
 // Re-export useful types for consumers
@@ -33,12 +35,12 @@ type HistoryMessagePart = {
 
 type HistoryMessage = {
   role?: string
-  content?: string | HistoryMessagePart[]
+  content?: string | Array<HistoryMessagePart>
   text?: string
 }
 
 type HistoryResponse = {
-  messages?: HistoryMessage[]
+  messages?: Array<HistoryMessage>
   error?: string
 }
 
@@ -51,7 +53,16 @@ const CONDUCTOR_SETTINGS_STORAGE_KEY = 'conductor-settings'
 const HISTORY_STORAGE_KEY = 'conductor:history'
 const MAX_HISTORY_ENTRIES = 50
 
-const AGENT_NAMES = ['Nova', 'Pixel', 'Blaze', 'Echo', 'Sage', 'Drift', 'Flux', 'Volt']
+const AGENT_NAMES = [
+  'Nova',
+  'Pixel',
+  'Blaze',
+  'Echo',
+  'Sage',
+  'Drift',
+  'Flux',
+  'Volt',
+]
 const AGENT_EMOJIS = ['🤖', '⚡', '🔥', '🌊', '🌿', '💫', '🔮', '⭐']
 
 function getAgentPersona(index: number) {
@@ -65,8 +76,8 @@ function getAgentPersona(index: number) {
 // Helper functions
 // ---------------------------------------------------------------------------
 
-function extractTasksFromPlan(planText: string): ConductorTask[] {
-  const tasks: ConductorTask[] = []
+function extractTasksFromPlan(planText: string): Array<ConductorTask> {
+  const tasks: Array<ConductorTask> = []
   const patterns = [
     /^\s*(\d+)\.\s+(.+)$/gm,
     /^\s*#{1,3}\s+(?:Step\s+)?(\d+)[.:]\s*(.+)$/gm,
@@ -82,7 +93,13 @@ function extractTasksFromPlan(planText: string): ConductorTask[] {
       const id = `task-${num}`
       if (!seen.has(id) && title.length > 3 && title.length < 200) {
         seen.add(id)
-        tasks.push({ id, title, status: 'pending', workerKey: null, output: null })
+        tasks.push({
+          id,
+          title,
+          status: 'pending',
+          workerKey: null,
+          output: null,
+        })
       }
     }
   }
@@ -97,7 +114,9 @@ function extractTasksFromPlan(planText: string): ConductorTask[] {
 }
 
 function readString(value: unknown): string | null {
-  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null
+  return typeof value === 'string' && value.trim().length > 0
+    ? value.trim()
+    : null
 }
 
 function readNumber(value: unknown): number | null {
@@ -128,21 +147,32 @@ function loadPersistedMission(): PersistedMission | null {
     const parsed = JSON.parse(raw) as Record<string, unknown>
     const goal = typeof parsed.goal === 'string' ? parsed.goal : null
     const phase = parsed.phase
-    const streamText = typeof parsed.streamText === 'string' ? parsed.streamText : null
-    const planText = typeof parsed.planText === 'string' ? parsed.planText : null
+    const streamText =
+      typeof parsed.streamText === 'string' ? parsed.streamText : null
+    const planText =
+      typeof parsed.planText === 'string' ? parsed.planText : null
     const workerKeys = Array.isArray(parsed.workerKeys)
-      ? parsed.workerKeys.filter((value): value is string => typeof value === 'string')
+      ? parsed.workerKeys.filter(
+          (value): value is string => typeof value === 'string',
+        )
       : null
     const workerLabels = Array.isArray(parsed.workerLabels)
-      ? parsed.workerLabels.filter((value): value is string => typeof value === 'string')
+      ? parsed.workerLabels.filter(
+          (value): value is string => typeof value === 'string',
+        )
       : null
     const workerOutputs =
-      parsed.workerOutputs && typeof parsed.workerOutputs === 'object' && !Array.isArray(parsed.workerOutputs)
+      parsed.workerOutputs &&
+      typeof parsed.workerOutputs === 'object' &&
+      !Array.isArray(parsed.workerOutputs)
         ? Object.fromEntries(
-          Object.entries(parsed.workerOutputs as Record<string, unknown>).filter(
-            (entry): entry is [string, string] => typeof entry[0] === 'string' && typeof entry[1] === 'string',
-          ),
-        )
+            Object.entries(
+              parsed.workerOutputs as Record<string, unknown>,
+            ).filter(
+              (entry): entry is [string, string] =>
+                typeof entry[0] === 'string' && typeof entry[1] === 'string',
+            ),
+          )
         : {}
     const missionStartedAt =
       parsed.missionStartedAt === null || parsed.missionStartedAt === undefined
@@ -150,47 +180,65 @@ function loadPersistedMission(): PersistedMission | null {
         : toIso(parsed.missionStartedAt)
     const isPaused = parsed.isPaused === true
     const pausedElapsedMs =
-      typeof parsed.pausedElapsedMs === 'number' && Number.isFinite(parsed.pausedElapsedMs)
+      typeof parsed.pausedElapsedMs === 'number' &&
+      Number.isFinite(parsed.pausedElapsedMs)
         ? Math.max(0, parsed.pausedElapsedMs)
         : 0
     const accumulatedPausedMs =
-      typeof parsed.accumulatedPausedMs === 'number' && Number.isFinite(parsed.accumulatedPausedMs)
+      typeof parsed.accumulatedPausedMs === 'number' &&
+      Number.isFinite(parsed.accumulatedPausedMs)
         ? Math.max(0, parsed.accumulatedPausedMs)
         : 0
     const pauseStartedAt =
-      parsed.pauseStartedAt === null || parsed.pauseStartedAt === undefined ? null : toIso(parsed.pauseStartedAt)
+      parsed.pauseStartedAt === null || parsed.pauseStartedAt === undefined
+        ? null
+        : toIso(parsed.pauseStartedAt)
     const completedAt =
-      parsed.completedAt === null || parsed.completedAt === undefined ? null : toIso(parsed.completedAt)
+      parsed.completedAt === null || parsed.completedAt === undefined
+        ? null
+        : toIso(parsed.completedAt)
     const tasks = Array.isArray(parsed.tasks)
       ? parsed.tasks
-        .map((task): ConductorTask | null => {
-          const record = readRecord(task)
-          if (!record) return null
-          const id = readString(record.id)
-          const title = readString(record.title)
-          const status = record.status
-          if (
-            !id ||
-            !title ||
-            (status !== 'pending' && status !== 'running' && status !== 'complete' && status !== 'failed')
-          ) {
-            return null
-          }
+          .map((task): ConductorTask | null => {
+            const record = readRecord(task)
+            if (!record) return null
+            const id = readString(record.id)
+            const title = readString(record.title)
+            const status = record.status
+            if (
+              !id ||
+              !title ||
+              (status !== 'pending' &&
+                status !== 'running' &&
+                status !== 'complete' &&
+                status !== 'failed')
+            ) {
+              return null
+            }
 
-          return {
-            id,
-            title,
-            status,
-            workerKey: record.workerKey === null || record.workerKey === undefined ? null : readString(record.workerKey),
-            output: record.output === null || record.output === undefined ? null : readString(record.output),
-          }
-        })
-        .filter((task): task is ConductorTask => task !== null)
+            return {
+              id,
+              title,
+              status,
+              workerKey:
+                record.workerKey === null || record.workerKey === undefined
+                  ? null
+                  : readString(record.workerKey),
+              output:
+                record.output === null || record.output === undefined
+                  ? null
+                  : readString(record.output),
+            }
+          })
+          .filter((task): task is ConductorTask => task !== null)
       : []
 
     if (
       !goal ||
-      (phase !== 'idle' && phase !== 'decomposing' && phase !== 'running' && phase !== 'complete') ||
+      (phase !== 'idle' &&
+        phase !== 'decomposing' &&
+        phase !== 'running' &&
+        phase !== 'complete') ||
       streamText === null ||
       planText === null ||
       !workerKeys ||
@@ -236,20 +284,27 @@ function loadConductorSettings(): ConductorSettings {
           ? parsed.orchestratorModel
           : DEFAULT_CONDUCTOR_SETTINGS.orchestratorModel,
       workerModel:
-        typeof parsed.workerModel === 'string' ? parsed.workerModel : DEFAULT_CONDUCTOR_SETTINGS.workerModel,
+        typeof parsed.workerModel === 'string'
+          ? parsed.workerModel
+          : DEFAULT_CONDUCTOR_SETTINGS.workerModel,
       projectsDir:
-        typeof parsed.projectsDir === 'string' ? parsed.projectsDir : DEFAULT_CONDUCTOR_SETTINGS.projectsDir,
+        typeof parsed.projectsDir === 'string'
+          ? parsed.projectsDir
+          : DEFAULT_CONDUCTOR_SETTINGS.projectsDir,
       maxParallel: Math.min(
         5,
         Math.max(
           1,
-          typeof parsed.maxParallel === 'number' && Number.isFinite(parsed.maxParallel)
+          typeof parsed.maxParallel === 'number' &&
+            Number.isFinite(parsed.maxParallel)
             ? Math.round(parsed.maxParallel)
             : DEFAULT_CONDUCTOR_SETTINGS.maxParallel,
         ),
       ),
       supervised:
-        typeof parsed.supervised === 'boolean' ? parsed.supervised : DEFAULT_CONDUCTOR_SETTINGS.supervised,
+        typeof parsed.supervised === 'boolean'
+          ? parsed.supervised
+          : DEFAULT_CONDUCTOR_SETTINGS.supervised,
       staffOrchestrated:
         typeof parsed.staffOrchestrated === 'boolean'
           ? parsed.staffOrchestrated
@@ -262,13 +317,16 @@ function loadConductorSettings(): ConductorSettings {
 
 function persistConductorSettings(settings: ConductorSettings): void {
   try {
-    globalThis.localStorage?.setItem(CONDUCTOR_SETTINGS_STORAGE_KEY, JSON.stringify(settings))
+    globalThis.localStorage?.setItem(
+      CONDUCTOR_SETTINGS_STORAGE_KEY,
+      JSON.stringify(settings),
+    )
   } catch {
     // Ignore persistence failures.
   }
 }
 
-function loadMissionHistory(): MissionHistoryEntry[] {
+function loadMissionHistory(): Array<MissionHistoryEntry> {
   try {
     const raw = globalThis.localStorage?.getItem(HISTORY_STORAGE_KEY)
     if (!raw) return []
@@ -279,7 +337,12 @@ function loadMissionHistory(): MissionHistoryEntry[] {
       .filter((entry: unknown): entry is MissionHistoryEntry => {
         if (!entry || typeof entry !== 'object') return false
         const e = entry as Record<string, unknown>
-        if (typeof e.id !== 'string' || typeof e.goal !== 'string' || typeof e.startedAt !== 'string') return false
+        if (
+          typeof e.id !== 'string' ||
+          typeof e.goal !== 'string' ||
+          typeof e.startedAt !== 'string'
+        )
+          return false
         if (seen.has(e.id)) return false
         seen.add(e.id)
         return true
@@ -287,13 +350,19 @@ function loadMissionHistory(): MissionHistoryEntry[] {
       .map((entry) => {
         const projectPath =
           (typeof entry.projectPath === 'string' && entry.projectPath.trim()) ||
-          extractProjectPath(typeof entry.projectPath === 'string' ? entry.projectPath : '') ||
+          extractProjectPath(
+            typeof entry.projectPath === 'string' ? entry.projectPath : '',
+          ) ||
           null
-        const outputText = typeof entry.outputText === 'string' ? entry.outputText : undefined
-        const streamText = typeof entry.streamText === 'string' ? entry.streamText : undefined
+        const outputText =
+          typeof entry.outputText === 'string' ? entry.outputText : undefined
+        const streamText =
+          typeof entry.streamText === 'string' ? entry.streamText : undefined
         const outputPath =
           (typeof entry.outputPath === 'string' && entry.outputPath.trim()) ||
-          extractProjectPath(typeof entry.outputPath === 'string' ? entry.outputPath : '') ||
+          extractProjectPath(
+            typeof entry.outputPath === 'string' ? entry.outputPath : '',
+          ) ||
           projectPath ||
           extractProjectPath(outputText ?? '') ||
           extractProjectPath(streamText ?? '') ||
@@ -318,7 +387,10 @@ function appendMissionHistory(entry: MissionHistoryEntry): void {
     // Deduplicate by id before appending
     const filtered = current.filter((e) => e.id !== entry.id)
     const updated = [entry, ...filtered].slice(0, MAX_HISTORY_ENTRIES)
-    globalThis.localStorage?.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updated))
+    globalThis.localStorage?.setItem(
+      HISTORY_STORAGE_KEY,
+      JSON.stringify(updated),
+    )
   } catch {
     // Ignore persistence failures.
   }
@@ -326,7 +398,10 @@ function appendMissionHistory(entry: MissionHistoryEntry): void {
 
 function persistMission(state: PersistedMission): void {
   try {
-    globalThis.localStorage?.setItem(ACTIVE_MISSION_STORAGE_KEY, JSON.stringify(state))
+    globalThis.localStorage?.setItem(
+      ACTIVE_MISSION_STORAGE_KEY,
+      JSON.stringify(state),
+    )
   } catch {
     // Ignore persistence failures.
   }
@@ -362,22 +437,49 @@ function readContextTokens(session: GatewaySession): number {
   )
 }
 
-function deriveWorkerStatus(session: GatewaySession, updatedAt: string | null): ConductorWorker['status'] {
-  const status = (readString(session.status) ?? readString(session.state))?.toLowerCase()
-  if (status && ['complete', 'completed', 'done', 'success', 'succeeded', 'finished'].includes(status)) return 'complete'
-  if (status && ['idle', 'waiting', 'sleeping', 'paused'].includes(status)) return 'idle'
-  if (status && ['error', 'errored', 'failed', 'cancelled', 'canceled', 'killed'].includes(status)) return 'stale'
+function deriveWorkerStatus(
+  session: GatewaySession,
+  updatedAt: string | null,
+): ConductorWorker['status'] {
+  const status = (
+    readString(session.status) ?? readString(session.state)
+  )?.toLowerCase()
+  if (
+    status &&
+    [
+      'complete',
+      'completed',
+      'done',
+      'success',
+      'succeeded',
+      'finished',
+    ].includes(status)
+  )
+    return 'complete'
+  if (status && ['idle', 'waiting', 'sleeping', 'paused'].includes(status))
+    return 'idle'
+  if (
+    status &&
+    ['error', 'errored', 'failed', 'cancelled', 'canceled', 'killed'].includes(
+      status,
+    )
+  )
+    return 'stale'
 
   const updatedMs = updatedAt ? new Date(updatedAt).getTime() : 0
   const staleness = updatedMs > 0 ? Date.now() - updatedMs : 0
-  const totalTokens = readNumber(session.totalTokens) ?? readNumber(session.tokenCount) ?? 0
+  const totalTokens =
+    readNumber(session.totalTokens) ?? readNumber(session.tokenCount) ?? 0
 
   if (totalTokens > 0 && staleness > 10_000) return 'complete'
   if (staleness > 120_000) return 'stale'
   return 'running'
 }
 
-function workersLookComplete(workers: ConductorWorker[], staleAfterMs: number): boolean {
+function workersLookComplete(
+  workers: Array<ConductorWorker>,
+  staleAfterMs: number,
+): boolean {
   if (workers.length === 0) return false
 
   return workers.every((worker) => {
@@ -424,7 +526,8 @@ function formatDisplayName(session: GatewaySession): string {
 }
 
 function formatTokenUsage(totalTokens: number, contextTokens: number): string {
-  if (contextTokens > 0) return `${totalTokens.toLocaleString()} / ${contextTokens.toLocaleString()} tok`
+  if (contextTokens > 0)
+    return `${totalTokens.toLocaleString()} / ${contextTokens.toLocaleString()} tok`
   return `${totalTokens.toLocaleString()} tok`
 }
 
@@ -432,8 +535,11 @@ function toWorker(session: GatewaySession): ConductorWorker | null {
   const key = readString(session.key)
   if (!key) return null
   const label = readString(session.label) ?? 'worker'
-  const updatedAt = toIso(session.updatedAt ?? session.startedAt ?? session.createdAt)
-  const totalTokens = readNumber(session.totalTokens) ?? readNumber(session.tokenCount) ?? 0
+  const updatedAt = toIso(
+    session.updatedAt ?? session.startedAt ?? session.createdAt,
+  )
+  const totalTokens =
+    readNumber(session.totalTokens) ?? readNumber(session.tokenCount) ?? 0
   const contextTokens = readContextTokens(session)
 
   return {
@@ -455,7 +561,9 @@ function toWorker(session: GatewaySession): ConductorWorker | null {
   }
 }
 
-function extractHistoryMessageText(message: HistoryMessage | undefined): string {
+function extractHistoryMessageText(
+  message: HistoryMessage | undefined,
+): string {
   if (!message) return ''
   if (typeof message.content === 'string') return message.content
   if (Array.isArray(message.content)) {
@@ -467,7 +575,9 @@ function extractHistoryMessageText(message: HistoryMessage | undefined): string 
   return ''
 }
 
-function getLastAssistantMessage(messages: HistoryMessage[] | undefined): string {
+function getLastAssistantMessage(
+  messages: Array<HistoryMessage> | undefined,
+): string {
   if (!Array.isArray(messages)) return ''
   // Return the longest assistant message so we prefer the substantive work output.
   let best = ''
@@ -515,15 +625,17 @@ function extractProjectPath(text: string): string | null {
 }
 
 function buildMissionOutputPath(
-  workers: ConductorWorker[],
+  workers: Array<ConductorWorker>,
   workerOutputs: Record<string, string>,
-  tasks: ConductorTask[],
+  tasks: Array<ConductorTask>,
   streamText: string,
 ): string | null {
   const workerOutputTexts = [
     ...Object.values(workerOutputs),
     ...workers.map((worker) =>
-      getLastAssistantMessage(worker.raw.messages as HistoryMessage[] | undefined),
+      getLastAssistantMessage(
+        worker.raw.messages as Array<HistoryMessage> | undefined,
+      ),
     ),
   ].filter(Boolean)
 
@@ -544,9 +656,11 @@ function buildMissionOutputPath(
   return null
 }
 
-function summarizeWorkers(workers: ConductorWorker[]): string[] {
+function summarizeWorkers(workers: Array<ConductorWorker>): Array<string> {
   return workers.map((worker) => {
-    const output = getLastAssistantMessage(worker.raw.messages as HistoryMessage[] | undefined)
+    const output = getLastAssistantMessage(
+      worker.raw.messages as Array<HistoryMessage> | undefined,
+    )
     const firstLine = output
       .split(/\n+/)
       .map((line) => line.trim())
@@ -565,8 +679,19 @@ function buildCompleteSummary(params: {
   totalTokens: number
   outputPath: string | null
 }): string {
-  const { goal, streamError, missionStartedAt, completedAt, totalWorkers, totalTokens, outputPath } = params
-  const durationMs = Math.max(0, new Date(completedAt).getTime() - new Date(missionStartedAt).getTime())
+  const {
+    goal,
+    streamError,
+    missionStartedAt,
+    completedAt,
+    totalWorkers,
+    totalTokens,
+    outputPath,
+  } = params
+  const durationMs = Math.max(
+    0,
+    new Date(completedAt).getTime() - new Date(missionStartedAt).getTime(),
+  )
   const totalSeconds = Math.floor(durationMs / 1000)
   const hours = Math.floor(totalSeconds / 3600)
   const minutes = Math.floor((totalSeconds % 3600) / 60)
@@ -586,7 +711,9 @@ function buildCompleteSummary(params: {
   ]
 
   if (totalWorkers > 0) {
-    lines.push(`**Workers:** ${totalWorkers} ran · ${totalTokens.toLocaleString()} tokens`)
+    lines.push(
+      `**Workers:** ${totalWorkers} ran · ${totalTokens.toLocaleString()} tokens`,
+    )
   }
 
   if (outputPath) {
@@ -597,7 +724,7 @@ function buildCompleteSummary(params: {
 }
 
 function buildMissionOutputText(
-  workers: ConductorWorker[],
+  workers: Array<ConductorWorker>,
   workerOutputs: Record<string, string>,
   streamText: string,
 ): string {
@@ -605,7 +732,9 @@ function buildMissionOutputText(
     .map((worker) => {
       const output = (
         workerOutputs[worker.key] ??
-        getLastAssistantMessage(worker.raw.messages as HistoryMessage[] | undefined)
+        getLastAssistantMessage(
+          worker.raw.messages as Array<HistoryMessage> | undefined,
+        )
       ).trim()
       if (!output) return null
       return `### ${worker.displayName}\n\n${output}`
@@ -619,7 +748,10 @@ function buildMissionOutputText(
   return streamText.trim().slice(0, 5000)
 }
 
-async function fetchWorkerOutput(sessionKey: string, limit = 5): Promise<string> {
+async function fetchWorkerOutput(
+  sessionKey: string,
+  limit = 5,
+): Promise<string> {
   const response = await fetch(
     `/api/history?sessionKey=${encodeURIComponent(sessionKey)}&limit=${limit}`,
   )
@@ -635,20 +767,30 @@ async function fetchWorkerOutput(sessionKey: string, limit = 5): Promise<string>
 // ---------------------------------------------------------------------------
 
 export function useConductorGateway() {
-  const [initialMission] = useState<PersistedMission | null>(() => loadPersistedMission())
-  const [phase, setPhase] = useState<MissionPhase>(() => initialMission?.phase ?? 'idle')
-  const [goal, setGoal] = useState(() => initialMission?.goal ?? '')
-  const [orchestratorSessionKey, setOrchestratorSessionKey] = useState<string | null>(
-    () => initialMission?.workerKeys[0] ?? null,
+  const [initialMission] = useState<PersistedMission | null>(() =>
+    loadPersistedMission(),
   )
-  const [streamText, setStreamText] = useState(() => initialMission?.streamText ?? '')
+  const [phase, setPhase] = useState<MissionPhase>(
+    () => initialMission?.phase ?? 'idle',
+  )
+  const [goal, setGoal] = useState(() => initialMission?.goal ?? '')
+  const [orchestratorSessionKey, setOrchestratorSessionKey] = useState<
+    string | null
+  >(() => initialMission?.workerKeys[0] ?? null)
+  const [streamText, setStreamText] = useState(
+    () => initialMission?.streamText ?? '',
+  )
   const [planText, setPlanText] = useState(() => initialMission?.planText ?? '')
-  const [streamEvents, setStreamEvents] = useState<StreamEvent[]>([])
+  const [streamEvents, setStreamEvents] = useState<Array<StreamEvent>>([])
   const [missionStartedAt, setMissionStartedAt] = useState<string | null>(
     () => initialMission?.missionStartedAt ?? null,
   )
-  const [isPaused, setIsPaused] = useState(() => initialMission?.isPaused ?? false)
-  const [pausedElapsedMs, setPausedElapsedMs] = useState(() => initialMission?.pausedElapsedMs ?? 0)
+  const [isPaused, setIsPaused] = useState(
+    () => initialMission?.isPaused ?? false,
+  )
+  const [pausedElapsedMs, setPausedElapsedMs] = useState(
+    () => initialMission?.pausedElapsedMs ?? 0,
+  )
   const [accumulatedPausedMs, setAccumulatedPausedMs] = useState(
     () => initialMission?.accumulatedPausedMs ?? 0,
   )
@@ -669,13 +811,16 @@ export function useConductorGateway() {
   const [workerOutputs, setWorkerOutputs] = useState<Record<string, string>>(
     () => initialMission?.workerOutputs ?? {},
   )
-  const [tasks, setTasks] = useState<ConductorTask[]>(() => initialMission?.tasks ?? [])
-  const [missionHistory, setMissionHistory] = useState<MissionHistoryEntry[]>(() =>
-    loadMissionHistory(),
+  const [tasks, setTasks] = useState<Array<ConductorTask>>(
+    () => initialMission?.tasks ?? [],
   )
-  const [selectedHistoryEntry, setSelectedHistoryEntry] = useState<MissionHistoryEntry | null>(null)
-  const [conductorSettings, setConductorSettings] = useState<ConductorSettings>(() =>
-    loadConductorSettings(),
+  const [missionHistory, setMissionHistory] = useState<Array<MissionHistoryEntry>>(
+    () => loadMissionHistory(),
+  )
+  const [selectedHistoryEntry, setSelectedHistoryEntry] =
+    useState<MissionHistoryEntry | null>(null)
+  const [conductorSettings, setConductorSettings] = useState<ConductorSettings>(
+    () => loadConductorSettings(),
   )
   const doneRef = useRef(initialMission?.phase === 'complete')
   const seenToolCallRef = useRef(false)
@@ -692,7 +837,9 @@ export function useConductorGateway() {
     queryFn: async () => {
       const payload = await fetchSessions()
       const sessions = Array.isArray(payload.sessions) ? payload.sessions : []
-      const missionStartMs = missionStartedAt ? new Date(missionStartedAt).getTime() : 0
+      const missionStartMs = missionStartedAt
+        ? new Date(missionStartedAt).getTime()
+        : 0
       return sessions
         .filter((session) => {
           const label = readString(session.label) ?? ''
@@ -705,20 +852,35 @@ export function useConductorGateway() {
 
           // Match by worker label pattern
           if (label.startsWith('worker-') || label.startsWith('conductor-')) {
-            if (missionWorkerLabels.size > 0 && missionWorkerLabels.has(label)) {
+            if (
+              missionWorkerLabels.size > 0 &&
+              missionWorkerLabels.has(label)
+            ) {
               return true
             }
             // Match by creation time (workers spawned after mission start)
-            const createdIso = toIso(session.createdAt ?? session.startedAt ?? session.updatedAt)
-            if (createdIso && missionStartMs && new Date(createdIso).getTime() >= missionStartMs) {
+            const createdIso = toIso(
+              session.createdAt ?? session.startedAt ?? session.updatedAt,
+            )
+            if (
+              createdIso &&
+              missionStartMs &&
+              new Date(createdIso).getTime() >= missionStartMs
+            ) {
               return true
             }
           }
 
           // Match subagent sessions created after mission start
           if (key.includes(':subagent:')) {
-            const createdIso = toIso(session.createdAt ?? session.startedAt ?? session.updatedAt)
-            if (createdIso && missionStartMs && new Date(createdIso).getTime() >= missionStartMs) {
+            const createdIso = toIso(
+              session.createdAt ?? session.startedAt ?? session.updatedAt,
+            )
+            if (
+              createdIso &&
+              missionStartMs &&
+              new Date(createdIso).getTime() >= missionStartMs
+            ) {
               return true
             }
           }
@@ -731,14 +893,17 @@ export function useConductorGateway() {
           const statusRank = { running: 0, idle: 1, complete: 2, stale: 3 }
           const rankDiff = statusRank[a.status] - statusRank[b.status]
           if (rankDiff !== 0) return rankDiff
-          return new Date(b.updatedAt ?? 0).getTime() - new Date(a.updatedAt ?? 0).getTime()
+          return (
+            new Date(b.updatedAt ?? 0).getTime() -
+            new Date(a.updatedAt ?? 0).getTime()
+          )
         })
     },
     enabled: phase !== 'idle',
     refetchInterval:
       phase === 'decomposing' ||
-        phase === 'running' ||
-        (phase === 'complete' && Object.keys(workerOutputs).length === 0)
+      phase === 'running' ||
+      (phase === 'complete' && Object.keys(workerOutputs).length === 0)
         ? 3_000
         : false,
   })
@@ -757,7 +922,9 @@ export function useConductorGateway() {
         .filter((session) => {
           const label = readString(session.label) ?? ''
           const key = readString(session.key) ?? ''
-          const updatedAt = toIso(session.updatedAt ?? session.startedAt ?? session.createdAt)
+          const updatedAt = toIso(
+            session.updatedAt ?? session.startedAt ?? session.createdAt,
+          )
           if (!updatedAt) return false
           return (
             (label.startsWith('worker-') || key.includes(':subagent:')) &&
@@ -785,7 +952,10 @@ export function useConductorGateway() {
 
   const workers = sessionsQuery.data ?? []
   const activeWorkers = useMemo(
-    () => workers.filter((worker) => worker.status === 'running' || worker.status === 'idle'),
+    () =>
+      workers.filter(
+        (worker) => worker.status === 'running' || worker.status === 'idle',
+      ),
     [workers],
   )
   const hasPersistedMission = initialMission !== null
@@ -794,10 +964,17 @@ export function useConductorGateway() {
     if (!missionStartedAt) return 0
     const startedMs = new Date(missionStartedAt).getTime()
     if (!Number.isFinite(startedMs)) return 0
-    const pauseStartedMs = pauseStartedAt ? new Date(pauseStartedAt).getTime() : NaN
+    const pauseStartedMs = pauseStartedAt
+      ? new Date(pauseStartedAt).getTime()
+      : NaN
     const inFlightPausedMs =
-      isPaused && Number.isFinite(pauseStartedMs) ? Math.max(0, referenceTime - pauseStartedMs) : 0
-    return Math.max(0, referenceTime - startedMs - accumulatedPausedMs - inFlightPausedMs)
+      isPaused && Number.isFinite(pauseStartedMs)
+        ? Math.max(0, referenceTime - pauseStartedMs)
+        : 0
+    return Math.max(
+      0,
+      referenceTime - startedMs - accumulatedPausedMs - inFlightPausedMs,
+    )
   }
 
   // ---------------------------------------------------------------------------
@@ -867,7 +1044,8 @@ export function useConductorGateway() {
 
     const workerSnapshot = workers
       .map(
-        (worker) => `${worker.key}:${worker.updatedAt ?? ''}:${worker.totalTokens}:${worker.status}`,
+        (worker) =>
+          `${worker.key}:${worker.updatedAt ?? ''}:${worker.totalTokens}:${worker.status}`,
       )
       .join('|')
 
@@ -904,7 +1082,8 @@ export function useConductorGateway() {
   useEffect(() => {
     if (phase !== 'running') return
 
-    const shouldCompleteImmediately = doneRef.current && workersLookComplete(workers, 8_000)
+    const shouldCompleteImmediately =
+      doneRef.current && workersLookComplete(workers, 8_000)
     if (shouldCompleteImmediately) {
       setPhase('complete')
       setCompletedAt((value) => value ?? new Date().toISOString())
@@ -959,9 +1138,12 @@ export function useConductorGateway() {
       }
     }
 
-    const timer = window.setInterval(() => {
-      void fetchAll()
-    }, hasRunningWorkers ? 5_000 : 2_000)
+    const timer = window.setInterval(
+      () => {
+        void fetchAll()
+      },
+      hasRunningWorkers ? 5_000 : 2_000,
+    )
 
     return () => {
       cancelled = true
@@ -1001,9 +1183,18 @@ export function useConductorGateway() {
               : worker.status === 'running'
                 ? 'running'
                 : task.status
-        if (task.workerKey === worker.key && task.status === newStatus && task.output === workerOutput)
+        if (
+          task.workerKey === worker.key &&
+          task.status === newStatus &&
+          task.output === workerOutput
+        )
           return task
-        return { ...task, workerKey: worker.key, status: newStatus, output: workerOutput }
+        return {
+          ...task,
+          workerKey: worker.key,
+          status: newStatus,
+          output: workerOutput,
+        }
       })
       const changed = updated.some((task, index) => task !== current[index])
       return changed ? updated : current
@@ -1018,13 +1209,26 @@ export function useConductorGateway() {
   // so the entry gets enriched with actual worker content instead of empty text.
   const historySaveCountRef = useRef(0)
   useEffect(() => {
-    if (phase !== 'complete' || !goal || !completedAt || !missionStartedAt) return
+    if (phase !== 'complete' || !goal || !completedAt || !missionStartedAt)
+      return
 
     const missionId = `mission-${new Date(missionStartedAt).getTime()}`
-    const outputPath = buildMissionOutputPath(workers, workerOutputs, tasks, streamText)
+    const outputPath = buildMissionOutputPath(
+      workers,
+      workerOutputs,
+      tasks,
+      streamText,
+    )
     const workerSummary = summarizeWorkers(workers)
-    const outputText = buildMissionOutputText(workers, workerOutputs, streamText)
-    const totalTokens = workers.reduce((sum, worker) => sum + worker.totalTokens, 0)
+    const outputText = buildMissionOutputText(
+      workers,
+      workerOutputs,
+      streamText,
+    )
+    const totalTokens = workers.reduce(
+      (sum, worker) => sum + worker.totalTokens,
+      0,
+    )
     const completeSummary = buildCompleteSummary({
       goal,
       streamError,
@@ -1077,10 +1281,22 @@ export function useConductorGateway() {
         return [entry, ...current].slice(0, MAX_HISTORY_ENTRIES)
       })
     } else {
-      setMissionHistory((current) => current.map((e) => (e.id === missionId ? entry : e)))
+      setMissionHistory((current) =>
+        current.map((e) => (e.id === missionId ? entry : e)),
+      )
     }
     historySaveCountRef.current += 1
-  }, [phase, goal, completedAt, missionStartedAt, workers, streamError, workerOutputs, tasks, streamText])
+  }, [
+    phase,
+    goal,
+    completedAt,
+    missionStartedAt,
+    workers,
+    streamError,
+    workerOutputs,
+    tasks,
+    streamText,
+  ])
 
   // ---------------------------------------------------------------------------
   // Effects — settings and mission persistence
@@ -1176,7 +1392,13 @@ export function useConductorGateway() {
   // ---------------------------------------------------------------------------
 
   const sendMission = useMutation({
-    mutationFn: async ({ nextGoal, settings }: { nextGoal: string; settings: ConductorSettings }) => {
+    mutationFn: async ({
+      nextGoal,
+      settings,
+    }: {
+      nextGoal: string
+      settings: ConductorSettings
+    }) => {
       const trimmed = nextGoal.trim()
       if (!trimmed) throw new Error('Mission goal required')
       doneRef.current = false
@@ -1274,7 +1496,9 @@ export function useConductorGateway() {
       }
 
       // Transition to running — the orchestrator is alive, workers will appear via polling
-      setPlanText(`Orchestrator spawned. Decomposing mission and spawning workers...`)
+      setPlanText(
+        `Orchestrator spawned. Decomposing mission and spawning workers...`,
+      )
       setPhase('running')
     },
     onError: (error) => {
@@ -1296,7 +1520,13 @@ export function useConductorGateway() {
   }
 
   const pauseAgent = useMutation({
-    mutationFn: async ({ sessionKey, pause }: { sessionKey: string; pause: boolean }) => {
+    mutationFn: async ({
+      sessionKey,
+      pause,
+    }: {
+      sessionKey: string
+      pause: boolean
+    }) => {
       const response = await fetch('/api/agent-pause', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1316,9 +1546,12 @@ export function useConductorGateway() {
         return
       }
 
-      const pauseStartedMs = pauseStartedAt ? new Date(pauseStartedAt).getTime() : NaN
-      const additionalPausedMs =
-        Number.isFinite(pauseStartedMs) ? Math.max(0, now - pauseStartedMs) : 0
+      const pauseStartedMs = pauseStartedAt
+        ? new Date(pauseStartedAt).getTime()
+        : NaN
+      const additionalPausedMs = Number.isFinite(pauseStartedMs)
+        ? Math.max(0, now - pauseStartedMs)
+        : 0
       setAccumulatedPausedMs((current) => current + additionalPausedMs)
       setPauseStartedAt(null)
       setIsPaused(false)
@@ -1328,7 +1561,10 @@ export function useConductorGateway() {
 
   const stopMission = async () => {
     const sessionKeys = [
-      ...new Set([...missionWorkerKeys, ...workers.map((worker) => worker.key)]),
+      ...new Set([
+        ...missionWorkerKeys,
+        ...workers.map((worker) => worker.key),
+      ]),
     ]
 
     try {
@@ -1354,7 +1590,10 @@ export function useConductorGateway() {
     const currentGoal = goal
     resetMission()
     await new Promise((resolve) => setTimeout(resolve, 100))
-    await sendMission.mutateAsync({ nextGoal: currentGoal, settings: conductorSettings })
+    await sendMission.mutateAsync({
+      nextGoal: currentGoal,
+      settings: conductorSettings,
+    })
   }
 
   // ---------------------------------------------------------------------------

@@ -1,14 +1,18 @@
-import { Card } from '@/components/ds/card'
-import { StatusBadge } from '@/components/ds/status-badge'
 import type { OperationAgent, OperationAgentStatus } from '@/types/operation'
 import type { Status } from '@/components/ds/status-badge'
+import { Card } from '@/components/ds/card'
+import { StatusBadge } from '@/components/ds/status-badge'
 
 function agentStatusToStatus(s: OperationAgentStatus): Status {
   switch (s) {
-    case 'online':  return 'running'
-    case 'offline': return 'idle'
-    case 'error':   return 'error'
-    case 'unknown': return 'pending'
+    case 'online':
+      return 'running'
+    case 'offline':
+      return 'idle'
+    case 'error':
+      return 'error'
+    case 'unknown':
+      return 'pending'
   }
 }
 
@@ -21,7 +25,7 @@ function timeAgo(iso: string): string {
 }
 
 interface AgentOutputsProps {
-  agents: OperationAgent[]
+  agents: Array<OperationAgent>
 }
 
 export function AgentOutputs({ agents }: AgentOutputsProps) {
@@ -35,7 +39,8 @@ export function AgentOutputs({ agents }: AgentOutputsProps) {
         }}
       >
         <p className="text-sm max-w-xs">
-          No agents running. Start a Crew or Conductor mission to see agent outputs here.
+          No agents running. Start a Crew or Conductor mission to see agent
+          outputs here.
         </p>
       </div>
     )
@@ -58,10 +63,16 @@ export function AgentOutputs({ agents }: AgentOutputsProps) {
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-lg leading-none">{agent.emoji}</span>
               <div className="min-w-0">
-                <div className="text-sm font-medium truncate" style={{ color: 'var(--theme-text)' }}>
+                <div
+                  className="text-sm font-medium truncate"
+                  style={{ color: 'var(--theme-text)' }}
+                >
                   {agent.name}
                 </div>
-                <div className="text-xs truncate" style={{ color: 'var(--theme-muted)' }}>
+                <div
+                  className="text-xs truncate"
+                  style={{ color: 'var(--theme-muted)' }}
+                >
                   {contextLabel}
                 </div>
               </div>
@@ -85,7 +96,10 @@ export function AgentOutputs({ agents }: AgentOutputsProps) {
                 >
                   Last activity: {timeAgo(agent.lastActivity)}
                 </div>
-                <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--theme-muted)' }}>
+                <div
+                  className="flex items-center gap-3 text-xs"
+                  style={{ color: 'var(--theme-muted)' }}
+                >
                   {agent.model && (
                     <span
                       className="rounded px-1.5 py-0.5 font-mono"
@@ -99,7 +113,9 @@ export function AgentOutputs({ agents }: AgentOutputsProps) {
                     </span>
                   )}
                   <span>{agent.totalTokens.toLocaleString()} tokens</span>
-                  <span>{agent.taskCount} task{agent.taskCount !== 1 ? 's' : ''}</span>
+                  <span>
+                    {agent.taskCount} task{agent.taskCount !== 1 ? 's' : ''}
+                  </span>
                   {agent.totalCostUsd > 0 && (
                     <span>${agent.totalCostUsd.toFixed(4)}</span>
                   )}

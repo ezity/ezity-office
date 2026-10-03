@@ -146,9 +146,9 @@ export function OnboardingWizard() {
                       >
                         {step.id === 'welcome' ? (
                           <img
-                            src="/hermes-avatar.webp"
-                            alt="Hermes"
-                            className="size-16 rounded-2xl"
+                            src="/ezity-logo.png"
+                            alt="EZity AI Office"
+                            className="size-16 object-contain"
                           />
                         ) : (
                           <HugeiconsIcon

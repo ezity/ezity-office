@@ -149,7 +149,6 @@
     0 0 22px color-mix(in srgb, var(--theme-accent) 26%, transparent);
 }
 
-
 html,
 body {
   @apply m-0 font-sans;
@@ -679,7 +678,8 @@ code {
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 .glow-accent {
-  box-shadow: 0 0 18px color-mix(in srgb, var(--theme-accent) 20%, transparent),
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--theme-accent) 20%, transparent),
     0 0 36px color-mix(in srgb, var(--theme-accent) 10%, transparent);
 }
 .luminous-border {
@@ -705,7 +705,9 @@ code {
   flex-shrink: 0;
   background: linear-gradient(90deg, #060b16 0%, #070d1a 60%, #060b16 100%);
   border-bottom: 1px solid rgba(56, 189, 248, 0.18);
-  box-shadow: 0 1px 12px rgba(56, 189, 248, 0.06), 0 0 0 0 transparent;
+  box-shadow:
+    0 1px 12px rgba(56, 189, 248, 0.06),
+    0 0 0 0 transparent;
   padding: 0 1rem;
   gap: 1rem;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
@@ -729,9 +731,12 @@ code {
   --theme-border-subtle: #101c30;
   --theme-text: #e4edff;
   --theme-muted: #5a7898;
-  --theme-shadow-1: 0 1px 3px rgba(0, 0, 0, 0.8), 0 0 6px rgba(56, 189, 248, 0.03);
-  --theme-shadow-2: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.05);
-  --theme-shadow-3: 0 12px 40px rgba(0, 0, 0, 0.9), 0 0 40px rgba(129, 140, 248, 0.07);
+  --theme-shadow-1:
+    0 1px 3px rgba(0, 0, 0, 0.8), 0 0 6px rgba(56, 189, 248, 0.03);
+  --theme-shadow-2:
+    0 4px 16px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.05);
+  --theme-shadow-3:
+    0 12px 40px rgba(0, 0, 0, 0.9), 0 0 40px rgba(129, 140, 248, 0.07);
   --theme-glass: rgba(8, 12, 20, 0.82);
   --theme-focus: #38bdf8;
   --theme-accent: #38bdf8;
@@ -763,9 +768,12 @@ code {
   --code-border: #121d2c;
   --code-foreground: #b8ccee;
   --theme-input: #090e1e;
-  --glow-blue: 0 0 18px rgba(56, 189, 248, 0.18), 0 0 36px rgba(56, 189, 248, 0.08);
-  --glow-violet: 0 0 18px rgba(129, 140, 248, 0.18), 0 0 36px rgba(129, 140, 248, 0.08);
-  --glow-cyan: 0 0 18px rgba(103, 232, 249, 0.18), 0 0 36px rgba(103, 232, 249, 0.08);
+  --glow-blue:
+    0 0 18px rgba(56, 189, 248, 0.18), 0 0 36px rgba(56, 189, 248, 0.08);
+  --glow-violet:
+    0 0 18px rgba(129, 140, 248, 0.18), 0 0 36px rgba(129, 140, 248, 0.08);
+  --glow-cyan:
+    0 0 18px rgba(103, 232, 249, 0.18), 0 0 36px rgba(103, 232, 249, 0.08);
 }
 
 [data-theme='hermes-official'] {
@@ -981,7 +989,6 @@ code {
   color: var(--theme-text);
 }
 
-
 /* ── Tailwind primary token remaps for dark themes ─────────────────────
    Maps bg-primary-50, text-primary-900, border-primary-200 etc.
    to theme-appropriate values so ALL existing Tailwind classes work.
@@ -1010,7 +1017,6 @@ code {
   --color-accent-500: var(--theme-accent);
   --color-accent-600: var(--theme-accent);
 }
-
 
 /* Composer focus ring for all themes */
 [data-theme] .composer-input:focus-within {
@@ -1134,33 +1140,83 @@ code {
 /* ── Office View Animations ── */
 
 @keyframes office-idle-float {
-  0%, 100% { transform: translateY(-3px); }
-  50% { transform: translateY(3px); }
+  0%,
+  100% {
+    transform: translateY(-3px);
+  }
+  50% {
+    transform: translateY(3px);
+  }
 }
 
 @keyframes office-status-glow-green {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.38), 0 0 14px 2px rgba(16, 185, 129, 0.3); }
-  50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0), 0 0 22px 6px rgba(16, 185, 129, 0.38); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(16, 185, 129, 0.38),
+      0 0 14px 2px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 0 8px rgba(16, 185, 129, 0),
+      0 0 22px 6px rgba(16, 185, 129, 0.38);
+  }
 }
 
 @keyframes office-status-glow-amber {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.32), 0 0 12px 2px rgba(245, 158, 11, 0.26); }
-  50% { box-shadow: 0 0 0 7px rgba(245, 158, 11, 0), 0 0 18px 4px rgba(245, 158, 11, 0.34); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(245, 158, 11, 0.32),
+      0 0 12px 2px rgba(245, 158, 11, 0.26);
+  }
+  50% {
+    box-shadow:
+      0 0 0 7px rgba(245, 158, 11, 0),
+      0 0 18px 4px rgba(245, 158, 11, 0.34);
+  }
 }
 
 @keyframes office-status-glow-blue {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.3), 0 0 12px 2px rgba(59, 130, 246, 0.25); }
-  50% { box-shadow: 0 0 0 7px rgba(59, 130, 246, 0), 0 0 18px 4px rgba(59, 130, 246, 0.32); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(59, 130, 246, 0.3),
+      0 0 12px 2px rgba(59, 130, 246, 0.25);
+  }
+  50% {
+    box-shadow:
+      0 0 0 7px rgba(59, 130, 246, 0),
+      0 0 18px 4px rgba(59, 130, 246, 0.32);
+  }
 }
 
 @keyframes office-status-glow-neutral {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(115, 115, 115, 0.18), 0 0 10px 2px rgba(115, 115, 115, 0.2); }
-  50% { box-shadow: 0 0 0 6px rgba(115, 115, 115, 0), 0 0 14px 3px rgba(115, 115, 115, 0.24); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(115, 115, 115, 0.18),
+      0 0 10px 2px rgba(115, 115, 115, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 0 6px rgba(115, 115, 115, 0),
+      0 0 14px 3px rgba(115, 115, 115, 0.24);
+  }
 }
 
 @keyframes office-status-glow-red {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.34), 0 0 12px 2px rgba(239, 68, 68, 0.3); }
-  50% { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0), 0 0 19px 5px rgba(239, 68, 68, 0.36); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(239, 68, 68, 0.34),
+      0 0 12px 2px rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 0 7px rgba(239, 68, 68, 0),
+      0 0 19px 5px rgba(239, 68, 68, 0.36);
+  }
 }
 
 .office-agent-stationary {

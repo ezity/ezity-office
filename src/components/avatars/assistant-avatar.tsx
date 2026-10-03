@@ -7,14 +7,14 @@ type AvatarProps = {
 }
 
 /**
- * Assistant avatar — Hermes Agent caduceus on Nous blue.
+ * Assistant avatar — EZity AI Office logo mark.
  */
 function AssistantAvatarComponent({ size = 28, className }: AvatarProps) {
   return (
     <img
-      src="/hermes-avatar.webp"
-      alt="Hermes"
-      className={cn('shrink-0', className)}
+      src="/ezity-logo.png"
+      alt="EZity Office"
+      className={cn('shrink-0 object-contain', className)}
       style={{
         width: size,
         height: size,

@@ -4,15 +4,28 @@
  */
 import { createFileRoute } from '@tanstack/react-router'
 import { json } from '@tanstack/react-start'
-import { isAuthenticated, getUserIdFromRequest } from '../../../server/auth-middleware'
+import {
+  getUserIdFromRequest,
+  isAuthenticated,
+} from '../../../server/auth-middleware'
 import { requireJsonContentType } from '../../../server/rate-limit'
-import { listTasks, createTask } from '../../../server/task-store'
+import { createTask, listTasks } from '../../../server/task-store'
 import { getUserProfile } from '../../../server/user-profiles'
-import type { TaskColumn, TaskPriority, TaskSourceType } from '../../../types/task'
+import type {
+  TaskColumn,
+  TaskPriority,
+  TaskSourceType,
+} from '../../../types/task'
 
-const VALID_COLUMNS: TaskColumn[] = ['backlog', 'todo', 'in_progress', 'review', 'done']
-const VALID_PRIORITIES: TaskPriority[] = ['high', 'medium', 'low']
-const VALID_SOURCES: TaskSourceType[] = ['manual', 'conductor', 'crew']
+const VALID_COLUMNS: Array<TaskColumn> = [
+  'backlog',
+  'todo',
+  'in_progress',
+  'review',
+  'done',
+]
+const VALID_PRIORITIES: Array<TaskPriority> = ['high', 'medium', 'low']
+const VALID_SOURCES: Array<TaskSourceType> = ['manual', 'conductor', 'crew']
 
 export const Route = createFileRoute('/api/tasks/')({
   server: {
@@ -39,7 +52,10 @@ export const Route = createFileRoute('/api/tasks/')({
         }
 
         const sourceType = url.searchParams.get('sourceType')
-        if (sourceType && VALID_SOURCES.includes(sourceType as TaskSourceType)) {
+        if (
+          sourceType &&
+          VALID_SOURCES.includes(sourceType as TaskSourceType)
+        ) {
           filter.sourceType = sourceType as TaskSourceType
         }
 
@@ -71,36 +87,54 @@ export const Route = createFileRoute('/api/tasks/')({
         const csrfCheck = requireJsonContentType(request)
         if (csrfCheck) return csrfCheck
 
-        const body = (await request.json().catch(() => ({}))) as Record<string, unknown>
+        const body = (await request.json().catch(() => ({}))) as Record<
+          string,
+          unknown
+        >
 
         const title = typeof body.title === 'string' ? body.title.trim() : ''
         if (!title) {
-          return json({ ok: false, error: 'title is required' }, { status: 400 })
+          return json(
+            { ok: false, error: 'title is required' },
+            { status: 400 },
+          )
         }
 
         const input: Parameters<typeof createTask>[0] = { title }
 
-        if (typeof body.description === 'string') input.description = body.description
-        if (typeof body.column === 'string' && VALID_COLUMNS.includes(body.column as TaskColumn)) {
+        if (typeof body.description === 'string')
+          input.description = body.description
+        if (
+          typeof body.column === 'string' &&
+          VALID_COLUMNS.includes(body.column as TaskColumn)
+        ) {
           input.column = body.column as TaskColumn
         }
-        if (typeof body.priority === 'string' && VALID_PRIORITIES.includes(body.priority as TaskPriority)) {
+        if (
+          typeof body.priority === 'string' &&
+          VALID_PRIORITIES.includes(body.priority as TaskPriority)
+        ) {
           input.priority = body.priority as TaskPriority
         }
         if (typeof body.assignee === 'string' || body.assignee === null) {
-          input.assignee = body.assignee as string | null
+          input.assignee = body.assignee
         }
         if (Array.isArray(body.tags)) {
-          input.tags = (body.tags as unknown[]).filter((t) => typeof t === 'string') as string[]
+          input.tags = (body.tags as Array<unknown>).filter(
+            (t) => typeof t === 'string',
+          )
         }
         if (typeof body.dueDate === 'string' || body.dueDate === null) {
-          input.dueDate = body.dueDate as string | null
+          input.dueDate = body.dueDate
         }
-        if (typeof body.sourceType === 'string' && VALID_SOURCES.includes(body.sourceType as TaskSourceType)) {
+        if (
+          typeof body.sourceType === 'string' &&
+          VALID_SOURCES.includes(body.sourceType as TaskSourceType)
+        ) {
           input.sourceType = body.sourceType as TaskSourceType
         }
         if (typeof body.sourceId === 'string' || body.sourceId === null) {
-          input.sourceId = body.sourceId as string | null
+          input.sourceId = body.sourceId
         }
 
         // Always set createdBy to the current user (cannot be overridden)

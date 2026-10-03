@@ -19,9 +19,7 @@ export const Route = createFileRoute('/api/hermes-runs/$runId/events')({
         }
         let upstream: Response
         try {
-          upstream = await fetch(
-            `${HERMES_API}/v1/runs/${params.runId}/events`,
-          )
+          upstream = await fetch(`${HERMES_API}/v1/runs/${params.runId}/events`)
         } catch {
           return new Response(
             JSON.stringify({ error: 'Could not connect to gateway' }),

@@ -182,15 +182,38 @@ function buildKnowledgeTree(pages: Array<WikiPageMeta>): TreeNode {
 const GW = 900
 const GH = 540
 
-type SimNode = KnowledgeGraphNode & { x: number; y: number; vx: number; vy: number }
+type SimNode = KnowledgeGraphNode & {
+  x: number
+  y: number
+  vx: number
+  vy: number
+}
 
 const NODE_TYPE_PALETTE: Record<string, { fill: string; stroke: string }> = {
-  guide:     { fill: 'rgba(99, 102, 241, 0.18)',  stroke: 'rgba(99, 102, 241, 0.75)'  },
-  project:   { fill: 'rgba(16, 185, 129, 0.18)',  stroke: 'rgba(16, 185, 129, 0.75)'  },
-  reference: { fill: 'rgba(245, 158, 11, 0.18)',  stroke: 'rgba(245, 158, 11, 0.75)'  },
-  concept:   { fill: 'rgba(239, 68, 68, 0.18)',   stroke: 'rgba(239, 68, 68, 0.75)'   },
-  note:      { fill: 'rgba(168, 85, 247, 0.18)',  stroke: 'rgba(168, 85, 247, 0.75)'  },
-  default:   { fill: 'rgba(59, 130, 246, 0.15)',  stroke: 'rgba(59, 130, 246, 0.65)'  },
+  guide: {
+    fill: 'rgba(99, 102, 241, 0.18)',
+    stroke: 'rgba(99, 102, 241, 0.75)',
+  },
+  project: {
+    fill: 'rgba(16, 185, 129, 0.18)',
+    stroke: 'rgba(16, 185, 129, 0.75)',
+  },
+  reference: {
+    fill: 'rgba(245, 158, 11, 0.18)',
+    stroke: 'rgba(245, 158, 11, 0.75)',
+  },
+  concept: {
+    fill: 'rgba(239, 68, 68, 0.18)',
+    stroke: 'rgba(239, 68, 68, 0.75)',
+  },
+  note: {
+    fill: 'rgba(168, 85, 247, 0.18)',
+    stroke: 'rgba(168, 85, 247, 0.75)',
+  },
+  default: {
+    fill: 'rgba(59, 130, 246, 0.15)',
+    stroke: 'rgba(59, 130, 246, 0.65)',
+  },
 }
 
 function getNodePalette(type?: string) {
@@ -198,7 +221,7 @@ function getNodePalette(type?: string) {
   return NODE_TYPE_PALETTE[key] ?? NODE_TYPE_PALETTE.default
 }
 
-function runForce(sim: SimNode[], edgeList: KnowledgeGraphEdge[], iters = 280) {
+function runForce(sim: Array<SimNode>, edgeList: Array<KnowledgeGraphEdge>, iters = 280) {
   const idx = new Map(sim.map((n, i) => [n.id, i]))
   const REPEL = 5000
   const ATTRACT = 0.045
@@ -215,23 +238,35 @@ function runForce(sim: SimNode[], edgeList: KnowledgeGraphEdge[], iters = 280) {
         const f = REPEL / (dist * dist)
         const fx = (dx / dist) * f
         const fy = (dy / dist) * f
-        sim[i].vx -= fx; sim[i].vy -= fy
-        sim[j].vx += fx; sim[j].vy += fy
+        sim[i].vx -= fx
+        sim[i].vy -= fy
+        sim[j].vx += fx
+        sim[j].vy += fy
       }
     }
     // Edge attraction
     for (const e of edgeList) {
-      const si = idx.get(e.source); const ti = idx.get(e.target)
+      const si = idx.get(e.source)
+      const ti = idx.get(e.target)
       if (si === undefined || ti === undefined) continue
-      const s = sim[si]; const t = sim[ti]
-      const dx = t.x - s.x; const dy = t.y - s.y
-      s.vx += dx * ATTRACT; s.vy += dy * ATTRACT
-      t.vx -= dx * ATTRACT; t.vy -= dy * ATTRACT
+      const s = sim[si]
+      const t = sim[ti]
+      const dx = t.x - s.x
+      const dy = t.y - s.y
+      s.vx += dx * ATTRACT
+      s.vy += dy * ATTRACT
+      t.vx -= dx * ATTRACT
+      t.vy -= dy * ATTRACT
     }
     // Weak center gravity
-    let cx = 0; let cy = 0
-    for (const n of sim) { cx += n.x; cy += n.y }
-    cx /= sim.length; cy /= sim.length
+    let cx = 0
+    let cy = 0
+    for (const n of sim) {
+      cx += n.x
+      cy += n.y
+    }
+    cx /= sim.length
+    cy /= sim.length
     for (const n of sim) {
       n.vx += (GW / 2 - cx) * 0.01
       n.vy += (GH / 2 - cy) * 0.01
@@ -240,7 +275,8 @@ function runForce(sim: SimNode[], edgeList: KnowledgeGraphEdge[], iters = 280) {
     for (const n of sim) {
       n.x = Math.max(36, Math.min(GW - 36, n.x + n.vx))
       n.y = Math.max(36, Math.min(GH - 36, n.y + n.vy))
-      n.vx *= DAMP; n.vy *= DAMP
+      n.vx *= DAMP
+      n.vy *= DAMP
     }
   }
 }
@@ -255,16 +291,17 @@ function GraphCanvas({
   onSelect: (path: string) => void
 }) {
   // Compute stable force-directed positions once per nodes/edges change
-  const simNodes = useMemo<SimNode[]>(() => {
+  const simNodes = useMemo<Array<SimNode>>(() => {
     if (nodes.length === 0) return []
-    const result: SimNode[] = nodes.map((n, i) => {
+    const result: Array<SimNode> = nodes.map((n, i) => {
       const angle = (Math.PI * 2 * i) / nodes.length
       const r = Math.min(GW, GH) * 0.32
       return {
         ...n,
         x: GW / 2 + Math.cos(angle) * r + (i % 3) * 5,
         y: GH / 2 + Math.sin(angle) * r + (i % 2) * 5,
-        vx: 0, vy: 0,
+        vx: 0,
+        vy: 0,
       }
     })
     runForce(result, edges)
@@ -272,8 +309,12 @@ function GraphCanvas({
   }, [nodes, edges])
 
   // Per-node overrides from drag
-  const [dragPos, setDragPos] = useState<Map<string, { x: number; y: number }>>(() => new Map())
-  useEffect(() => { setDragPos(new Map()) }, [simNodes])
+  const [dragPos, setDragPos] = useState<Map<string, { x: number; y: number }>>(
+    () => new Map(),
+  )
+  useEffect(() => {
+    setDragPos(new Map())
+  }, [simNodes])
 
   const getPos = (n: SimNode) => dragPos.get(n.id) ?? { x: n.x, y: n.y }
 
@@ -285,8 +326,10 @@ function GraphCanvas({
   const drag = useRef<{
     kind: 'node' | 'pan' | null
     nodeId: string | null
-    startCx: number; startCy: number
-    origX: number; origY: number
+    startCx: number
+    startCy: number
+    origX: number
+    origY: number
   }>({ kind: null, nodeId: null, startCx: 0, startCy: 0, origX: 0, origY: 0 })
 
   // Hover state
@@ -349,9 +392,23 @@ function GraphCanvas({
     if (nodeId) {
       const node = simNodes.find((n) => n.id === nodeId)!
       const pos = getPos(node)
-      drag.current = { kind: 'node', nodeId, startCx: e.clientX, startCy: e.clientY, origX: pos.x, origY: pos.y }
+      drag.current = {
+        kind: 'node',
+        nodeId,
+        startCx: e.clientX,
+        startCy: e.clientY,
+        origX: pos.x,
+        origY: pos.y,
+      }
     } else {
-      drag.current = { kind: 'pan', nodeId: null, startCx: e.clientX, startCy: e.clientY, origX: tf.tx, origY: tf.ty }
+      drag.current = {
+        kind: 'pan',
+        nodeId: null,
+        startCx: e.clientX,
+        startCy: e.clientY,
+        origX: tf.tx,
+        origY: tf.ty,
+      }
     }
     ;(e.currentTarget as SVGSVGElement).setPointerCapture(e.pointerId)
   }
@@ -361,10 +418,12 @@ function GraphCanvas({
     if (!d.kind) return
     const { dx, dy } = screenDelta(e.clientX - d.startCx, e.clientY - d.startCy)
     if (d.kind === 'node' && d.nodeId) {
-      setDragPos((prev) => new Map(prev).set(d.nodeId!, {
-        x: Math.max(16, Math.min(GW - 16, d.origX + dx / tf.k)),
-        y: Math.max(16, Math.min(GH - 16, d.origY + dy / tf.k)),
-      }))
+      setDragPos((prev) =>
+        new Map(prev).set(d.nodeId!, {
+          x: Math.max(16, Math.min(GW - 16, d.origX + dx / tf.k)),
+          y: Math.max(16, Math.min(GH - 16, d.origY + dy / tf.k)),
+        }),
+      )
     } else if (d.kind === 'pan') {
       setTf((p) => ({ ...p, tx: d.origX + dx, ty: d.origY + dy }))
     }
@@ -375,7 +434,8 @@ function GraphCanvas({
     ;(e.currentTarget as SVGSVGElement).releasePointerCapture(e.pointerId)
   }
 
-  const zoomBy = (f: number) => setTf((p) => ({ ...p, k: Math.max(0.25, Math.min(4, p.k * f)) }))
+  const zoomBy = (f: number) =>
+    setTf((p) => ({ ...p, k: Math.max(0.25, Math.min(4, p.k * f)) }))
   const resetView = () => setTf({ tx: 0, ty: 0, k: 1 })
 
   // Only show legend for types actually present
@@ -388,7 +448,10 @@ function GraphCanvas({
   return (
     <div
       className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-2xl"
-      style={{ border: '1px solid var(--theme-border)', background: 'var(--theme-card)' }}
+      style={{
+        border: '1px solid var(--theme-border)',
+        background: 'var(--theme-card)',
+      }}
     >
       {/* Zoom controls */}
       <div className="absolute right-3 top-3 z-10 flex flex-col gap-1">
@@ -414,8 +477,13 @@ function GraphCanvas({
 
       {/* Legend */}
       {presentTypes.length > 0 && (
-        <div className="absolute bottom-8 left-3 z-10 flex flex-col gap-1 rounded-lg px-2 py-1.5"
-          style={{ background: 'var(--theme-card)', border: '1px solid var(--theme-border)' }}>
+        <div
+          className="absolute bottom-8 left-3 z-10 flex flex-col gap-1 rounded-lg px-2 py-1.5"
+          style={{
+            background: 'var(--theme-card)',
+            border: '1px solid var(--theme-border)',
+          }}
+        >
           {presentTypes.map((type) => {
             const c = NODE_TYPE_PALETTE[type]
             return (
@@ -424,15 +492,26 @@ function GraphCanvas({
                   className="inline-block h-2 w-2 rounded-full"
                   style={{ background: c.stroke }}
                 />
-                <span className="text-[10px] capitalize" style={{ color: 'var(--theme-muted)' }}>
+                <span
+                  className="text-[10px] capitalize"
+                  style={{ color: 'var(--theme-muted)' }}
+                >
                   {type}
                 </span>
               </div>
             )
           })}
           <div className="flex items-center gap-1.5">
-            <span className="inline-block h-2 w-2 rounded-full" style={{ background: NODE_TYPE_PALETTE.default.stroke }} />
-            <span className="text-[10px]" style={{ color: 'var(--theme-muted)' }}>other</span>
+            <span
+              className="inline-block h-2 w-2 rounded-full"
+              style={{ background: NODE_TYPE_PALETTE.default.stroke }}
+            />
+            <span
+              className="text-[10px]"
+              style={{ color: 'var(--theme-muted)' }}
+            >
+              other
+            </span>
           </div>
         </div>
       )}
@@ -460,13 +539,20 @@ function GraphCanvas({
             const sn = simNodes.find((n) => n.id === edge.source)
             const tn = simNodes.find((n) => n.id === edge.target)
             if (!sn || !tn) return null
-            const sp = getPos(sn); const tp = getPos(tn)
-            const lit = !hovered || edge.source === hovered || edge.target === hovered
+            const sp = getPos(sn)
+            const tp = getPos(tn)
+            const lit =
+              !hovered || edge.source === hovered || edge.target === hovered
             return (
               <line
                 key={`e-${i}`}
-                x1={sp.x} y1={sp.y} x2={tp.x} y2={tp.y}
-                stroke={lit ? 'rgba(99, 102, 241, 0.55)' : 'rgba(148, 163, 184, 0.12)'}
+                x1={sp.x}
+                y1={sp.y}
+                x2={tp.x}
+                y2={tp.y}
+                stroke={
+                  lit ? 'rgba(99, 102, 241, 0.55)' : 'rgba(148, 163, 184, 0.12)'
+                }
                 strokeWidth={lit ? 1.5 : 0.8}
               />
             )
@@ -478,29 +564,48 @@ function GraphCanvas({
             const pal = getNodePalette(node.type)
             const r = nodeR(node.id)
             const isHov = node.id === hovered
-            const dimmed = hovered !== null && node.id !== hovered && !hovNeighbors?.has(node.id)
-            const label = node.title.length > 20 ? node.title.slice(0, 18) + '…' : node.title
+            const dimmed =
+              hovered !== null &&
+              node.id !== hovered &&
+              !hovNeighbors?.has(node.id)
+            const label =
+              node.title.length > 20
+                ? node.title.slice(0, 18) + '…'
+                : node.title
             return (
               <g
                 key={node.id}
                 data-nid={node.id}
-                style={{ cursor: 'pointer', opacity: dimmed ? 0.22 : 1, transition: 'opacity 0.15s' }}
+                style={{
+                  cursor: 'pointer',
+                  opacity: dimmed ? 0.22 : 1,
+                  transition: 'opacity 0.15s',
+                }}
                 onClick={() => onSelect(node.id)}
                 onPointerEnter={() => setHovered(node.id)}
                 onPointerLeave={() => setHovered(null)}
               >
                 {/* Glow on hover */}
                 {isHov && (
-                  <circle cx={pos.x} cy={pos.y} r={r + 6} fill={pal.stroke} opacity={0.18} />
+                  <circle
+                    cx={pos.x}
+                    cy={pos.y}
+                    r={r + 6}
+                    fill={pal.stroke}
+                    opacity={0.18}
+                  />
                 )}
                 <circle
-                  cx={pos.x} cy={pos.y} r={r}
+                  cx={pos.x}
+                  cy={pos.y}
+                  r={r}
                   fill={pal.fill}
                   stroke={isHov ? pal.stroke : pal.stroke}
                   strokeWidth={isHov ? 2 : 1.4}
                 />
                 <text
-                  x={pos.x} y={pos.y + r + 13}
+                  x={pos.x}
+                  y={pos.y + r + 13}
                   textAnchor="middle"
                   fontSize={10}
                   fill="currentColor"
@@ -677,19 +782,30 @@ export function KnowledgeBrowserScreen() {
             className="inline-flex overflow-hidden rounded-xl"
             style={{ border: '1px solid var(--theme-border)' }}
           >
-            {([
-              { key: 'browse', label: 'Pages', icon: File01Icon },
-              { key: 'graph', label: 'Graph', icon: Link01Icon },
-            ] as const).map(({ key, label, icon }) => (
+            {(
+              [
+                { key: 'browse', label: 'Pages', icon: File01Icon },
+                { key: 'graph', label: 'Graph', icon: Link01Icon },
+              ] as const
+            ).map(({ key, label, icon }) => (
               <button
                 key={key}
                 type="button"
                 onClick={() => setView(key)}
                 className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor: view === key ? 'var(--theme-accent, var(--theme-card2, var(--theme-card)))' : 'var(--theme-card)',
-                  color: view === key ? 'var(--theme-accent-text, var(--theme-text))' : 'var(--theme-muted)',
-                  borderRight: key === 'browse' ? '1px solid var(--theme-border)' : undefined,
+                  backgroundColor:
+                    view === key
+                      ? 'var(--theme-accent, var(--theme-card2, var(--theme-card)))'
+                      : 'var(--theme-card)',
+                  color:
+                    view === key
+                      ? 'var(--theme-accent-text, var(--theme-text))'
+                      : 'var(--theme-muted)',
+                  borderRight:
+                    key === 'browse'
+                      ? '1px solid var(--theme-border)'
+                      : undefined,
                 }}
               >
                 <HugeiconsIcon icon={icon} size={15} strokeWidth={1.7} />
@@ -824,7 +940,14 @@ export function KnowledgeBrowserScreen() {
           )}
         </aside>
 
-        <section className={cn('min-h-0 rounded-2xl', view === 'graph' ? 'flex flex-col' : 'border border-[var(--theme-border)] bg-[var(--theme-bg)]  ')}>
+        <section
+          className={cn(
+            'min-h-0 rounded-2xl',
+            view === 'graph'
+              ? 'flex flex-col'
+              : 'border border-[var(--theme-border)] bg-[var(--theme-bg)]  ',
+          )}
+        >
           {view === 'graph' ? (
             graphQuery.isLoading ? (
               <StateBox label="Loading graph..." />
@@ -844,225 +967,233 @@ export function KnowledgeBrowserScreen() {
             )
           ) : null}
 
-          {view === 'browse' ? <><div className="flex items-center justify-between border-b border-[var(--theme-border)] px-3 py-2 ">
-            <div className="min-w-0">
-              <div className="truncate text-sm font-semibold text-[var(--theme-text)] ">
-                {page?.title || selectedPath || 'Select a page'}
-              </div>
-              {page ? (
-                <div className="text-xs text-[var(--theme-muted)] ">
-                  {page.path} · {formatBytes(page.size)} ·{' '}
-                  {formatDate(page.updated || page.modified)}
-                </div>
-              ) : null}
-            </div>
-            {page ? (
-              <a
-                href={askUrl}
-                className="inline-flex items-center gap-1.5 rounded-md border border-[var(--theme-border)] px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-[var(--theme-hover)]     "
-              >
-                <HugeiconsIcon
-                  icon={Message01Icon}
-                  size={14}
-                  strokeWidth={1.7}
-                />
-                Ask agent about this
-              </a>
-            ) : null}
-          </div>
-
-          <div className="h-full overflow-auto p-2 md:p-3">
-            {listQuery.isLoading ? (
-              <StateBox label="Loading knowledge base..." />
-            ) : listQuery.error instanceof Error ? (
-              <StateBox label={listQuery.error.message} error />
-            ) : !knowledgeExists ? (
-              <EmptyKnowledgeState knowledgeRoot={knowledgeRoot} />
-            ) : !selectedPath ? (
-              <StateBox label="Select a page to start browsing" />
-            ) : readQuery.isLoading ? (
-              <StateBox label="Loading page..." />
-            ) : readQuery.error instanceof Error ? (
-              <StateBox label={readQuery.error.message} error />
-            ) : !page ? (
-              <StateBox label="Page not found" error />
-            ) : (
-              <div
-                className="rounded-xl"
-                style={{
-                  border: '1px solid var(--theme-border)',
-                  backgroundColor: 'var(--theme-card)',
-                }}
-              >
-                <div className="grid gap-4 p-4 xl:grid-cols-[minmax(0,1fr)_260px]">
-                  <div className="min-w-0 space-y-4">
-                    {focusedResult && focusedResult.path === page.path ? (
-                      <div className="rounded-xl border border-yellow-300/40 bg-yellow-300/10 px-3 py-2 text-sm text-[var(--theme-text)] dark:text-yellow-50">
-                        <div className="font-medium">
-                          Search hit at line {focusLine}
-                        </div>
-                        <div className="mt-1 text-xs opacity-80">
-                          {focusedResult.text}
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {page.summary ? (
-                      <div className="rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)]/70 px-3 py-2 text-sm text-[var(--theme-text)]   ">
-                        {page.summary}
-                      </div>
-                    ) : null}
-
-                    <Markdown
-                      className="gap-3"
-                      components={{
-                        a: function KnowledgeLink({ children, href }) {
-                          if (href?.startsWith('wiki:')) {
-                            const resolvedPath = resolveWikiPath(
-                              href.slice('wiki:'.length),
-                            )
-                            return (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (resolvedPath)
-                                    handleSelectPath(resolvedPath)
-                                }}
-                                className="inline-flex items-center gap-1 text-[var(--theme-text)] underline decoration-[var(--theme-border)] underline-offset-4 transition-colors hover:text-[var(--theme-text)] hover:decoration-[var(--theme-accent)] "
-                              >
-                                <HugeiconsIcon
-                                  icon={Link01Icon}
-                                  size={14}
-                                  strokeWidth={1.7}
-                                />
-                                <span>{children}</span>
-                              </button>
-                            )
-                          }
-
-                          return (
-                            <a
-                              href={href}
-                              className="text-[var(--theme-text)] underline decoration-[var(--theme-border)] underline-offset-4 transition-colors hover:text-[var(--theme-text)] hover:decoration-[var(--theme-accent)]"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {children}
-                            </a>
-                          )
-                        },
-                      }}
-                    >
-                      {processedContent}
-                    </Markdown>
-
-                    <section className="rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)]/70 p-3  ">
-                      <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-[var(--theme-text)] ">
-                        <HugeiconsIcon
-                          icon={Link01Icon}
-                          size={16}
-                          strokeWidth={1.7}
-                        />
-                        Backlinks
-                      </div>
-                      {backlinks.length === 0 ? (
-                        <div className="text-sm text-[var(--theme-muted)] ">
-                          No pages link here yet.
-                        </div>
-                      ) : (
-                        <div className="flex flex-wrap gap-2">
-                          {backlinks.map((backlink) => {
-                            const backlinkPath =
-                              resolveWikiPath(backlink) || backlink
-                            return (
-                              <button
-                                key={backlink}
-                                type="button"
-                                onClick={() => handleSelectPath(backlinkPath)}
-                                className="rounded-full border border-[var(--theme-border)] bg-[var(--theme-bg)] px-3 py-1 text-xs font-medium text-[var(--theme-text)] transition-colors hover:bg-[var(--theme-hover)]     "
-                              >
-                                {backlink}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      )}
-                    </section>
+          {view === 'browse' ? (
+            <>
+              <div className="flex items-center justify-between border-b border-[var(--theme-border)] px-3 py-2 ">
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-semibold text-[var(--theme-text)] ">
+                    {page?.title || selectedPath || 'Select a page'}
                   </div>
-
-                  <aside className="space-y-3">
-                    <MetadataCard label="Type" value={page.type} />
-                    <MetadataCard label="Domain" value={page.domain} />
-                    <MetadataCard label="Status" value={page.status} />
-                    <MetadataCard
-                      label="Created"
-                      value={formatDate(page.created)}
-                    />
-                    <MetadataCard
-                      label="Updated"
-                      value={formatDate(page.updated || page.modified)}
-                    />
-                    <MetadataCard label="Size" value={formatBytes(page.size)} />
-                    <div className="rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)]/70 p-3  ">
-                      <div className="text-xs font-semibold uppercase tracking-wide text-[var(--theme-muted)] ">
-                        Tags
-                      </div>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {page.tags.length === 0 ? (
-                          <span className="text-sm text-[var(--theme-muted)] ">
-                            No tags
-                          </span>
-                        ) : (
-                          page.tags.map((tag) => (
-                            <button
-                              key={tag}
-                              type="button"
-                              onClick={() => setSelectedTag(tag)}
-                              className="rounded-full border border-[var(--theme-border)] bg-[var(--theme-bg)] px-3 py-1 text-xs font-medium text-[var(--theme-text)] transition-colors hover:bg-[var(--theme-hover)]     "
-                            >
-                              #{tag}
-                            </button>
-                          ))
-                        )}
-                      </div>
+                  {page ? (
+                    <div className="text-xs text-[var(--theme-muted)] ">
+                      {page.path} · {formatBytes(page.size)} ·{' '}
+                      {formatDate(page.updated || page.modified)}
                     </div>
-                    <div className="rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)]/70 p-3  ">
-                      <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--theme-muted)] ">
-                        <HugeiconsIcon
-                          icon={CodeIcon}
-                          size={14}
-                          strokeWidth={1.7}
-                        />
-                        Wikilinks
-                      </div>
-                      {page.wikilinks.length === 0 ? (
-                        <div className="text-sm text-[var(--theme-muted)] ">
-                          No outbound links
-                        </div>
-                      ) : (
-                        <div className="flex flex-wrap gap-2">
-                          {page.wikilinks.map((link) => {
-                            const linkPath = resolveWikiPath(link) || link
-                            return (
-                              <button
-                                key={link}
-                                type="button"
-                                onClick={() => handleSelectPath(linkPath)}
-                                className="rounded-full border border-[var(--theme-border)] bg-[var(--theme-bg)] px-3 py-1 text-xs font-medium text-[var(--theme-text)] transition-colors hover:bg-[var(--theme-hover)]     "
-                              >
-                                {link}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </aside>
+                  ) : null}
                 </div>
+                {page ? (
+                  <a
+                    href={askUrl}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-[var(--theme-border)] px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-[var(--theme-hover)]     "
+                  >
+                    <HugeiconsIcon
+                      icon={Message01Icon}
+                      size={14}
+                      strokeWidth={1.7}
+                    />
+                    Ask agent about this
+                  </a>
+                ) : null}
               </div>
-            )}
-          </div>
-          </> : null}
+
+              <div className="h-full overflow-auto p-2 md:p-3">
+                {listQuery.isLoading ? (
+                  <StateBox label="Loading knowledge base..." />
+                ) : listQuery.error instanceof Error ? (
+                  <StateBox label={listQuery.error.message} error />
+                ) : !knowledgeExists ? (
+                  <EmptyKnowledgeState knowledgeRoot={knowledgeRoot} />
+                ) : !selectedPath ? (
+                  <StateBox label="Select a page to start browsing" />
+                ) : readQuery.isLoading ? (
+                  <StateBox label="Loading page..." />
+                ) : readQuery.error instanceof Error ? (
+                  <StateBox label={readQuery.error.message} error />
+                ) : !page ? (
+                  <StateBox label="Page not found" error />
+                ) : (
+                  <div
+                    className="rounded-xl"
+                    style={{
+                      border: '1px solid var(--theme-border)',
+                      backgroundColor: 'var(--theme-card)',
+                    }}
+                  >
+                    <div className="grid gap-4 p-4 xl:grid-cols-[minmax(0,1fr)_260px]">
+                      <div className="min-w-0 space-y-4">
+                        {focusedResult && focusedResult.path === page.path ? (
+                          <div className="rounded-xl border border-yellow-300/40 bg-yellow-300/10 px-3 py-2 text-sm text-[var(--theme-text)] dark:text-yellow-50">
+                            <div className="font-medium">
+                              Search hit at line {focusLine}
+                            </div>
+                            <div className="mt-1 text-xs opacity-80">
+                              {focusedResult.text}
+                            </div>
+                          </div>
+                        ) : null}
+
+                        {page.summary ? (
+                          <div className="rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)]/70 px-3 py-2 text-sm text-[var(--theme-text)]   ">
+                            {page.summary}
+                          </div>
+                        ) : null}
+
+                        <Markdown
+                          className="gap-3"
+                          components={{
+                            a: function KnowledgeLink({ children, href }) {
+                              if (href?.startsWith('wiki:')) {
+                                const resolvedPath = resolveWikiPath(
+                                  href.slice('wiki:'.length),
+                                )
+                                return (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (resolvedPath)
+                                        handleSelectPath(resolvedPath)
+                                    }}
+                                    className="inline-flex items-center gap-1 text-[var(--theme-text)] underline decoration-[var(--theme-border)] underline-offset-4 transition-colors hover:text-[var(--theme-text)] hover:decoration-[var(--theme-accent)] "
+                                  >
+                                    <HugeiconsIcon
+                                      icon={Link01Icon}
+                                      size={14}
+                                      strokeWidth={1.7}
+                                    />
+                                    <span>{children}</span>
+                                  </button>
+                                )
+                              }
+
+                              return (
+                                <a
+                                  href={href}
+                                  className="text-[var(--theme-text)] underline decoration-[var(--theme-border)] underline-offset-4 transition-colors hover:text-[var(--theme-text)] hover:decoration-[var(--theme-accent)]"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  {children}
+                                </a>
+                              )
+                            },
+                          }}
+                        >
+                          {processedContent}
+                        </Markdown>
+
+                        <section className="rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)]/70 p-3  ">
+                          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-[var(--theme-text)] ">
+                            <HugeiconsIcon
+                              icon={Link01Icon}
+                              size={16}
+                              strokeWidth={1.7}
+                            />
+                            Backlinks
+                          </div>
+                          {backlinks.length === 0 ? (
+                            <div className="text-sm text-[var(--theme-muted)] ">
+                              No pages link here yet.
+                            </div>
+                          ) : (
+                            <div className="flex flex-wrap gap-2">
+                              {backlinks.map((backlink) => {
+                                const backlinkPath =
+                                  resolveWikiPath(backlink) || backlink
+                                return (
+                                  <button
+                                    key={backlink}
+                                    type="button"
+                                    onClick={() =>
+                                      handleSelectPath(backlinkPath)
+                                    }
+                                    className="rounded-full border border-[var(--theme-border)] bg-[var(--theme-bg)] px-3 py-1 text-xs font-medium text-[var(--theme-text)] transition-colors hover:bg-[var(--theme-hover)]     "
+                                  >
+                                    {backlink}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </section>
+                      </div>
+
+                      <aside className="space-y-3">
+                        <MetadataCard label="Type" value={page.type} />
+                        <MetadataCard label="Domain" value={page.domain} />
+                        <MetadataCard label="Status" value={page.status} />
+                        <MetadataCard
+                          label="Created"
+                          value={formatDate(page.created)}
+                        />
+                        <MetadataCard
+                          label="Updated"
+                          value={formatDate(page.updated || page.modified)}
+                        />
+                        <MetadataCard
+                          label="Size"
+                          value={formatBytes(page.size)}
+                        />
+                        <div className="rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)]/70 p-3  ">
+                          <div className="text-xs font-semibold uppercase tracking-wide text-[var(--theme-muted)] ">
+                            Tags
+                          </div>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {page.tags.length === 0 ? (
+                              <span className="text-sm text-[var(--theme-muted)] ">
+                                No tags
+                              </span>
+                            ) : (
+                              page.tags.map((tag) => (
+                                <button
+                                  key={tag}
+                                  type="button"
+                                  onClick={() => setSelectedTag(tag)}
+                                  className="rounded-full border border-[var(--theme-border)] bg-[var(--theme-bg)] px-3 py-1 text-xs font-medium text-[var(--theme-text)] transition-colors hover:bg-[var(--theme-hover)]     "
+                                >
+                                  #{tag}
+                                </button>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                        <div className="rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)]/70 p-3  ">
+                          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--theme-muted)] ">
+                            <HugeiconsIcon
+                              icon={CodeIcon}
+                              size={14}
+                              strokeWidth={1.7}
+                            />
+                            Wikilinks
+                          </div>
+                          {page.wikilinks.length === 0 ? (
+                            <div className="text-sm text-[var(--theme-muted)] ">
+                              No outbound links
+                            </div>
+                          ) : (
+                            <div className="flex flex-wrap gap-2">
+                              {page.wikilinks.map((link) => {
+                                const linkPath = resolveWikiPath(link) || link
+                                return (
+                                  <button
+                                    key={link}
+                                    type="button"
+                                    onClick={() => handleSelectPath(linkPath)}
+                                    className="rounded-full border border-[var(--theme-border)] bg-[var(--theme-bg)] px-3 py-1 text-xs font-medium text-[var(--theme-text)] transition-colors hover:bg-[var(--theme-hover)]     "
+                                  >
+                                    {link}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      </aside>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : null}
         </section>
       </div>
     </div>
@@ -1186,9 +1317,7 @@ function MetadataCard({
       <div className="text-xs font-semibold uppercase tracking-wide text-[var(--theme-muted)] ">
         {label}
       </div>
-      <div className="mt-1 text-sm text-[var(--theme-text)] ">
-        {value}
-      </div>
+      <div className="mt-1 text-sm text-[var(--theme-text)] ">{value}</div>
     </div>
   )
 }

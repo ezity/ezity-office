@@ -124,7 +124,7 @@ export function MobileSetupModal({ isOpen, onClose }: MobileSetupModalProps) {
         <button
           type="button"
           onClick={() =>
-            networkUrl && writeTextToClipboard(networkUrl.url).catch(() => { })
+            networkUrl && writeTextToClipboard(networkUrl.url).catch(() => {})
           }
           className="group flex w-full items-center justify-between rounded-lg border border-primary-700 bg-primary-950 px-4 py-3 transition-colors hover:border-accent-500/50"
         >
@@ -221,9 +221,9 @@ export function MobileSetupModal({ isOpen, onClose }: MobileSetupModalProps) {
 
         <div className="mb-4 flex items-center gap-3 pr-10">
           <img
-            src="/hermes-avatar.webp"
-            alt="Hermes"
-            className="size-9 rounded-xl"
+            src="/ezity-logo.png"
+            alt="EZity"
+            className="size-9 object-contain"
           />
           <div className="flex-1">
             <h2 className="text-lg font-semibold text-white">Mobile Setup</h2>
@@ -231,8 +231,9 @@ export function MobileSetupModal({ isOpen, onClose }: MobileSetupModalProps) {
               {steps.map((_, index) => (
                 <span
                   key={`step-indicator-${index}`}
-                  className={`h-2 w-6 rounded-full transition-colors ${index === step ? 'bg-accent-500' : 'bg-primary-700'
-                    }`}
+                  className={`h-2 w-6 rounded-full transition-colors ${
+                    index === step ? 'bg-accent-500' : 'bg-primary-700'
+                  }`}
                 />
               ))}
             </div>

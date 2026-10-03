@@ -161,11 +161,15 @@ void (async () => {
     }
     if (attempt < delays.length) {
       const wait = delays[attempt]
-      console.log(`[session-store] Redis not ready — retrying in ${wait / 1000}s (attempt ${attempt + 1}/${delays.length})`)
+      console.log(
+        `[session-store] Redis not ready — retrying in ${wait / 1000}s (attempt ${attempt + 1}/${delays.length})`,
+      )
       await new Promise((r) => setTimeout(r, wait))
     }
   }
-  console.log('[session-store] Redis unavailable after retries — using file store')
+  console.log(
+    '[session-store] Redis unavailable after retries — using file store',
+  )
 })()
 
 // ─── Deferred write scheduler ───────────────────────────────────────────────
@@ -205,7 +209,8 @@ export function ensureLocalSession(
     }
     store.messages[sessionId] = []
     saveToDisk()
-    if (getRedisClientSync()) void saveSessionToRedis(getRedisClientSync()!, store.sessions[sessionId])
+    if (getRedisClientSync())
+      void saveSessionToRedis(getRedisClientSync()!, store.sessions[sessionId])
   }
   return store.sessions[sessionId]
 }
@@ -219,7 +224,8 @@ export function updateLocalSessionTitle(
     session.title = title
     session.updatedAt = Date.now()
     saveToDisk()
-    if (getRedisClientSync()) void saveSessionToRedis(getRedisClientSync()!, session)
+    if (getRedisClientSync())
+      void saveSessionToRedis(getRedisClientSync()!, session)
   }
 }
 
@@ -232,7 +238,8 @@ export function deleteLocalSession(sessionId: string): void {
   delete store.sessions[sessionId]
   delete store.messages[sessionId]
   saveToDisk()
-  if (getRedisClientSync()) void deleteSessionFromRedis(getRedisClientSync()!, sessionId)
+  if (getRedisClientSync())
+    void deleteSessionFromRedis(getRedisClientSync()!, sessionId)
 }
 
 export function getLocalMessages(sessionId: string): Array<LocalMessage> {
@@ -257,7 +264,8 @@ export function appendLocalMessage(
     session.updatedAt = Date.now()
   }
   scheduleSave()
-  if (getRedisClientSync()) void appendMessageToRedis(getRedisClientSync()!, sessionId, message)
+  if (getRedisClientSync())
+    void appendMessageToRedis(getRedisClientSync()!, sessionId, message)
 }
 
 // ─── Client-format adapters ──────────────────────────────────────────────────

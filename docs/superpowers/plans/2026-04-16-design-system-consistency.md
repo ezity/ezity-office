@@ -9,6 +9,7 @@
 **Tech Stack:** React 19, TypeScript, Tailwind CSS 4, `@hugeicons/react` + `@hugeicons/core-free-icons`, vitest + @testing-library/react (already installed)
 
 **Reference implementations (already correct — match these):**
+
 - `src/screens/dashboard/dashboard-screen.tsx`
 - `src/screens/agents/agent-library-screen.tsx`
 
@@ -17,6 +18,7 @@
 ## File Map
 
 ### Created
+
 - `src/components/ds/card.tsx`
 - `src/components/ds/settings-row.tsx`
 - `src/components/ds/section-header.tsx`
@@ -32,6 +34,7 @@
 - `src/test/ds/empty-state.test.tsx`
 
 ### Modified
+
 - `vitest.config.ts` — include `.test.tsx`, add React plugin
 - `src/styles.css` — add `--theme-hover` to all 9 themes
 - `src/routes/settings/index.tsx` — full CSS + component migration
@@ -53,23 +56,23 @@
 
 ## CSS Variable Canonical Mapping (reference throughout all tasks)
 
-| Replace this | With this |
-|---|---|
-| `bg-white` | `bg-[var(--theme-card)]` |
-| `bg-primary-50` | `bg-[var(--theme-bg)]` |
-| `bg-primary-100` | `bg-[var(--theme-panel)]` |
-| `border-primary-200` | `border-[var(--theme-border)]` |
-| `border-primary-300` | `border-[var(--theme-border)]` |
-| `text-primary-900` | `text-[var(--theme-text)]` |
-| `text-black` | `text-[var(--theme-text)]` |
-| `text-neutral-400` | `text-[var(--theme-muted)]` |
-| `bg-accent-500` | `bg-[var(--theme-accent)]` |
-| `hover:bg-primary-100` | `hover:bg-[var(--theme-hover)]` |
-| `bg-white/5`, `bg-white/10` | `bg-[var(--theme-accent-subtle)]` |
-| `border-neutral-200` | `border-[var(--theme-border)]` |
-| `dark:bg-neutral-900` | remove — `--theme-card` already handles dark |
-| `dark:border-neutral-800` | remove — `--theme-border` already handles dark |
-| `bg-surface` | `bg-[var(--theme-bg)]` |
+| Replace this                | With this                                      |
+| --------------------------- | ---------------------------------------------- |
+| `bg-white`                  | `bg-[var(--theme-card)]`                       |
+| `bg-primary-50`             | `bg-[var(--theme-bg)]`                         |
+| `bg-primary-100`            | `bg-[var(--theme-panel)]`                      |
+| `border-primary-200`        | `border-[var(--theme-border)]`                 |
+| `border-primary-300`        | `border-[var(--theme-border)]`                 |
+| `text-primary-900`          | `text-[var(--theme-text)]`                     |
+| `text-black`                | `text-[var(--theme-text)]`                     |
+| `text-neutral-400`          | `text-[var(--theme-muted)]`                    |
+| `bg-accent-500`             | `bg-[var(--theme-accent)]`                     |
+| `hover:bg-primary-100`      | `hover:bg-[var(--theme-hover)]`                |
+| `bg-white/5`, `bg-white/10` | `bg-[var(--theme-accent-subtle)]`              |
+| `border-neutral-200`        | `border-[var(--theme-border)]`                 |
+| `dark:bg-neutral-900`       | remove — `--theme-card` already handles dark   |
+| `dark:border-neutral-800`   | remove — `--theme-border` already handles dark |
+| `bg-surface`                | `bg-[var(--theme-bg)]`                         |
 
 ---
 
@@ -80,6 +83,7 @@
 ### Task 1: Prepare vitest for TSX + add --theme-hover
 
 **Files:**
+
 - Modify: `vitest.config.ts`
 - Modify: `src/styles.css`
 
@@ -123,7 +127,7 @@ Open `src/styles.css`. For every theme block (`[data-theme='hermes-os']`, `[data
 [data-theme='hermes-os'] {
   /* ... existing vars ... */
   --theme-card2: #121e30;
-  --theme-hover: #121e30;   /* ← add this line after --theme-card2 */
+  --theme-hover: #121e30; /* ← add this line after --theme-card2 */
   /* ... rest ... */
 }
 ```
@@ -149,6 +153,7 @@ cd ~/Hermes-Studio && git add vitest.config.ts src/styles.css && git commit -m "
 ### Task 2: Card component
 
 **Files:**
+
 - Create: `src/components/ds/card.tsx`
 - Create: `src/test/ds/card.test.tsx`
 
@@ -199,7 +204,9 @@ describe('Card', () => {
 
   it('forwards className', () => {
     const { container } = render(<Card className="custom-class">body</Card>)
-    expect((container.firstChild as HTMLElement).className).toContain('custom-class')
+    expect((container.firstChild as HTMLElement).className).toContain(
+      'custom-class',
+    )
   })
 })
 ```
@@ -230,11 +237,17 @@ interface CardProps {
 
 const variantStyles = {
   default: 'bg-[var(--theme-card)] border-[var(--theme-border)]',
-  panel:   'bg-[var(--theme-panel)] border-[var(--theme-border)]',
-  subtle:  'bg-[var(--theme-accent-subtle)] border-[var(--theme-accent-border)]',
+  panel: 'bg-[var(--theme-panel)] border-[var(--theme-border)]',
+  subtle: 'bg-[var(--theme-accent-subtle)] border-[var(--theme-accent-border)]',
 }
 
-export function Card({ variant = 'default', header, footer, className, children }: CardProps) {
+export function Card({
+  variant = 'default',
+  header,
+  footer,
+  className,
+  children,
+}: CardProps) {
   return (
     <div className={cn('rounded-lg border', variantStyles[variant], className)}>
       {header && (
@@ -272,6 +285,7 @@ cd ~/Hermes-Studio && git add src/components/ds/card.tsx src/test/ds/card.test.t
 ### Task 3: SettingsRow component
 
 **Files:**
+
 - Create: `src/components/ds/settings-row.tsx`
 - Create: `src/test/ds/settings-row.test.tsx`
 
@@ -287,30 +301,48 @@ import { SettingsRow } from '@/components/ds/settings-row'
 
 describe('SettingsRow', () => {
   it('renders the label', () => {
-    render(<SettingsRow label="My Setting"><input /></SettingsRow>)
+    render(
+      <SettingsRow label="My Setting">
+        <input />
+      </SettingsRow>,
+    )
     expect(screen.getByText('My Setting')).toBeTruthy()
   })
 
   it('renders description when provided', () => {
-    render(<SettingsRow label="L" description="Help text"><input /></SettingsRow>)
+    render(
+      <SettingsRow label="L" description="Help text">
+        <input />
+      </SettingsRow>,
+    )
     expect(screen.getByText('Help text')).toBeTruthy()
   })
 
   it('renders children in the control slot', () => {
-    render(<SettingsRow label="L"><button>Save</button></SettingsRow>)
+    render(
+      <SettingsRow label="L">
+        <button>Save</button>
+      </SettingsRow>,
+    )
     expect(screen.getByRole('button', { name: 'Save' })).toBeTruthy()
   })
 
   it('applies danger border when danger=true', () => {
     const { container } = render(
-      <SettingsRow label="L" danger><input /></SettingsRow>
+      <SettingsRow label="L" danger>
+        <input />
+      </SettingsRow>,
     )
     const el = container.firstChild as HTMLElement
     expect(el.className).toContain('--theme-danger')
   })
 
   it('does not apply danger border by default', () => {
-    const { container } = render(<SettingsRow label="L"><input /></SettingsRow>)
+    const { container } = render(
+      <SettingsRow label="L">
+        <input />
+      </SettingsRow>,
+    )
     const el = container.firstChild as HTMLElement
     expect(el.className).not.toContain('--theme-danger')
   })
@@ -340,7 +372,12 @@ interface SettingsRowProps {
   children: ReactNode
 }
 
-export function SettingsRow({ label, description, danger = false, children }: SettingsRowProps) {
+export function SettingsRow({
+  label,
+  description,
+  danger = false,
+  children,
+}: SettingsRowProps) {
   return (
     <div
       className={cn(
@@ -349,9 +386,13 @@ export function SettingsRow({ label, description, danger = false, children }: Se
       )}
     >
       <div className="min-w-0 flex-1">
-        <div className="text-sm font-medium text-[var(--theme-text)]">{label}</div>
+        <div className="text-sm font-medium text-[var(--theme-text)]">
+          {label}
+        </div>
         {description && (
-          <div className="mt-0.5 text-xs text-[var(--theme-muted)]">{description}</div>
+          <div className="mt-0.5 text-xs text-[var(--theme-muted)]">
+            {description}
+          </div>
         )}
       </div>
       <div className="flex shrink-0 items-center">{children}</div>
@@ -379,6 +420,7 @@ cd ~/Hermes-Studio && git add src/components/ds/settings-row.tsx src/test/ds/set
 ### Task 4: SectionHeader component
 
 **Files:**
+
 - Create: `src/components/ds/section-header.tsx`
 - Create: `src/test/ds/section-header.test.tsx`
 
@@ -457,7 +499,9 @@ export function SectionHeader({
         </h2>
         {action && <div className="shrink-0">{action}</div>}
       </div>
-      {divider && <div className="mt-2 border-b border-[var(--theme-border)]" />}
+      {divider && (
+        <div className="mt-2 border-b border-[var(--theme-border)]" />
+      )}
       {subtitle && (
         <p className="mt-2 text-xs text-[var(--theme-muted)]">{subtitle}</p>
       )}
@@ -485,6 +529,7 @@ cd ~/Hermes-Studio && git add src/components/ds/section-header.tsx src/test/ds/s
 ### Task 5: StatusBadge component
 
 **Files:**
+
 - Create: `src/components/ds/status-badge.tsx`
 - Create: `src/test/ds/status-badge.test.tsx`
 
@@ -559,7 +604,13 @@ import {
 } from '@hugeicons/core-free-icons'
 import { cn } from '@/lib/utils'
 
-export type Status = 'running' | 'success' | 'error' | 'warning' | 'idle' | 'pending'
+export type Status =
+  | 'running'
+  | 'success'
+  | 'error'
+  | 'warning'
+  | 'idle'
+  | 'pending'
 
 interface StatusBadgeProps {
   status: Status
@@ -572,15 +623,45 @@ const statusConfig: Record<
   Status,
   { icon: object; colorVar: string; defaultLabel: string; spin?: boolean }
 > = {
-  running: { icon: Loading03Icon,          colorVar: 'var(--theme-active)',   defaultLabel: 'Running', spin: true },
-  success: { icon: CheckmarkCircle01Icon,  colorVar: 'var(--theme-success)',  defaultLabel: 'Success' },
-  error:   { icon: Cancel01Icon,           colorVar: 'var(--theme-danger)',   defaultLabel: 'Error' },
-  warning: { icon: Alert02Icon,            colorVar: 'var(--theme-warning)',  defaultLabel: 'Warning' },
-  idle:    { icon: MinusSignCircleIcon,    colorVar: 'var(--theme-muted)',    defaultLabel: 'Idle' },
-  pending: { icon: Clock01Icon,            colorVar: 'var(--theme-muted)',    defaultLabel: 'Pending' },
+  running: {
+    icon: Loading03Icon,
+    colorVar: 'var(--theme-active)',
+    defaultLabel: 'Running',
+    spin: true,
+  },
+  success: {
+    icon: CheckmarkCircle01Icon,
+    colorVar: 'var(--theme-success)',
+    defaultLabel: 'Success',
+  },
+  error: {
+    icon: Cancel01Icon,
+    colorVar: 'var(--theme-danger)',
+    defaultLabel: 'Error',
+  },
+  warning: {
+    icon: Alert02Icon,
+    colorVar: 'var(--theme-warning)',
+    defaultLabel: 'Warning',
+  },
+  idle: {
+    icon: MinusSignCircleIcon,
+    colorVar: 'var(--theme-muted)',
+    defaultLabel: 'Idle',
+  },
+  pending: {
+    icon: Clock01Icon,
+    colorVar: 'var(--theme-muted)',
+    defaultLabel: 'Pending',
+  },
 }
 
-export function StatusBadge({ status, label, size = 'sm', className }: StatusBadgeProps) {
+export function StatusBadge({
+  status,
+  label,
+  size = 'sm',
+  className,
+}: StatusBadgeProps) {
   const { icon, colorVar, defaultLabel, spin } = statusConfig[status]
   const iconSize = size === 'sm' ? 14 : 16
   const textClass = size === 'sm' ? 'text-xs' : 'text-sm'
@@ -618,6 +699,7 @@ cd ~/Hermes-Studio && git add src/components/ds/status-badge.tsx src/test/ds/sta
 ### Task 6: ListItem component
 
 **Files:**
+
 - Create: `src/components/ds/list-item.tsx`
 - Create: `src/test/ds/list-item.test.tsx`
 
@@ -668,7 +750,9 @@ describe('ListItem', () => {
 
   it('applies active style when active=true', () => {
     const { container } = render(<ListItem label="L" active />)
-    expect((container.firstChild as HTMLElement).className).toContain('--theme-accent-subtle')
+    expect((container.firstChild as HTMLElement).className).toContain(
+      '--theme-accent-subtle',
+    )
   })
 })
 ```
@@ -721,7 +805,9 @@ export function ListItem({
       onClick={onClick}
     >
       {icon && (
-        <span className="mt-0.5 shrink-0 text-[var(--theme-muted)]">{icon}</span>
+        <span className="mt-0.5 shrink-0 text-[var(--theme-muted)]">
+          {icon}
+        </span>
       )}
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm text-[var(--theme-text)]">
@@ -758,6 +844,7 @@ cd ~/Hermes-Studio && git add src/components/ds/list-item.tsx src/test/ds/list-i
 ### Task 7: EmptyState component
 
 **Files:**
+
 - Create: `src/components/ds/empty-state.tsx`
 - Create: `src/test/ds/empty-state.test.tsx`
 
@@ -783,13 +870,15 @@ describe('EmptyState', () => {
   })
 
   it('renders description when provided', () => {
-    render(<EmptyState icon={<span />} title="T" description="Try adding one" />)
+    render(
+      <EmptyState icon={<span />} title="T" description="Try adding one" />,
+    )
     expect(screen.getByText('Try adding one')).toBeTruthy()
   })
 
   it('renders action when provided', () => {
     render(
-      <EmptyState icon={<span />} title="T" action={<button>Create</button>} />
+      <EmptyState icon={<span />} title="T" action={<button>Create</button>} />,
     )
     expect(screen.getByRole('button', { name: 'Create' })).toBeTruthy()
   })
@@ -823,7 +912,13 @@ interface EmptyStateProps {
   className?: string
 }
 
-export function EmptyState({ icon, title, description, action, className }: EmptyStateProps) {
+export function EmptyState({
+  icon,
+  title,
+  description,
+  action,
+  className,
+}: EmptyStateProps) {
   return (
     <div
       className={cn(
@@ -832,9 +927,13 @@ export function EmptyState({ icon, title, description, action, className }: Empt
       )}
     >
       <div className="mb-4 text-[var(--theme-muted)] opacity-40">{icon}</div>
-      <h3 className="mb-1 text-sm font-medium text-[var(--theme-text)]">{title}</h3>
+      <h3 className="mb-1 text-sm font-medium text-[var(--theme-text)]">
+        {title}
+      </h3>
       {description && (
-        <p className="mb-4 max-w-xs text-xs text-[var(--theme-muted)]">{description}</p>
+        <p className="mb-4 max-w-xs text-xs text-[var(--theme-muted)]">
+          {description}
+        </p>
       )}
       {action && <div>{action}</div>}
     </div>
@@ -861,6 +960,7 @@ cd ~/Hermes-Studio && git add src/components/ds/empty-state.tsx src/test/ds/empt
 ### Task 8: Barrel export + Phase 1 build verification
 
 **Files:**
+
 - Create: `src/components/ds/index.ts`
 
 - [ ] **Step 1: Create barrel export**
@@ -910,6 +1010,7 @@ cd ~/Hermes-Studio && git add src/components/ds/index.ts && git commit -m "feat(
 This is the largest file (~3000 lines). It uses `primary-*` palette throughout and has no DS components. The approach is: replace palette classes with CSS vars, then wrap grouped settings rows in `<Card>` + `<SettingsRow>`, and replace section titles with `<SectionHeader>`.
 
 **Files:**
+
 - Modify: `src/routes/settings/index.tsx`
 
 - [ ] **Step 1: Add DS imports to the top of the file**
@@ -1042,6 +1143,7 @@ cd ~/Hermes-Studio && git add src/routes/settings/index.tsx && git commit -m "re
 ### Task 10: Migrate providers-screen.tsx + provider-wizard.tsx
 
 **Files:**
+
 - Modify: `src/screens/settings/providers-screen.tsx`
 - Modify: `src/screens/settings/components/provider-wizard.tsx`
 
@@ -1083,7 +1185,8 @@ In `providers-screen.tsx`, provider entries are displayed as cards. Replace the 
 Find all `<input>` and `<textarea>` elements in `provider-wizard.tsx` that have inline or class-based background styles. Apply consistent classes:
 
 ```tsx
-className="w-full rounded-md border border-[var(--theme-border)] bg-[var(--theme-card)] px-3 py-2 text-sm text-[var(--theme-text)] placeholder:text-[var(--theme-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--theme-accent)]"
+className =
+  'w-full rounded-md border border-[var(--theme-border)] bg-[var(--theme-card)] px-3 py-2 text-sm text-[var(--theme-text)] placeholder:text-[var(--theme-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--theme-accent)]'
 ```
 
 Apply this same pattern to every `<input>` and `<textarea>` in the wizard.
@@ -1107,6 +1210,7 @@ cd ~/Hermes-Studio && git add src/screens/settings/providers-screen.tsx src/scre
 ### Task 11: Fix chat-composer.tsx + chat-header.tsx
 
 **Files:**
+
 - Modify: `src/screens/chat/components/chat-composer.tsx`
 - Modify: `src/screens/chat/components/chat-header.tsx`
 
@@ -1156,6 +1260,7 @@ cd ~/Hermes-Studio && git add src/screens/chat/components/chat-composer.tsx src/
 ### Task 12: Migrate memory-browser-screen.tsx + knowledge-browser-screen.tsx
 
 **Files:**
+
 - Modify: `src/screens/memory/memory-browser-screen.tsx`
 - Modify: `src/screens/memory/knowledge-browser-screen.tsx`
 
@@ -1209,7 +1314,9 @@ Replace each with:
 <ListItem
   icon={<HugeiconsIcon icon={SomeIcon} size={14} />}
   label={item.name}
-  meta={<span className="text-xs text-[var(--theme-muted)]">{item.modified}</span>}
+  meta={
+    <span className="text-xs text-[var(--theme-muted)]">{item.modified}</span>
+  }
   onClick={() => selectItem(item)}
   active={selectedItem?.id === item.id}
 />
@@ -1238,9 +1345,11 @@ In `knowledge-browser-screen.tsx`, find the "no pages" placeholder and replace w
 ```
 
 `File01Icon` is already imported in memory-browser-screen.tsx. For `BookOpenIcon`, check it exists first:
+
 ```bash
 node -e "import('@hugeicons/core-free-icons').then(m => console.log('BookOpenIcon' in m))"
 ```
+
 If it returns `false`, use `NoteIcon` or `FileTextIcon` — whichever exists in the package.
 
 - [ ] **Step 5: TypeScript + build check**
@@ -1264,6 +1373,7 @@ cd ~/Hermes-Studio && git add src/screens/memory/memory-browser-screen.tsx src/s
 ### Task 13: Fix profiles-screen.tsx
 
 **Files:**
+
 - Modify: `src/screens/profiles/profiles-screen.tsx`
 
 - [ ] **Step 1: Apply CSS var replacements**
@@ -1308,6 +1418,7 @@ cd ~/Hermes-Studio && git add src/screens/profiles/profiles-screen.tsx && git co
 ### Task 14: Migrate skills-screen.tsx + workspace-skills-screen.tsx
 
 **Files:**
+
 - Modify: `src/screens/skills/skills-screen.tsx`
 - Modify: `src/screens/skills/workspace-skills-screen.tsx`
 
@@ -1382,6 +1493,7 @@ cd ~/Hermes-Studio && git add src/screens/skills/skills-screen.tsx src/screens/s
 ### Task 15: Migrate jobs-screen.tsx
 
 **Files:**
+
 - Modify: `src/screens/jobs/jobs-screen.tsx`
 
 - [ ] **Step 1: Add DS imports**
@@ -1397,9 +1509,11 @@ Find all occurrences of emoji-based status formatting in the run event log. They
 
 ```tsx
 const label =
-  ev.status === 'complete' ? `✓ ${ev.name}` :
-  ev.status === 'error'    ? `✗ ${ev.name} failed` :
-                             `⚙ ${ev.name}...`
+  ev.status === 'complete'
+    ? `✓ ${ev.name}`
+    : ev.status === 'error'
+      ? `✗ ${ev.name} failed`
+      : `⚙ ${ev.name}...`
 ```
 
 Replace the entire label-building pattern with a `<StatusBadge>` component rendered inline:
@@ -1423,7 +1537,11 @@ Find run history entries rendered as divs with icon + text. Replace with:
   icon={<StatusBadge status={run.status === 'success' ? 'success' : 'error'} />}
   label={run.summary ?? 'Run completed'}
   description={new Date(run.completedAt).toLocaleString()}
-  meta={run.duration ? <span className="text-xs text-[var(--theme-muted)]">{run.duration}</span> : undefined}
+  meta={
+    run.duration ? (
+      <span className="text-xs text-[var(--theme-muted)]">{run.duration}</span>
+    ) : undefined
+  }
 />
 ```
 
@@ -1467,6 +1585,7 @@ cd ~/Hermes-Studio && git add src/screens/jobs/jobs-screen.tsx && git commit -m 
 ### Task 16: Spot-check remaining screens
 
 **Files:**
+
 - Modify: `src/screens/audit/audit-trail-screen.tsx`
 - Modify: `src/screens/crews/crews-screen.tsx`
 - Modify: `src/screens/files/files-screen.tsx`
@@ -1563,6 +1682,7 @@ cd ~/Hermes-Studio && git add -u && git commit -m "fix(ds): consistency pass —
 ### Task 17: Update DEVLOG and memory + final push
 
 **Files:**
+
 - Modify: `DEVLOG.md`
 - Modify: `docs/superpowers/specs/2026-04-16-design-system-consistency.md`
 
@@ -1580,6 +1700,7 @@ Prepend a new session entry at the top of `DEVLOG.md`:
 Built a canonical 6-component design system library in `src/components/ds/` and migrated all screens to use it.
 
 **New components (`src/components/ds/`):**
+
 - `Card` — base surface primitive (3 variants: default, panel, subtle)
 - `SettingsRow` — label + description + control slot; optional danger border
 - `SectionHeader` — section title with optional subtitle, action, and divider
@@ -1588,6 +1709,7 @@ Built a canonical 6-component design system library in `src/components/ds/` and 
 - `EmptyState` — centred icon + title + description + action; used by every empty screen
 
 **CSS fixes:**
+
 - Added `--theme-hover` to all 9 theme blocks in `styles.css`
 - Replaced 300+ broken Tailwind palette classes (`bg-primary-*`, `border-primary-*`, `text-black`, `bg-white`) with `var(--theme-*)` CSS variables across all screens
 - Screens migrated: settings/index.tsx, providers-screen.tsx, provider-wizard.tsx, chat-composer.tsx, chat-header.tsx, memory-browser-screen.tsx, knowledge-browser-screen.tsx, profiles-screen.tsx, skills-screen.tsx, workspace-skills-screen.tsx, jobs-screen.tsx, audit-trail-screen.tsx, crews-screen.tsx, files-screen.tsx

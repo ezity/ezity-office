@@ -384,7 +384,8 @@ export function ProviderWizard({
                     key={item.id}
                     className={cn(
                       'rounded-xl border px-2.5 py-2',
-                      isCurrent && 'border-primary-400 bg-[var(--theme-panel)]/70',
+                      isCurrent &&
+                        'border-primary-400 bg-[var(--theme-panel)]/70',
                       isComplete && 'border-green-500/30 bg-green-500/10',
                       !isCurrent &&
                         !isComplete &&

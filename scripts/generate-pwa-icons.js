@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-const svgPath = join(__dirname, '../public/logo-icon-simple.svg')
+const svgPath = join(__dirname, '../public/favicon.svg')
 const outputDir = join(__dirname, '../public')
 
 async function generateIcon(size) {
@@ -22,7 +22,7 @@ async function generateIcon(size) {
     <html>
       <head>
         <style>
-          body { margin: 0; padding: 0; }
+          body { margin: 0; padding: 0; background: transparent; }
           svg { width: 100%; height: 100%; }
         </style>
       </head>
@@ -31,11 +31,14 @@ async function generateIcon(size) {
   `
 
   await page.setContent(html)
-  const screenshot = await page.screenshot({ type: 'png' })
+  const screenshot = await page.screenshot({
+    type: 'png',
+    omitBackground: true,
+  })
   await browser.close()
 
-  const outputPath = join(outputDir, `hermes-icon-${size}.png`)
-  writeFileSync(outputPath, screenshot)
+  writeFileSync(join(outputDir, `ezity-icon-${size}.png`), screenshot)
+  writeFileSync(join(outputDir, `hermes-icon-${size}.png`), screenshot)
   console.log(`✓ Generated ${size}x${size} icon`)
 }
 

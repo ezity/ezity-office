@@ -13,7 +13,9 @@
 let _client: import('ioredis').Redis | null = null
 let _initPromise: Promise<import('ioredis').Redis | null> | null = null
 
-export async function getRedisClient(): Promise<import('ioredis').Redis | null> {
+export async function getRedisClient(): Promise<
+  import('ioredis').Redis | null
+> {
   if (_client) return _client
   if (_initPromise) return _initPromise
 
@@ -30,10 +32,10 @@ export async function getRedisClient(): Promise<import('ioredis').Redis | null> 
       const { default: Redis } = await import('ioredis')
       client = new Redis(url, {
         lazyConnect: true,
-        connectTimeout: 5_000,      // Docker DNS + container startup needs headroom
+        connectTimeout: 5_000, // Docker DNS + container startup needs headroom
         maxRetriesPerRequest: 0,
         enableOfflineQueue: false,
-        retryStrategy: () => null,  // fail fast — no background reconnect storm
+        retryStrategy: () => null, // fail fast — no background reconnect storm
       })
       await client.connect()
       await client.ping()
@@ -53,11 +55,17 @@ export async function getRedisClient(): Promise<import('ioredis').Redis | null> 
       return client
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
-      console.log(`[redis] Could not connect to ${url} (${msg}) — using file store`)
+      console.log(
+        `[redis] Could not connect to ${url} (${msg}) — using file store`,
+      )
       // Explicitly destroy the client to cancel any internal ioredis timers
       // that would otherwise keep the event loop alive after a failed connect.
       if (client) {
-        try { client.disconnect() } catch { /* ignore */ }
+        try {
+          client.disconnect()
+        } catch {
+          /* ignore */
+        }
       }
       _initPromise = null // allow retry on next startup
       return null

@@ -1,15 +1,19 @@
 import { Link } from '@tanstack/react-router'
-import { Card } from '@/components/ds/card'
-import { StatusBadge } from '@/components/ds/status-badge'
 import type { OperationAgent, OperationAgentStatus } from '@/types/operation'
 import type { Status } from '@/components/ds/status-badge'
+import { Card } from '@/components/ds/card'
+import { StatusBadge } from '@/components/ds/status-badge'
 
 function agentStatusToStatus(s: OperationAgentStatus): Status {
   switch (s) {
-    case 'online':  return 'running'
-    case 'offline': return 'idle'
-    case 'error':   return 'error'
-    case 'unknown': return 'pending'
+    case 'online':
+      return 'running'
+    case 'offline':
+      return 'idle'
+    case 'error':
+      return 'error'
+    case 'unknown':
+      return 'pending'
   }
 }
 
@@ -41,7 +45,8 @@ export function AgentCard({ agent }: AgentCardProps) {
     agent.source === 'crew' && agent.crewName
       ? agent.crewName
       : agent.missionGoal
-        ? agent.missionGoal.slice(0, 60) + (agent.missionGoal.length > 60 ? '…' : '')
+        ? agent.missionGoal.slice(0, 60) +
+          (agent.missionGoal.length > 60 ? '…' : '')
         : null
 
   return (
@@ -60,7 +65,10 @@ export function AgentCard({ agent }: AgentCardProps) {
                   {agent.name}
                 </div>
                 {contextLabel && (
-                  <div className="text-xs truncate" style={{ color: 'var(--theme-muted)' }}>
+                  <div
+                    className="text-xs truncate"
+                    style={{ color: 'var(--theme-muted)' }}
+                  >
                     {contextLabel}
                   </div>
                 )}
@@ -84,15 +92,16 @@ export function AgentCard({ agent }: AgentCardProps) {
           )}
 
           {/* Footer: tokens + last activity */}
-          <div className="flex items-center justify-between text-xs" style={{ color: 'var(--theme-muted)' }}>
+          <div
+            className="flex items-center justify-between text-xs"
+            style={{ color: 'var(--theme-muted)' }}
+          >
             {agent.totalTokens > 0 ? (
               <span>{formatTokens(agent.totalTokens)} tokens</span>
             ) : (
               <span>0 tokens</span>
             )}
-            {agent.lastActivity && (
-              <span>{timeAgo(agent.lastActivity)}</span>
-            )}
+            {agent.lastActivity && <span>{timeAgo(agent.lastActivity)}</span>}
           </div>
         </div>
       </Card>

@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 let tmpDir: string
 
@@ -92,7 +92,10 @@ describe('getAnalytics()', () => {
     const { appendEvent, getAnalytics } = await getStore()
     // Insert 20 unique tool names
     for (let i = 0; i < 20; i++) {
-      appendEvent('s1', undefined, 'tool', { name: `tool-${i}`, phase: 'complete' })
+      appendEvent('s1', undefined, 'tool', {
+        name: `tool-${i}`,
+        phase: 'complete',
+      })
     }
     const result = getAnalytics()
     expect(result.toolFrequency.length).toBeLessThanOrEqual(15)
@@ -104,7 +107,9 @@ describe('getAnalytics()', () => {
     const result = getAnalytics()
     expect(result.timeRange).not.toBeNull()
     expect(result.timeRange!.oldest).toBeGreaterThan(0)
-    expect(result.timeRange!.newest).toBeGreaterThanOrEqual(result.timeRange!.oldest)
+    expect(result.timeRange!.newest).toBeGreaterThanOrEqual(
+      result.timeRange!.oldest,
+    )
   })
 
   it('timeRange is null for empty database', async () => {

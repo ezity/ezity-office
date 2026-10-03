@@ -1,31 +1,31 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
+  AiUserIcon,
+  Analytics01Icon,
   ArrowDown01Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
+  BookOpen01Icon,
   BrainIcon,
   Chat01Icon,
+  CheckListIcon,
   Clock01Icon,
   ComputerTerminal01Icon,
+  ConsoleIcon,
   DashboardSquare01Icon,
   File01Icon,
+  Flag01Icon,
+  HelpCircleIcon,
   MessageMultiple01Icon,
   Moon02Icon,
   PencilEdit02Icon,
   PuzzleIcon,
+  Radar01Icon,
   Search01Icon,
   Settings01Icon,
+  TimelineIcon,
   UserGroupIcon,
   UserMultiple02Icon,
-  AiUserIcon,
-  Analytics01Icon,
-  ConsoleIcon,
-  TimelineIcon,
-  Flag01Icon,
-  Radar01Icon,
-  CheckListIcon,
-  HelpCircleIcon,
-  BookOpen01Icon,
 } from '@hugeicons/core-free-icons'
 import { AnimatePresence, motion } from 'motion/react'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
@@ -200,7 +200,7 @@ function NavItem({
             <TooltipTrigger
               render={
                 <Link
-                  to={item.to!}
+                  to={item.to}
                   search={item.search}
                   hash={item.hash}
                   onClick={handleSelect}
@@ -218,7 +218,7 @@ function NavItem({
     }
     return (
       <Link
-        to={item.to!}
+        to={item.to}
         search={item.search}
         hash={item.hash}
         onClick={handleSelect}
@@ -512,7 +512,7 @@ function ChatSidebarComponent({
   const _mod = useMemo(
     () =>
       typeof navigator !== 'undefined' &&
-        /Mac|iPod|iPhone|iPad/.test(navigator.userAgent)
+      /Mac|iPod|iPhone|iPad/.test(navigator.userAgent)
         ? '⌘'
         : 'Ctrl+',
     [],
@@ -613,9 +613,9 @@ function ChatSidebarComponent({
     setDeleteFriendlyId(session.friendlyId)
     setDeleteSessionTitle(
       session.label ||
-      session.title ||
-      session.derivedTitle ||
-      session.friendlyId,
+        session.title ||
+        session.derivedTitle ||
+        session.friendlyId,
     )
     setDeleteDialogOpen(true)
   }
@@ -1031,7 +1031,7 @@ function ChatSidebarComponent({
               buttonVariants({ variant: 'ghost', size: 'sm' }),
               'w-full justify-start gap-2.5 px-3 py-2 text-primary-900 hover:bg-primary-200 dark:hover:bg-primary-800',
               isNewSessionActive &&
-              'bg-accent-500/10 text-accent-500 hover:bg-accent-50 dark:hover:bg-accent-900/300/15',
+                'bg-accent-500/10 text-accent-500 hover:bg-accent-50 dark:hover:bg-accent-900/300/15',
             )}
             data-tour="new-session"
           >

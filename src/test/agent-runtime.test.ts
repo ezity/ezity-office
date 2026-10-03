@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 let tmpDir: string
 
@@ -19,9 +19,8 @@ afterEach(() => {
 
 describe('Phase B: Built-in EZity Staff Definitions', () => {
   it('loads all three EZity staff definitions', async () => {
-    const { getAgent, listAgents, EZITY_STAFF } = await import(
-      '@/server/agent-definitions-store'
-    )
+    const { getAgent, listAgents, EZITY_STAFF } =
+      await import('@/server/agent-definitions-store')
 
     expect(EZITY_STAFF).toHaveLength(3)
 
@@ -39,6 +38,19 @@ describe('Phase B: Built-in EZity Staff Definitions', () => {
     expect(accountant?.emoji).toBe('📊')
     expect(accountant?.roleLabel).toBe('Financial & Accounting Specialist')
     expect(accountant?.systemPrompt).toContain('Accountant')
+    expect(accountant?.systemPrompt).toContain(
+      'EzityHub is the sole authoritative source',
+    )
+    expect(accountant?.systemPrompt).toContain(
+      'Never invent, extrapolate, or hallucinate',
+    )
+    expect(accountant?.systemPrompt).toContain('strictly READ-ONLY')
+    expect(accountant?.systemPrompt).toContain('Recorded data')
+    expect(accountant?.systemPrompt).toContain('Calculations')
+    expect(accountant?.systemPrompt).toContain('Assumptions')
+    expect(accountant?.systemPrompt).toContain('Recommendations')
+    expect(accountant?.systemPrompt).not.toContain('ez_agt_')
+    expect(accountant?.systemPrompt).not.toContain('http')
     expect(accountant?.isBuiltIn).toBe(true)
 
     const developer = getAgent('ezity-developer')
@@ -50,7 +62,9 @@ describe('Phase B: Built-in EZity Staff Definitions', () => {
     expect(developer?.isBuiltIn).toBe(true)
 
     const all = listAgents()
-    const ezityIds = all.filter((a) => a.id.startsWith('ezity-')).map((a) => a.id)
+    const ezityIds = all
+      .filter((a) => a.id.startsWith('ezity-'))
+      .map((a) => a.id)
     expect(ezityIds).toContain('ezity-chief-of-staff')
     expect(ezityIds).toContain('ezity-accountant')
     expect(ezityIds).toContain('ezity-developer')
@@ -183,31 +197,33 @@ describe('Phase A: streamChat Runtime Persona and Model Propagation', () => {
     let capturedBody: any = null
 
     // Mock global fetch for streamChat
-    const mockFetch = vi.fn().mockImplementation(async (url: string, init?: RequestInit) => {
-      capturedUrl = url
-      if (init?.body) {
-        capturedBody = JSON.parse(init.body as string)
-      }
-      return {
-        ok: true,
-        body: {
-          getReader() {
-            let done = false
-            return {
-              async read() {
-                if (done) return { done: true, value: undefined }
-                done = true
-                const data = 'event: message\ndata: {"text":"hello"}\n\n'
-                return {
-                  done: false,
-                  value: new TextEncoder().encode(data),
-                }
-              },
-            }
+    const mockFetch = vi
+      .fn()
+      .mockImplementation(async (url: string, init?: RequestInit) => {
+        capturedUrl = url
+        if (init?.body) {
+          capturedBody = JSON.parse(init.body as string)
+        }
+        return {
+          ok: true,
+          body: {
+            getReader() {
+              let done = false
+              return {
+                async read() {
+                  if (done) return { done: true, value: undefined }
+                  done = true
+                  const data = 'event: message\ndata: {"text":"hello"}\n\n'
+                  return {
+                    done: false,
+                    value: new TextEncoder().encode(data),
+                  }
+                },
+              }
+            },
           },
-        },
-      } as any
-    })
+        } as any
+      })
 
     vi.stubGlobal('fetch', mockFetch)
 
@@ -242,7 +258,10 @@ describe('Phase A: streamChat Runtime Persona and Model Propagation', () => {
     // Test the precedence formula used in send-stream:
     // effectiveModel = (linkedAgent?.model?.trim() || undefined) ?? (turnModel?.trim() || undefined)
 
-    const agentWithModel = { id: 'ezity-chief-of-staff', model: 'deepseek-chat' }
+    const agentWithModel = {
+      id: 'ezity-chief-of-staff',
+      model: 'deepseek-chat',
+    }
     const agentWithoutModel = { id: 'ezity-accountant', model: undefined }
     const turnModel = 'custom-turn-model'
 

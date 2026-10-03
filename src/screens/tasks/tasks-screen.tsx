@@ -1,18 +1,22 @@
-import { useState, useCallback } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Add01Icon } from '@hugeicons/core-free-icons'
-import { StatusBadge } from '@/components/ds/status-badge'
-import { Button } from '@/components/ui/button'
 import { TaskColumn } from './components/task-column'
 import { TaskDialog } from './components/task-dialog'
+import type {
+  CreateTaskInput,
+  HermesTask,
+  TaskColumn as TaskColumnType,
+} from '@/types/task'
+import { StatusBadge } from '@/components/ds/status-badge'
+import { Button } from '@/components/ui/button'
 import {
-  fetchTasks,
   createTask as apiCreateTask,
-  updateTask as apiUpdateTask,
   moveTask as apiMoveTask,
+  updateTask as apiUpdateTask,
+  fetchTasks,
 } from '@/lib/tasks-api'
-import type { HermesTask, CreateTaskInput, TaskColumn as TaskColumnType } from '@/types/task'
 import { TASK_COLUMNS } from '@/types/task'
 
 export function TasksScreen() {
@@ -33,8 +37,13 @@ export function TasksScreen() {
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: Partial<CreateTaskInput> }) =>
-      apiUpdateTask(id, updates),
+    mutationFn: ({
+      id,
+      updates,
+    }: {
+      id: string
+      updates: Partial<CreateTaskInput>
+    }) => apiUpdateTask(id, updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
   })
 
@@ -80,29 +89,40 @@ export function TasksScreen() {
       acc[col] = tasks.filter((t) => t.column === col)
       return acc
     },
-    {} as Record<TaskColumnType, HermesTask[]>,
+    {} as Record<TaskColumnType, Array<HermesTask>>,
   )
 
   const totalTasks = tasks.length
   const inProgress = tasks.filter((t) => t.column === 'in_progress').length
   const done = tasks.filter((t) => t.column === 'done').length
-  const completionPct = totalTasks > 0 ? Math.round((done / totalTasks) * 100) : 0
+  const completionPct =
+    totalTasks > 0 ? Math.round((done / totalTasks) * 100) : 0
 
   return (
-    <div className="flex flex-col h-full" style={{ background: 'var(--theme-bg)' }}>
+    <div
+      className="flex flex-col h-full"
+      style={{ background: 'var(--theme-bg)' }}
+    >
       <div
         className="flex items-center justify-between px-6 py-4 border-b"
         style={{ borderColor: 'var(--theme-border)' }}
       >
         <div className="flex items-center gap-4">
-          <h1 className="text-lg font-semibold" style={{ color: 'var(--theme-text)' }}>
+          <h1
+            className="text-lg font-semibold"
+            style={{ color: 'var(--theme-text)' }}
+          >
             Tasks
           </h1>
           <div className="flex items-center gap-3">
             <span className="text-xs" style={{ color: 'var(--theme-muted)' }}>
               {totalTasks} total
             </span>
-            <StatusBadge status="running" label={`${inProgress} active`} size="sm" />
+            <StatusBadge
+              status="running"
+              label={`${inProgress} active`}
+              size="sm"
+            />
             <span className="text-xs" style={{ color: 'var(--theme-success)' }}>
               {completionPct}% done
             </span>

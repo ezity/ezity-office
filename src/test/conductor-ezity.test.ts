@@ -1,13 +1,13 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { AgentDefinition } from '@/types/agent'
 import {
-  buildOrchestratorPrompt,
   buildEZityOrchestratorPrompt,
+  buildOrchestratorPrompt,
 } from '@/routes/api/conductor-spawn'
 import { getAgent, listAgents } from '@/server/agent-definitions-store'
-import type { AgentDefinition } from '@/types/agent'
 
 let tmpDir: string
 
@@ -50,15 +50,16 @@ describe('Phase C: Conductor EZity Staff Integration', () => {
       expect(prompt).toContain('You are Chief of Staff')
       expect(prompt).toContain(cos.systemPrompt)
       expect(prompt).toContain('Goal: Prepare Q3 corporate summary')
-      expect(prompt).toContain('Use model: anthropic/claude-3-5-sonnet for the Chief of Staff orchestrator')
+      expect(prompt).toContain(
+        'Use model: anthropic/claude-3-5-sonnet for the Chief of Staff orchestrator',
+      )
       expect(prompt).toContain('Run up to 2 workers in parallel')
       expect(prompt).toContain('/workspace/output/dispatch-<slug>')
     })
 
     it('maps orchestrator session and cron run prefix to ezity-chief-of-staff in session store', async () => {
-      const { setSessionAgent, getSessionAgent } = await import(
-        '@/server/session-agent-store'
-      )
+      const { setSessionAgent, getSessionAgent } =
+        await import('@/server/session-agent-store')
 
       const jobId = 'test-job-999'
       const sessionKey = `conductor-${jobId}`
@@ -70,7 +71,9 @@ describe('Phase C: Conductor EZity Staff Integration', () => {
       expect(getSessionAgent(sessionKey)).toBe('ezity-chief-of-staff')
       // Hermes cron sessions are named cron_<jobId>_<timestamp>
       const runtimeCronSessionKey = `cron_${jobId}_20261003_120000`
-      expect(getSessionAgent(runtimeCronSessionKey)).toBe('ezity-chief-of-staff')
+      expect(getSessionAgent(runtimeCronSessionKey)).toBe(
+        'ezity-chief-of-staff',
+      )
     })
   })
 
@@ -96,8 +99,12 @@ describe('Phase C: Conductor EZity Staff Integration', () => {
       )
 
       expect(prompt).toContain('## Available Staff Roster')
-      expect(prompt).toContain('**Accountant** (`ezity-accountant`) — Financial & Accounting Specialist')
-      expect(prompt).toContain('**Developer** (`ezity-developer`) — Lead Software Engineer')
+      expect(prompt).toContain(
+        '**Accountant** (`ezity-accountant`) — Financial & Accounting Specialist',
+      )
+      expect(prompt).toContain(
+        '**Developer** (`ezity-developer`) — Lead Software Engineer',
+      )
       expect(prompt).toContain('Supervised mode is enabled')
     })
   })
@@ -138,7 +145,10 @@ describe('Phase C: Conductor EZity Staff Integration', () => {
   describe('D. Persona and model information propagates where supported', () => {
     it('instructs Chief of Staff to delegate explicitly to worker-accountant and worker-developer with persona and model', () => {
       const cos = getAgent('ezity-chief-of-staff')!
-      const accountant = { ...getAgent('ezity-accountant')!, model: 'custom-finance-model' }
+      const accountant = {
+        ...getAgent('ezity-accountant')!,
+        model: 'custom-finance-model',
+      }
       const developer = getAgent('ezity-developer')!
       const roster = [accountant, developer]
 
@@ -159,8 +169,12 @@ describe('Phase C: Conductor EZity Staff Integration', () => {
       expect(prompt).toContain('worker-accountant-<task-slug>')
       expect(prompt).toContain('worker-developer-<task-slug>')
       expect(prompt).toContain('Model: custom-finance-model')
-      expect(prompt).toContain('**Persona & Model Propagation**: Embed the staff member\'s role and core responsibilities directly into each worker prompt')
-      expect(prompt).toContain('**Final Synthesis**: As Chief of Staff, synthesize all worker findings into an executive briefing for leadership')
+      expect(prompt).toContain(
+        "**Persona & Model Propagation**: Embed the staff member's role and core responsibilities directly into each worker prompt",
+      )
+      expect(prompt).toContain(
+        '**Final Synthesis**: As Chief of Staff, synthesize all worker findings into an executive briefing for leadership',
+      )
     })
   })
 
@@ -178,7 +192,9 @@ describe('Phase C: Conductor EZity Staff Integration', () => {
         },
       )
 
-      expect(prompt).toContain('You are a mission orchestrator. Execute this mission autonomously.')
+      expect(prompt).toContain(
+        'You are a mission orchestrator. Execute this mission autonomously.',
+      )
       expect(prompt).not.toContain('Chief of Staff')
       expect(prompt).not.toContain('Available EZity Staff Team')
       expect(prompt).not.toContain('worker-accountant-')
@@ -190,7 +206,7 @@ describe('Phase C: Conductor EZity Staff Integration', () => {
   describe('F. Missing or deleted staff definition degrades gracefully', () => {
     it('handles empty or missing staff roster gracefully without errors', () => {
       const cos = getAgent('ezity-chief-of-staff')!
-      const emptyRoster: AgentDefinition[] = []
+      const emptyRoster: Array<AgentDefinition> = []
 
       const prompt = buildEZityOrchestratorPrompt(
         'Solo mission without extra staff',
@@ -207,7 +223,9 @@ describe('Phase C: Conductor EZity Staff Integration', () => {
       )
 
       expect(prompt).toContain('You are Chief of Staff')
-      expect(prompt).toContain('(No specialized staff defined; spawn general workers as needed)')
+      expect(prompt).toContain(
+        '(No specialized staff defined; spawn general workers as needed)',
+      )
     })
   })
 })

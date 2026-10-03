@@ -4,13 +4,13 @@
  * Runs a systemctl user-service action for hermes-studio.
  * Body: { action: 'install' | 'uninstall' | 'start' | 'stop' | 'enable' | 'disable' }
  */
-import { createFileRoute } from '@tanstack/react-router'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
-import { readFile, writeFile, mkdir, unlink } from 'node:fs/promises'
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { join, dirname } from 'node:path'
+import { dirname, join } from 'node:path'
+import { createFileRoute } from '@tanstack/react-router'
 import { isAuthenticated } from '../../server/auth-middleware'
 
 const execFileAsync = promisify(execFile)
@@ -51,7 +51,7 @@ const ALLOWED_ACTIONS: Set<SystemdAction> = new Set([
   'disable',
 ])
 
-async function runSystemctl(...args: string[]): Promise<string> {
+async function runSystemctl(...args: Array<string>): Promise<string> {
   try {
     const { stdout } = await execFileAsync('systemctl', [
       '--user',

@@ -8,8 +8,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { isAuthenticated } from '../../server/auth-middleware'
 import { requireJsonContentType } from '../../server/rate-limit'
 import {
-  HERMES_API,
   BEARER_TOKEN,
+  HERMES_API,
   ensureGatewayProbed,
 } from '../../server/gateway-capabilities'
 import { getAgent } from '../../server/agent-definitions-store'
@@ -44,7 +44,10 @@ function loadDispatchSkill(): string {
   const candidates = [
     resolve(repoRoot(), 'skills/workspace-dispatch/SKILL.md'),
     resolve(process.cwd(), 'skills/workspace-dispatch/SKILL.md'),
-    resolve(process.env.HOME ?? '~', '.hermes/skills/workspace-dispatch/SKILL.md'),
+    resolve(
+      process.env.HOME ?? '~',
+      '.hermes/skills/workspace-dispatch/SKILL.md',
+    ),
     resolve(
       process.env.HOME ?? '~',
       '.ocplatform/workspace/skills/workspace-dispatch/SKILL.md',
@@ -84,14 +87,17 @@ export function buildOrchestratorPrompt(
 ): string {
   const outputBase = options.projectsDir || '/tmp'
   const outputPrefix =
-    outputBase === '/tmp' ? '/tmp/dispatch-<slug>' : `${outputBase}/dispatch-<slug>`
+    outputBase === '/tmp'
+      ? '/tmp/dispatch-<slug>'
+      : `${outputBase}/dispatch-<slug>`
 
   return [
     'You are a mission orchestrator. Execute this mission autonomously.',
     '',
     '## Dispatch Skill Instructions',
     '',
-    skill || '(workspace-dispatch skill not found locally; proceed using create_task to spawn workers)',
+    skill ||
+      '(workspace-dispatch skill not found locally; proceed using create_task to spawn workers)',
     '',
     '## Mission',
     '',
@@ -104,13 +110,13 @@ export function buildOrchestratorPrompt(
       : []),
     ...(options.maxParallel > 1
       ? [
-        '',
-        `Run up to ${options.maxParallel} workers in parallel when tasks are independent`,
-      ]
+          '',
+          `Run up to ${options.maxParallel} workers in parallel when tasks are independent`,
+        ]
       : [
-        '',
-        'Spawn workers one at a time. Do NOT wait for workers to finish — the UI handles tracking.',
-      ]),
+          '',
+          'Spawn workers one at a time. Do NOT wait for workers to finish — the UI handles tracking.',
+        ]),
     ...(options.supervised
       ? ['', 'Supervised mode is enabled. Require approval before each task.']
       : []),
@@ -132,7 +138,7 @@ export function buildEZityOrchestratorPrompt(
   goal: string,
   skill: string,
   chiefOfStaff: AgentDefinition,
-  staffRoster: AgentDefinition[],
+  staffRoster: Array<AgentDefinition>,
   options: {
     orchestratorModel: string
     workerModel: string
@@ -143,20 +149,22 @@ export function buildEZityOrchestratorPrompt(
 ): string {
   const outputBase = options.projectsDir || '/tmp'
   const outputPrefix =
-    outputBase === '/tmp' ? '/tmp/dispatch-<slug>' : `${outputBase}/dispatch-<slug>`
+    outputBase === '/tmp'
+      ? '/tmp/dispatch-<slug>'
+      : `${outputBase}/dispatch-<slug>`
 
   const rosterLines =
     staffRoster.length > 0
       ? staffRoster
-        .map((member) => {
-          const modelNote = member.model ? ` (Model: ${member.model})` : ''
-          return [
-            `- **${member.name}** (\`${member.id}\`)${modelNote} — ${member.roleLabel}`,
-            `  Focus: ${member.tags.join(', ')}`,
-            `  Directives: ${member.systemPrompt.slice(0, 160).trim()}...`,
-          ].join('\n')
-        })
-        .join('\n\n')
+          .map((member) => {
+            const modelNote = member.model ? ` (Model: ${member.model})` : ''
+            return [
+              `- **${member.name}** (\`${member.id}\`)${modelNote} — ${member.roleLabel}`,
+              `  Focus: ${member.tags.join(', ')}`,
+              `  Directives: ${member.systemPrompt.slice(0, 160).trim()}...`,
+            ].join('\n')
+          })
+          .join('\n\n')
       : '(No specialized staff defined; spawn general workers as needed)'
 
   return [
@@ -167,7 +175,7 @@ export function buildEZityOrchestratorPrompt(
     '## Dispatch Skill Instructions',
     '',
     skill ||
-    '(workspace-dispatch skill not found locally; proceed using create_task to spawn workers)',
+      '(workspace-dispatch skill not found locally; proceed using create_task to spawn workers)',
     '',
     '## Available Staff Roster',
     'You lead and coordinate the following specialized EZity staff members:',
@@ -181,7 +189,7 @@ export function buildEZityOrchestratorPrompt(
     '- **Engineering, Code, Architecture, Technical, or Systems tasks**: Delegate explicitly to **Developer** (`ezity-developer`).',
     '  Use worker label: `worker-developer-<task-slug>`.',
     '  Include in the task description: `[Assigned Staff: Developer (ezity-developer)]` with clean architecture and implementation expectations.',
-    '- **Persona & Model Propagation**: Embed the staff member\'s role and core responsibilities directly into each worker prompt, along with any designated model requirements.',
+    "- **Persona & Model Propagation**: Embed the staff member's role and core responsibilities directly into each worker prompt, along with any designated model requirements.",
     '- **General or Uncategorized tasks**: If a task does not fit Accountant or Developer, delegate to a general worker labeled `worker-<task-slug>`.',
     '- **Multi-domain missions**: Decompose the goal across your staff (e.g. Accountant handles financial/budget analysis while Developer handles technical implementation), collect all worker outputs, and synthesize a cohesive executive briefing.',
     '- **Final Synthesis**: As Chief of Staff, synthesize all worker findings into an executive briefing for leadership.',
@@ -190,20 +198,23 @@ export function buildEZityOrchestratorPrompt(
     '',
     `Goal: ${goal}`,
     ...(options.orchestratorModel
-      ? ['', `Use model: ${options.orchestratorModel} for the Chief of Staff orchestrator`]
+      ? [
+          '',
+          `Use model: ${options.orchestratorModel} for the Chief of Staff orchestrator`,
+        ]
       : []),
     ...(options.workerModel
       ? ['', `Use model: ${options.workerModel} for all workers`]
       : []),
     ...(options.maxParallel > 1
       ? [
-        '',
-        `Run up to ${options.maxParallel} workers in parallel when tasks are independent`,
-      ]
+          '',
+          `Run up to ${options.maxParallel} workers in parallel when tasks are independent`,
+        ]
       : [
-        '',
-        'Spawn workers one at a time. Do NOT wait for workers to finish — the UI handles tracking.',
-      ]),
+          '',
+          'Spawn workers one at a time. Do NOT wait for workers to finish — the UI handles tracking.',
+        ]),
     ...(options.supervised
       ? ['', 'Supervised mode is enabled. Require approval before each task.']
       : []),
@@ -266,10 +277,13 @@ export const Route = createFileRoute('/api/conductor-spawn')({
     handlers: {
       POST: async ({ request }) => {
         if (!isAuthenticated(request)) {
-          return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), {
-            status: 401,
-            headers: { 'Content-Type': 'application/json' },
-          })
+          return new Response(
+            JSON.stringify({ ok: false, error: 'Unauthorized' }),
+            {
+              status: 401,
+              headers: { 'Content-Type': 'application/json' },
+            },
+          )
         }
         const csrfCheck = requireJsonContentType(request)
         if (csrfCheck) return csrfCheck
@@ -372,12 +386,12 @@ export const Route = createFileRoute('/api/conductor-spawn')({
               isEZity: Boolean(cosAgent),
               orchestrator: cosAgent
                 ? {
-                  id: cosAgent.id,
-                  name: cosAgent.name,
-                  emoji: cosAgent.emoji,
-                  role: cosAgent.roleLabel,
-                  model: effectiveOrchestratorModel,
-                }
+                    id: cosAgent.id,
+                    name: cosAgent.name,
+                    emoji: cosAgent.emoji,
+                    role: cosAgent.roleLabel,
+                    model: effectiveOrchestratorModel,
+                  }
                 : null,
             }),
             { status: 200, headers: { 'Content-Type': 'application/json' } },

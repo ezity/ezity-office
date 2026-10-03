@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { Card } from '@/components/ds/card'
 
@@ -40,6 +40,8 @@ describe('Card', () => {
 
   it('forwards className', () => {
     const { container } = render(<Card className="custom-class">body</Card>)
-    expect((container.firstChild as HTMLElement).className).toContain('custom-class')
+    expect((container.firstChild as HTMLElement).className).toContain(
+      'custom-class',
+    )
   })
 })

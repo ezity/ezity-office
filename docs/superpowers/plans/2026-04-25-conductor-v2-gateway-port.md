@@ -15,53 +15,57 @@
 ## File Map
 
 ### New files
-| File | Responsibility |
-|------|---------------|
-| `src/lib/gateway-api.ts` | Gateway session types + `fetchSessions()` client helper |
-| `src/types/conductor.ts` | Rewritten conductor types |
-| `src/routes/api/conductor-spawn.ts` | POST: create Hermes orchestrator cron job |
-| `src/routes/api/conductor-stop.ts` | POST: kill worker session keys |
-| `src/screens/conductor/hooks/use-conductor-gateway.ts` | Main hook — all state, polling, lifecycle, history |
-| `src/screens/conductor/conductor-screen.tsx` | Screen orchestrator — phase router, settings drawer |
-| `src/screens/conductor/components/agent-avatar.tsx` | Pixel-art SVG robot avatars + accent colors |
-| `src/screens/conductor/components/office-view.tsx` | Animated SVG office with 3 layouts |
-| `src/screens/conductor/components/conductor-home.tsx` | Home phase — goal input, quick actions, history |
-| `src/screens/conductor/components/conductor-active.tsx` | Active phase — office + workers + controls |
-| `src/screens/conductor/components/conductor-complete.tsx` | Complete phase — summary, outputs, retry |
-| `src/screens/conductor/components/conductor-settings.tsx` | Settings drawer — models, dir, parallel, supervised |
-| `src/screens/conductor/components/cost-tracker.tsx` | Token count + estimated USD display |
-| `src/screens/conductor/components/mission-event-log.tsx` | Scrollable cycling status + event stream |
+
+| File                                                      | Responsibility                                          |
+| --------------------------------------------------------- | ------------------------------------------------------- |
+| `src/lib/gateway-api.ts`                                  | Gateway session types + `fetchSessions()` client helper |
+| `src/types/conductor.ts`                                  | Rewritten conductor types                               |
+| `src/routes/api/conductor-spawn.ts`                       | POST: create Hermes orchestrator cron job               |
+| `src/routes/api/conductor-stop.ts`                        | POST: kill worker session keys                          |
+| `src/screens/conductor/hooks/use-conductor-gateway.ts`    | Main hook — all state, polling, lifecycle, history      |
+| `src/screens/conductor/conductor-screen.tsx`              | Screen orchestrator — phase router, settings drawer     |
+| `src/screens/conductor/components/agent-avatar.tsx`       | Pixel-art SVG robot avatars + accent colors             |
+| `src/screens/conductor/components/office-view.tsx`        | Animated SVG office with 3 layouts                      |
+| `src/screens/conductor/components/conductor-home.tsx`     | Home phase — goal input, quick actions, history         |
+| `src/screens/conductor/components/conductor-active.tsx`   | Active phase — office + workers + controls              |
+| `src/screens/conductor/components/conductor-complete.tsx` | Complete phase — summary, outputs, retry                |
+| `src/screens/conductor/components/conductor-settings.tsx` | Settings drawer — models, dir, parallel, supervised     |
+| `src/screens/conductor/components/cost-tracker.tsx`       | Token count + estimated USD display                     |
+| `src/screens/conductor/components/mission-event-log.tsx`  | Scrollable cycling status + event stream                |
 
 ### Modified files
-| File | Change |
-|------|--------|
+
+| File                                  | Change                                                       |
+| ------------------------------------- | ------------------------------------------------------------ |
 | `src/server/operations-aggregator.ts` | Replace mission-store import with live gateway session query |
-| `src/styles.css` | Add office animation keyframes + glow classes |
+| `src/styles.css`                      | Add office animation keyframes + glow classes                |
 
 ### Deleted files
-| File | Reason |
-|------|--------|
-| `src/server/mission-store.ts` | Replaced by gateway-native approach |
-| `src/routes/api/missions/index.ts` | No longer needed |
-| `src/routes/api/missions/$missionId.ts` | No longer needed |
-| `src/routes/api/missions/$missionId.abort.ts` | No longer needed |
-| `src/routes/api/missions/$missionId.events.ts` | No longer needed |
-| `src/lib/missions-api.ts` | No longer needed |
-| `src/test/mission-store.test.ts` | Tests for deleted code |
-| `src/test/operations-aggregator.test.ts` | Will be rewritten |
-| `src/screens/conductor/components/mission-home.tsx` | Replaced |
-| `src/screens/conductor/components/mission-preview.tsx` | Replaced |
-| `src/screens/conductor/components/mission-active.tsx` | Replaced |
-| `src/screens/conductor/components/mission-complete.tsx` | Replaced |
-| `src/screens/conductor/components/worker-card.tsx` | Replaced |
-| `src/screens/conductor/components/mission-event-log.tsx` | Replaced (rewritten) |
-| `src/screens/conductor/components/cost-tracker.tsx` | Replaced (rewritten) |
+
+| File                                                     | Reason                              |
+| -------------------------------------------------------- | ----------------------------------- |
+| `src/server/mission-store.ts`                            | Replaced by gateway-native approach |
+| `src/routes/api/missions/index.ts`                       | No longer needed                    |
+| `src/routes/api/missions/$missionId.ts`                  | No longer needed                    |
+| `src/routes/api/missions/$missionId.abort.ts`            | No longer needed                    |
+| `src/routes/api/missions/$missionId.events.ts`           | No longer needed                    |
+| `src/lib/missions-api.ts`                                | No longer needed                    |
+| `src/test/mission-store.test.ts`                         | Tests for deleted code              |
+| `src/test/operations-aggregator.test.ts`                 | Will be rewritten                   |
+| `src/screens/conductor/components/mission-home.tsx`      | Replaced                            |
+| `src/screens/conductor/components/mission-preview.tsx`   | Replaced                            |
+| `src/screens/conductor/components/mission-active.tsx`    | Replaced                            |
+| `src/screens/conductor/components/mission-complete.tsx`  | Replaced                            |
+| `src/screens/conductor/components/worker-card.tsx`       | Replaced                            |
+| `src/screens/conductor/components/mission-event-log.tsx` | Replaced (rewritten)                |
+| `src/screens/conductor/components/cost-tracker.tsx`      | Replaced (rewritten)                |
 
 ---
 
 ### Task 1: Delete old files and create gateway API types
 
 **Files:**
+
 - Delete: `src/server/mission-store.ts`, `src/routes/api/missions/index.ts`, `src/routes/api/missions/$missionId.ts`, `src/routes/api/missions/$missionId.abort.ts`, `src/routes/api/missions/$missionId.events.ts`, `src/lib/missions-api.ts`, `src/test/mission-store.test.ts`, `src/test/operations-aggregator.test.ts`, `src/screens/conductor/components/mission-home.tsx`, `src/screens/conductor/components/mission-preview.tsx`, `src/screens/conductor/components/mission-active.tsx`, `src/screens/conductor/components/mission-complete.tsx`, `src/screens/conductor/components/worker-card.tsx`, `src/screens/conductor/components/mission-event-log.tsx`, `src/screens/conductor/components/cost-tracker.tsx`
 - Create: `src/lib/gateway-api.ts`
 - Rewrite: `src/types/conductor.ts`
@@ -229,7 +233,12 @@ export type MissionHistoryEntry = {
 export type StreamEvent =
   | { type: 'assistant'; text: string }
   | { type: 'thinking'; text: string }
-  | { type: 'tool'; name?: string; phase?: string; data?: Record<string, unknown> }
+  | {
+      type: 'tool'
+      name?: string
+      phase?: string
+      data?: Record<string, unknown>
+    }
   | { type: 'done'; state?: string; message?: string }
   | { type: 'error'; message: string }
   | { type: 'started'; runId?: string; sessionKey?: string }
@@ -283,6 +292,7 @@ gateway-native conductor."
 ### Task 2: Server API routes — conductor-spawn and conductor-stop
 
 **Files:**
+
 - Create: `src/routes/api/conductor-spawn.ts`
 - Create: `src/routes/api/conductor-stop.ts`
 
@@ -338,7 +348,10 @@ function loadDispatchSkill(): string {
   const candidates = [
     resolve(repoRoot(), 'skills/workspace-dispatch/SKILL.md'),
     resolve(process.cwd(), 'skills/workspace-dispatch/SKILL.md'),
-    resolve(process.env.HOME ?? '~', '.hermes/skills/workspace-dispatch/SKILL.md'),
+    resolve(
+      process.env.HOME ?? '~',
+      '.hermes/skills/workspace-dispatch/SKILL.md',
+    ),
     resolve(
       process.env.HOME ?? '~',
       '.ocplatform/workspace/skills/workspace-dispatch/SKILL.md',
@@ -378,14 +391,17 @@ function buildOrchestratorPrompt(
 ): string {
   const outputBase = options.projectsDir || '/tmp'
   const outputPrefix =
-    outputBase === '/tmp' ? '/tmp/dispatch-<slug>' : `${outputBase}/dispatch-<slug>`
+    outputBase === '/tmp'
+      ? '/tmp/dispatch-<slug>'
+      : `${outputBase}/dispatch-<slug>`
 
   return [
     'You are a mission orchestrator. Execute this mission autonomously.',
     '',
     '## Dispatch Skill Instructions',
     '',
-    skill || '(workspace-dispatch skill not found locally; proceed using create_task to spawn workers)',
+    skill ||
+      '(workspace-dispatch skill not found locally; proceed using create_task to spawn workers)',
     '',
     '## Mission',
     '',
@@ -511,10 +527,7 @@ export const Route = createFileRoute('/api/conductor-spawn')({
           })
 
           if (result.error) {
-            return json(
-              { ok: false, error: result.error },
-              { status: 502 },
-            )
+            return json({ ok: false, error: result.error }, { status: 502 })
           }
 
           const jobId = result.id ?? jobName
@@ -530,8 +543,7 @@ export const Route = createFileRoute('/api/conductor-spawn')({
           return json(
             {
               ok: false,
-              error:
-                error instanceof Error ? error.message : String(error),
+              error: error instanceof Error ? error.message : String(error),
             },
             { status: 500 },
           )
@@ -563,7 +575,10 @@ export const Route = createFileRoute('/api/conductor-stop')({
 
         try {
           await ensureGatewayProbed()
-          const body = (await request.json().catch(() => ({}))) as Record<string, unknown>
+          const body = (await request.json().catch(() => ({}))) as Record<
+            string,
+            unknown
+          >
           const sessionKeys = Array.isArray(body.sessionKeys)
             ? body.sessionKeys.filter(
                 (value): value is string =>
@@ -618,6 +633,7 @@ orchestrator prompt. POST /api/conductor-stop kills worker sessions."
 ### Task 3: CSS animations for office view
 
 **Files:**
+
 - Modify: `src/styles.css`
 
 - [ ] **Step 1: Add office animation keyframes to `src/styles.css`**
@@ -628,33 +644,83 @@ Append the following to the end of `src/styles.css`:
 /* ── Office View Animations ── */
 
 @keyframes office-idle-float {
-  0%, 100% { transform: translateY(-3px); }
-  50% { transform: translateY(3px); }
+  0%,
+  100% {
+    transform: translateY(-3px);
+  }
+  50% {
+    transform: translateY(3px);
+  }
 }
 
 @keyframes office-status-glow-green {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.38), 0 0 14px 2px rgba(16, 185, 129, 0.3); }
-  50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0), 0 0 22px 6px rgba(16, 185, 129, 0.38); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(16, 185, 129, 0.38),
+      0 0 14px 2px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 0 8px rgba(16, 185, 129, 0),
+      0 0 22px 6px rgba(16, 185, 129, 0.38);
+  }
 }
 
 @keyframes office-status-glow-amber {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.32), 0 0 12px 2px rgba(245, 158, 11, 0.26); }
-  50% { box-shadow: 0 0 0 7px rgba(245, 158, 11, 0), 0 0 18px 4px rgba(245, 158, 11, 0.34); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(245, 158, 11, 0.32),
+      0 0 12px 2px rgba(245, 158, 11, 0.26);
+  }
+  50% {
+    box-shadow:
+      0 0 0 7px rgba(245, 158, 11, 0),
+      0 0 18px 4px rgba(245, 158, 11, 0.34);
+  }
 }
 
 @keyframes office-status-glow-blue {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.3), 0 0 12px 2px rgba(59, 130, 246, 0.25); }
-  50% { box-shadow: 0 0 0 7px rgba(59, 130, 246, 0), 0 0 18px 4px rgba(59, 130, 246, 0.32); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(59, 130, 246, 0.3),
+      0 0 12px 2px rgba(59, 130, 246, 0.25);
+  }
+  50% {
+    box-shadow:
+      0 0 0 7px rgba(59, 130, 246, 0),
+      0 0 18px 4px rgba(59, 130, 246, 0.32);
+  }
 }
 
 @keyframes office-status-glow-neutral {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(115, 115, 115, 0.18), 0 0 10px 2px rgba(115, 115, 115, 0.2); }
-  50% { box-shadow: 0 0 0 6px rgba(115, 115, 115, 0), 0 0 14px 3px rgba(115, 115, 115, 0.24); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(115, 115, 115, 0.18),
+      0 0 10px 2px rgba(115, 115, 115, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 0 6px rgba(115, 115, 115, 0),
+      0 0 14px 3px rgba(115, 115, 115, 0.24);
+  }
 }
 
 @keyframes office-status-glow-red {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.34), 0 0 12px 2px rgba(239, 68, 68, 0.3); }
-  50% { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0), 0 0 19px 5px rgba(239, 68, 68, 0.36); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(239, 68, 68, 0.34),
+      0 0 12px 2px rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 0 7px rgba(239, 68, 68, 0),
+      0 0 19px 5px rgba(239, 68, 68, 0.36);
+  }
 }
 
 .office-agent-stationary {
@@ -697,6 +763,7 @@ Add CSS keyframe animations for agent idle float, status glow pulses
 ### Task 4: Agent avatar component
 
 **Files:**
+
 - Create: `src/screens/conductor/components/agent-avatar.tsx`
 
 - [ ] **Step 1: Create the agent avatar component**
@@ -1045,6 +1112,7 @@ Ported from upstream hermes-workspace agent-avatar.tsx."
 ### Task 5: Office view component
 
 **Files:**
+
 - Create: `src/screens/conductor/components/office-view.tsx`
 
 This is the largest visual component. Port the full upstream OfficeView with 3 layouts (Grid, Roundtable, War Room), desk SVGs, social spots, agent wandering, speech bubbles, and status glows.
@@ -1062,6 +1130,7 @@ Create `src/screens/conductor/components/office-view.tsx` — a faithful adapted
 7. **Main `OfficeView` component**: Layout picker, tick animation, agent position calculation with wandering, SVG canvas with desks/spots, HTML overlay for agents with speech bubbles and avatars, mobile card list fallback, header with badges, footer legend
 
 **Key adaptations from upstream:**
+
 - Change `clawsuite:office-layout` localStorage key to `hermes-studio:office-layout`
 - Change "ClawSuite Office" header text to "Mission Control"
 - Import `AgentAvatar`, `AGENT_ACCENT_COLORS` from `./agent-avatar`
@@ -1091,6 +1160,7 @@ Ported from upstream hermes-workspace office-view.tsx."
 ### Task 6: Main conductor hook — use-conductor-gateway
 
 **Files:**
+
 - Create: `src/screens/conductor/hooks/use-conductor-gateway.ts`
 
 This is the engine — all state management, session polling, worker tracking, mission lifecycle, history persistence. ~1000+ lines adapted from the upstream's 1283-line hook.
@@ -1106,6 +1176,7 @@ mkdir -p src/screens/conductor/hooks
 The implementer MUST read the upstream file at `/tmp/hermes-workspace/src/screens/gateway/hooks/use-conductor-gateway.ts` (1283 lines) and port it faithfully.
 
 **Key adaptations from upstream:**
+
 - Import `fetchSessions` and `GatewaySession` from `@/lib/gateway-api` (our new file, NOT `../../lib/gateway-api`)
 - Import types from `@/types/conductor` instead of defining them inline
 - All helper functions (lines 1-632) port directly: `extractTasksFromPlan`, `readString`, `readNumber`, `readRecord`, `toIso`, `loadPersistedMission`, `loadConductorSettings`, `persistConductorSettings`, `loadMissionHistory`, `appendMissionHistory`, `persistMission`, `clearPersistedMission`, `clearMissionHistoryStorage`, `readContextTokens`, `deriveWorkerStatus`, `workersLookComplete`, `prettifyCronLabel`, `formatDisplayName`, `formatTokenUsage`, `toWorker`, `extractHistoryMessageText`, `getLastAssistantMessage`, `extractProjectPath`, `buildMissionOutputPath`, `summarizeWorkers`, `buildCompleteSummary`, `buildMissionOutputText`, `fetchWorkerOutput`
@@ -1113,6 +1184,7 @@ The implementer MUST read the upstream file at `/tmp/hermes-workspace/src/screen
 - Export: `useConductorGateway`, `ConductorSettings`, `ConductorWorker`, `ConductorTask`, `MissionHistoryEntry`, `MissionHistoryWorkerDetail`
 
 The hook returns:
+
 ```typescript
 {
   phase, goal, orchestratorSessionKey, streamText, planText,
@@ -1148,6 +1220,7 @@ upstream hermes-workspace use-conductor-gateway.ts."
 ### Task 7: Cost tracker and mission event log components
 
 **Files:**
+
 - Create: `src/screens/conductor/components/cost-tracker.tsx`
 - Create: `src/screens/conductor/components/mission-event-log.tsx`
 
@@ -1342,6 +1415,7 @@ CyclingStatus/PlanningIndicator/WorkingIndicator show animated status."
 ### Task 8: Conductor settings component
 
 **Files:**
+
 - Create: `src/screens/conductor/components/conductor-settings.tsx`
 
 - [ ] **Step 1: Create the settings drawer component**
@@ -1617,6 +1691,7 @@ slider (1-5), supervised toggle. Fetches models from /api/models."
 ### Task 9: Conductor home, active, and complete phase components
 
 **Files:**
+
 - Create: `src/screens/conductor/components/conductor-home.tsx`
 - Create: `src/screens/conductor/components/conductor-active.tsx`
 - Create: `src/screens/conductor/components/conductor-complete.tsx`
@@ -1626,6 +1701,7 @@ slider (1-5), supervised toggle. Fetches models from /api/models."
 The implementer MUST read the upstream file at `/tmp/hermes-workspace/src/screens/gateway/conductor.tsx` lines 1194-1500+ (the home phase rendering) and port it faithfully.
 
 Key elements:
+
 - Goal textarea with placeholder
 - Quick action buttons (Research, Build, Review, Deploy) that prefix the goal
 - OfficeView showing recent sessions or placeholder agents
@@ -1635,6 +1711,7 @@ Key elements:
 - All styling uses `var(--theme-*)` CSS variables via inline `style` props
 
 Props received from conductor-screen:
+
 ```typescript
 type ConductorHomeProps = {
   conductor: ReturnType<typeof useConductorGateway>
@@ -1648,6 +1725,7 @@ type ConductorHomeProps = {
 - [ ] **Step 2: Create `src/screens/conductor/components/conductor-active.tsx`**
 
 Port from upstream conductor.tsx active phase (lines ~1550-1900+). Key elements:
+
 - OfficeView showing active workers mapped to `AgentWorkingRow[]`
 - Progress bar (completed/total workers percentage)
 - Worker cards with status dot, persona, model badge, token count, elapsed time, output markdown
@@ -1658,6 +1736,7 @@ Port from upstream conductor.tsx active phase (lines ~1550-1900+). Key elements:
 - Duration timer updating every second
 
 Props:
+
 ```typescript
 type ConductorActiveProps = {
   conductor: ReturnType<typeof useConductorGateway>
@@ -1667,6 +1746,7 @@ type ConductorActiveProps = {
 - [ ] **Step 3: Create `src/screens/conductor/components/conductor-complete.tsx`**
 
 Port from upstream conductor.tsx complete phase. Key elements:
+
 - Summary card: status (complete/failed), goal, duration, worker count, token count
 - Worker output panels with markdown rendering
 - CostTracker section
@@ -1676,6 +1756,7 @@ Port from upstream conductor.tsx complete phase. Key elements:
 - Continue Mission modal (combine previous output + new instructions)
 
 Props:
+
 ```typescript
 type ConductorCompleteProps = {
   conductor: ReturnType<typeof useConductorGateway>
@@ -1699,6 +1780,7 @@ Complete: summary, worker outputs, cost tracker, retry/new/continue."
 ### Task 10: Conductor screen orchestrator
 
 **Files:**
+
 - Rewrite: `src/screens/conductor/conductor-screen.tsx`
 
 - [ ] **Step 1: Rewrite the conductor screen**
@@ -1802,6 +1884,7 @@ ConductorActive, ConductorComplete, and ConductorSettingsDrawer."
 ### Task 11: Update operations aggregator
 
 **Files:**
+
 - Modify: `src/server/operations-aggregator.ts`
 
 - [ ] **Step 1: Rewrite `src/server/operations-aggregator.ts`**
@@ -1822,17 +1905,25 @@ import { listSessions } from './hermes-api'
 
 function crewStatusToOpStatus(status: CrewMemberStatus): OperationAgentStatus {
   switch (status) {
-    case 'running': return 'online'
+    case 'running':
+      return 'online'
     case 'idle':
-    case 'done': return 'offline'
-    case 'error': return 'error'
-    default: return 'unknown'
+    case 'done':
+      return 'offline'
+    case 'error':
+      return 'error'
+    default:
+      return 'unknown'
   }
 }
 
-function sessionStatusToOpStatus(updatedAt: string | number | undefined, totalTokens: number): OperationAgentStatus {
+function sessionStatusToOpStatus(
+  updatedAt: string | number | undefined,
+  totalTokens: number,
+): OperationAgentStatus {
   if (!updatedAt) return 'unknown'
-  const updatedMs = typeof updatedAt === 'string' ? new Date(updatedAt).getTime() : updatedAt
+  const updatedMs =
+    typeof updatedAt === 'string' ? new Date(updatedAt).getTime() : updatedAt
   const staleness = Date.now() - updatedMs
   if (totalTokens > 0 && staleness > 30_000) return 'offline'
   if (staleness > 120_000) return 'error'
@@ -1878,13 +1969,23 @@ export async function getOperationsOverview(): Promise<OperationAgent[]> {
       const label = session.title ?? session.id ?? ''
       const key = session.id ?? ''
       // Match conductor worker sessions
-      if (!label.startsWith('worker-') && !label.startsWith('conductor-') && !key.includes(':subagent:')) {
+      if (
+        !label.startsWith('worker-') &&
+        !label.startsWith('conductor-') &&
+        !key.includes(':subagent:')
+      ) {
         continue
       }
       const updatedAt = session.last_active ?? session.started_at
-      if (updatedAt && typeof updatedAt === 'number' && updatedAt * 1000 < cutoff) continue
+      if (
+        updatedAt &&
+        typeof updatedAt === 'number' &&
+        updatedAt * 1000 < cutoff
+      )
+        continue
 
-      const totalTokens = (session.input_tokens ?? 0) + (session.output_tokens ?? 0)
+      const totalTokens =
+        (session.input_tokens ?? 0) + (session.output_tokens ?? 0)
       const cleanLabel = label.replace(/^worker-/, '').replace(/[-_]+/g, ' ')
 
       agents.push({
@@ -1895,7 +1996,11 @@ export async function getOperationsOverview(): Promise<OperationAgent[]> {
         profileName: null,
         sessionKey: key,
         status: sessionStatusToOpStatus(updatedAt, totalTokens),
-        lastActivity: updatedAt ? (typeof updatedAt === 'number' ? updatedAt * 1000 : null) : null,
+        lastActivity: updatedAt
+          ? typeof updatedAt === 'number'
+            ? updatedAt * 1000
+            : null
+          : null,
         totalTokens,
         totalCostUsd: 0,
         taskCount: 0,
@@ -1942,6 +2047,7 @@ conductor workers. Function is now async."
 ### Task 12: Tests
 
 **Files:**
+
 - Create: `src/test/conductor-spawn.test.ts`
 - Create: `src/test/conductor-stop.test.ts`
 - Create: `src/test/operations-aggregator.test.ts`
@@ -2010,7 +2116,12 @@ import { describe, it, expect, vi } from 'vitest'
 // Mock hermes-api before importing aggregator
 vi.mock('../server/hermes-api', () => ({
   listSessions: vi.fn().mockResolvedValue([]),
-  ensureGatewayProbed: vi.fn().mockResolvedValue({ core: { available: true }, dashboard: { available: false } }),
+  ensureGatewayProbed: vi
+    .fn()
+    .mockResolvedValue({
+      core: { available: true },
+      dashboard: { available: false },
+    }),
 }))
 
 // Mock crew-store
@@ -2020,30 +2131,36 @@ vi.mock('../server/crew-store', () => ({
 
 describe('operations-aggregator', () => {
   it('returns empty array when no crews or sessions', async () => {
-    const { getOperationsOverview } = await import('../server/operations-aggregator')
+    const { getOperationsOverview } =
+      await import('../server/operations-aggregator')
     const result = await getOperationsOverview()
     expect(result).toEqual([])
   })
 
   it('includes crew agents with source=crew', async () => {
     const { listCrews } = await import('../server/crew-store')
-    vi.mocked(listCrews).mockReturnValue([{
-      id: 'crew-1',
-      name: 'Test Crew',
-      members: [{
-        id: 'member-1',
-        displayName: '🤖 Agent One',
-        model: 'sonnet',
-        profileName: 'default',
-        sessionKey: 'session-1',
-        status: 'running' as const,
-        lastActivity: Date.now(),
-      }],
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    }])
+    vi.mocked(listCrews).mockReturnValue([
+      {
+        id: 'crew-1',
+        name: 'Test Crew',
+        members: [
+          {
+            id: 'member-1',
+            displayName: '🤖 Agent One',
+            model: 'sonnet',
+            profileName: 'default',
+            sessionKey: 'session-1',
+            status: 'running' as const,
+            lastActivity: Date.now(),
+          },
+        ],
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
+    ])
 
-    const { getOperationsOverview } = await import('../server/operations-aggregator')
+    const { getOperationsOverview } =
+      await import('../server/operations-aggregator')
     const result = await getOperationsOverview()
     expect(result.length).toBe(1)
     expect(result[0].source).toBe('crew')
@@ -2073,6 +2190,7 @@ gateway-native integration tests."
 ### Task 13: Integration verification and cleanup
 
 **Files:**
+
 - Verify: all new files compile
 - Verify: dev server starts
 - Verify: /conductor route loads
@@ -2120,6 +2238,7 @@ and no leftover references to deleted mission-store modules."
 ### Task 14: Update version and documentation
 
 **Files:**
+
 - Modify: `package.json` (bump version to 1.20.0)
 - Modify: `CHANGELOG.md`
 - Modify: `DEVLOG.md`
@@ -2171,16 +2290,19 @@ git commit -m "docs: bump to v1.20.0, add Conductor V2 changelog and devlog"
 ## Execution Notes
 
 ### Import path conventions
+
 - Server imports: `../../server/auth-middleware`, `../../server/gateway-capabilities`, `../../server/hermes-api`, `../../server/rate-limit`
 - Alias imports: `@/lib/utils`, `@/lib/gateway-api`, `@/types/conductor`
 - Relative component imports within conductor: `./components/office-view`, `./hooks/use-conductor-gateway`
 
 ### Styling rules
+
 - **OfficeView SVG** uses hex colors directly (pragmatic exception per spec)
 - **All surrounding UI** uses `var(--theme-*)` via `style` props — NEVER Tailwind palette classes on screen-level components
 - CSS animation classes added to `styles.css`, referenced by class name in OfficeView
 
 ### Key upstream files to reference
+
 - `/tmp/hermes-workspace/src/screens/gateway/hooks/use-conductor-gateway.ts` (1283 lines) — main hook
 - `/tmp/hermes-workspace/src/screens/gateway/components/office-view.tsx` (892 lines) — SVG office
 - `/tmp/hermes-workspace/src/screens/gateway/components/agent-avatar.tsx` (318 lines) — avatars

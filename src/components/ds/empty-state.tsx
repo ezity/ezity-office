@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils'
 import type { ReactNode } from 'react'
+import { cn } from '@/lib/utils'
 
 interface EmptyStateProps {
   icon: ReactNode
@@ -9,7 +9,13 @@ interface EmptyStateProps {
   className?: string
 }
 
-export function EmptyState({ icon, title, description, action, className }: EmptyStateProps) {
+export function EmptyState({
+  icon,
+  title,
+  description,
+  action,
+  className,
+}: EmptyStateProps) {
   return (
     <div
       className={cn(
@@ -18,9 +24,13 @@ export function EmptyState({ icon, title, description, action, className }: Empt
       )}
     >
       <div className="mb-4 text-[var(--theme-muted)] opacity-40">{icon}</div>
-      <h3 className="mb-1 text-sm font-medium text-[var(--theme-text)]">{title}</h3>
+      <h3 className="mb-1 text-sm font-medium text-[var(--theme-text)]">
+        {title}
+      </h3>
       {description && (
-        <p className="mb-4 max-w-xs text-xs text-[var(--theme-muted)]">{description}</p>
+        <p className="mb-4 max-w-xs text-xs text-[var(--theme-muted)]">
+          {description}
+        </p>
       )}
       {action && <div>{action}</div>}
     </div>

@@ -13,7 +13,7 @@ export interface HermesTask {
   column: TaskColumn
   priority: TaskPriority
   assignee: string | null
-  tags: string[]
+  tags: Array<string>
   dueDate: string | null
   position: number
   sourceType: TaskSourceType
@@ -29,7 +29,7 @@ export interface CreateTaskInput {
   column?: TaskColumn
   priority?: TaskPriority
   assignee?: string | null
-  tags?: string[]
+  tags?: Array<string>
   dueDate?: string | null
   sourceType?: TaskSourceType
   sourceId?: string | null
@@ -42,12 +42,18 @@ export interface UpdateTaskInput {
   column?: TaskColumn
   priority?: TaskPriority
   assignee?: string | null
-  tags?: string[]
+  tags?: Array<string>
   dueDate?: string | null
   position?: number
 }
 
-export const TASK_COLUMNS: readonly TaskColumn[] = ['backlog', 'todo', 'in_progress', 'review', 'done'] as const
+export const TASK_COLUMNS: ReadonlyArray<TaskColumn> = [
+  'backlog',
+  'todo',
+  'in_progress',
+  'review',
+  'done',
+] as const
 
 export const TASK_COLUMN_LABELS: Record<TaskColumn, string> = {
   backlog: 'Backlog',

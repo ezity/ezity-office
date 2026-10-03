@@ -20,7 +20,7 @@ To ensure continuous, painless merges with upstream releases of Hermes Studio, t
    Internal Hermes concepts, API routes (`/api/*`), data models, gateway contracts, CLI tools, runtime orchestration, and environment variables (such as `HERMES_API_URL`, `HERMES_API_TOKEN`, `HERMES_PASSWORD`) are intentionally kept intact.
 
 3. **Generic Functional Terminology:**
-   Core operations concepts—including *Agent*, *Crew*, *Session*, *Skill*, *Tool*, *Memory*, *Workflow*, *Job*, *Approval*, and *MCP*—remain consistent with upstream architectures.
+   Core operations concepts—including _Agent_, _Crew_, _Session_, _Skill_, _Tool_, _Memory_, _Workflow_, _Job_, _Approval_, and _MCP_—remain consistent with upstream architectures.
 
 4. **Upstream Attribution & License:**
    The original MIT license, credits, and upstream attribution to JPeetz and the Hermes Agent community are fully preserved.

@@ -17,7 +17,9 @@ try {
     const val = trimmed.slice(eq + 1).trim()
     if (key && !(key in process.env)) process.env[key] = val
   }
-} catch { /* .env is optional */ }
+} catch {
+  /* .env is optional */
+}
 
 import server from './dist/server/server.js'
 

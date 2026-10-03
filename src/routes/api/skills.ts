@@ -106,7 +106,12 @@ function slugify(input: string): string {
 
 type StudioPrefs = { disabled: Array<string> }
 
-const PREFS_PATH = path.join(os.homedir(), '.hermes', 'skills', '.studio-prefs.json')
+const PREFS_PATH = path.join(
+  os.homedir(),
+  '.hermes',
+  'skills',
+  '.studio-prefs.json',
+)
 
 function readLocalPrefs(): StudioPrefs {
   try {
@@ -134,7 +139,10 @@ function writeLocalPrefs(prefs: StudioPrefs): void {
 
 const LOCAL_SKILLS_DIR = path.join(os.homedir(), '.hermes', 'skills')
 
-function parseFrontmatter(content: string): { meta: Record<string, unknown>; body: string } {
+function parseFrontmatter(content: string): {
+  meta: Record<string, unknown>
+  body: string
+} {
   const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/)
   if (!match) return { meta: {}, body: content }
   const meta: Record<string, unknown> = {}
@@ -149,14 +157,21 @@ function parseFrontmatter(content: string): { meta: Record<string, unknown>; bod
     // tags: [a, b, c] inline
     const inlineTags = line.match(/tags:\s*\[([^\]]*)\]/)
     if (inlineTags) {
-      meta.tags = inlineTags[1].split(',').map((t) => t.trim()).filter(Boolean)
+      meta.tags = inlineTags[1]
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean)
       insideTags = false
     }
     // tags: (block list)
-    if (line.match(/^\s+tags:\s*$/)) { insideTags = true; meta.tags = []; continue }
+    if (line.match(/^\s+tags:\s*$/)) {
+      insideTags = true
+      meta.tags = []
+      continue
+    }
     if (insideTags && line.match(/^\s+-\s+(.+)/)) {
       const tag = line.match(/^\s+-\s+(.+)/)![1].trim()
-      ;(meta.tags as string[]).push(tag)
+      ;(meta.tags as Array<string>).push(tag)
     }
   }
   return { meta, body: match[2].trim() }
@@ -164,28 +179,28 @@ function parseFrontmatter(content: string): { meta: Record<string, unknown>; bod
 
 function categoryFromDir(dirName: string): string {
   const MAP: Record<string, string> = {
-    'apple': 'Productivity',
+    apple: 'Productivity',
     'autonomous-ai-agents': 'AI & LLMs',
-    'creative': 'Productivity',
+    creative: 'Productivity',
     'data-science': 'Data & Analytics',
-    'devops': 'DevOps & Cloud',
-    'diagramming': 'Productivity',
-    'domain': 'Productivity',
-    'email': 'Communication',
-    'feeds': 'Productivity',
-    'gaming': 'Productivity',
-    'gifs': 'Productivity',
-    'github': 'Git & GitHub',
+    devops: 'DevOps & Cloud',
+    diagramming: 'Productivity',
+    domain: 'Productivity',
+    email: 'Communication',
+    feeds: 'Productivity',
+    gaming: 'Productivity',
+    gifs: 'Productivity',
+    github: 'Git & GitHub',
     'inference-sh': 'AI & LLMs',
-    'leisure': 'Productivity',
-    'mcp': 'AI & LLMs',
-    'media': 'Productivity',
-    'mlops': 'AI & LLMs',
+    leisure: 'Productivity',
+    mcp: 'AI & LLMs',
+    media: 'Productivity',
+    mlops: 'AI & LLMs',
     'note-taking': 'Productivity',
-    'openfang': 'AI & LLMs',
-    'productivity': 'Productivity',
+    openfang: 'AI & LLMs',
+    productivity: 'Productivity',
     'red-teaming': 'DevOps & Cloud',
-    'research': 'Search & Research',
+    research: 'Search & Research',
     'smart-home': 'Productivity',
     'social-media': 'Marketing & Sales',
     'software-development': 'Coding Agents',
@@ -218,12 +233,13 @@ function readLocalSkills(): Array<SkillSummary> {
         const { meta, body } = parseFrontmatter(raw)
         const id = `${categoryDir}/${skillDir}`
         const name = typeof meta.name === 'string' ? meta.name : skillDir
-        const tags = Array.isArray(meta.tags) ? (meta.tags as string[]) : []
+        const tags = Array.isArray(meta.tags) ? (meta.tags as Array<string>) : []
         skills.push({
           id,
           slug: skillDir,
           name,
-          description: typeof meta.description === 'string' ? meta.description : '',
+          description:
+            typeof meta.description === 'string' ? meta.description : '',
           author: typeof meta.author === 'string' ? meta.author : 'Hermes',
           triggers: [],
           tags,
@@ -491,7 +507,10 @@ export const Route = createFileRoute('/api/skills')({
           const skillId = (body.skillId || '').trim()
 
           if (!skillId) {
-            return json({ ok: false, error: 'skillId required' }, { status: 400 })
+            return json(
+              { ok: false, error: 'skillId required' },
+              { status: 400 },
+            )
           }
 
           if (action === 'toggle') {

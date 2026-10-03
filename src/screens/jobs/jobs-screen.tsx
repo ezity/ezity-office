@@ -19,10 +19,10 @@ import {
 import { CreateJobDialog } from './create-job-dialog'
 import { EditJobDialog } from './edit-job-dialog'
 import type { HermesJob, RunEvent } from '@/lib/jobs-api'
+import type { Status } from '@/components/ds'
 import { toast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils'
-import { StatusBadge, EmptyState } from '@/components/ds'
-import type { Status } from '@/components/ds'
+import { EmptyState, StatusBadge } from '@/components/ds'
 import {
   createJob,
   deleteJob,
@@ -113,7 +113,10 @@ function statusForEvent(ev: RunEvent): { status: Status; label: string } {
     case 'run.completed':
       return { status: 'success', label: 'Run complete' }
     case 'run.failed':
-      return { status: 'error', label: `Run failed${ev.error ? `: ${ev.error}` : ''}` }
+      return {
+        status: 'error',
+        label: `Run failed${ev.error ? `: ${ev.error}` : ''}`,
+      }
     default:
       return { status: 'pending', label: ev.event }
   }
@@ -138,7 +141,9 @@ function JobCard({
 }) {
   const [expanded, setExpanded] = useState(false)
   const [activeRunId, setActiveRunId] = useState<string | null>(null)
-  const [liveLog, setLiveLog] = useState<Array<{ key: string; ev: RunEvent }>>([])
+  const [liveLog, setLiveLog] = useState<Array<{ key: string; ev: RunEvent }>>(
+    [],
+  )
   const [liveOutput, setLiveOutput] = useState('')
   const esRef = useRef<EventSource | null>(null)
   const liveLogBottomRef = useRef<HTMLDivElement | null>(null)
@@ -186,7 +191,10 @@ function JobCard({
   // Clear live run state when run.completed/run.failed appears in log
   useEffect(() => {
     const last = liveLog.at(-1)
-    if (last && (last.ev.event === 'run.completed' || last.ev.event === 'run.failed')) {
+    if (
+      last &&
+      (last.ev.event === 'run.completed' || last.ev.event === 'run.failed')
+    ) {
       esRef.current?.close()
       esRef.current = null
       onLiveTrigger(job) // refresh job list
@@ -249,7 +257,8 @@ function JobCard({
             <span>{lastRunStatus.label}</span>
             {(job.delivery_failures ?? 0) > 0 && (
               <span className="inline-flex items-center gap-0.5 rounded-full bg-red-500/15 px-1.5 py-0.5 text-[10px] font-medium text-red-500">
-                {job.delivery_failures} delivery {job.delivery_failures === 1 ? 'failure' : 'failures'}
+                {job.delivery_failures} delivery{' '}
+                {job.delivery_failures === 1 ? 'failure' : 'failures'}
               </span>
             )}
           </div>
@@ -357,7 +366,11 @@ function JobCard({
                         const { status, label } = statusForEvent(entry.ev)
                         return (
                           <div key={entry.key} className="py-0.5">
-                            <StatusBadge status={status} label={label} size="sm" />
+                            <StatusBadge
+                              status={status}
+                              label={label}
+                              size="sm"
+                            />
                           </div>
                         )
                       })}

@@ -17,16 +17,19 @@
 ### New files to create
 
 **Types:**
+
 - `src/types/task.ts` — HermesTask, TaskColumn, TaskPriority types
 - `src/types/conductor.ts` — Mission, MissionWorker, MissionEvent, ConductorPhase types
 - `src/types/operation.ts` — OperationAgent, OperationAgentStatus types
 
 **Server stores:**
+
 - `src/server/task-store.ts` — File-backed task persistence (.runtime/tasks.json)
 - `src/server/mission-store.ts` — File-backed mission persistence (.runtime/missions.json, .runtime/mission-events.json)
 - `src/server/operations-aggregator.ts` — Read-only aggregator across crews, missions, and sessions
 
 **API routes:**
+
 - `src/routes/api/tasks/index.ts` — GET (list) + POST (create)
 - `src/routes/api/tasks/$taskId.ts` — GET + PATCH + DELETE
 - `src/routes/api/tasks/$taskId.move.ts` — POST (move to column)
@@ -37,16 +40,19 @@
 - `src/routes/api/operations/index.ts` — GET (aggregated agent overview)
 
 **Client API helpers:**
+
 - `src/lib/tasks-api.ts` — Client-side fetch helpers for tasks
 - `src/lib/missions-api.ts` — Client-side fetch helpers for missions
 - `src/lib/operations-api.ts` — Client-side fetch helpers for operations
 
 **UI route files (TanStack Router):**
+
 - `src/routes/tasks.tsx` — /tasks route entry
 - `src/routes/conductor.tsx` — /conductor route entry
 - `src/routes/operations.tsx` — /operations route entry
 
 **Screens:**
+
 - `src/screens/tasks/tasks-screen.tsx` — Main tasks Kanban board
 - `src/screens/tasks/components/task-column.tsx` — Single Kanban column
 - `src/screens/tasks/components/task-card.tsx` — Draggable task card
@@ -65,6 +71,7 @@
 - `src/screens/operations/components/agent-outputs.tsx` — Expanded output view
 
 **Tests:**
+
 - `src/test/task-store.test.ts`
 - `src/test/mission-store.test.ts`
 - `src/test/operations-aggregator.test.ts`
@@ -82,6 +89,7 @@
 ## Task 1: Task Types
 
 **Files:**
+
 - Create: `src/types/task.ts`
 
 - [ ] **Step 1: Create task type definitions**
@@ -138,7 +146,13 @@ export interface UpdateTaskInput {
   position?: number
 }
 
-export const TASK_COLUMNS: readonly TaskColumn[] = ['backlog', 'todo', 'in_progress', 'review', 'done'] as const
+export const TASK_COLUMNS: readonly TaskColumn[] = [
+  'backlog',
+  'todo',
+  'in_progress',
+  'review',
+  'done',
+] as const
 
 export const TASK_COLUMN_LABELS: Record<TaskColumn, string> = {
   backlog: 'Backlog',
@@ -166,6 +180,7 @@ git commit -m "feat(tasks): add task type definitions"
 ## Task 2: Conductor Types
 
 **Files:**
+
 - Create: `src/types/conductor.ts`
 
 - [ ] **Step 1: Create conductor type definitions**
@@ -178,7 +193,12 @@ git commit -m "feat(tasks): add task type definitions"
  */
 
 export type ConductorPhase = 'home' | 'preview' | 'active' | 'complete'
-export type MissionStatus = 'idle' | 'running' | 'paused' | 'completed' | 'aborted'
+export type MissionStatus =
+  | 'idle'
+  | 'running'
+  | 'paused'
+  | 'completed'
+  | 'aborted'
 export type WorkerStatus = 'pending' | 'running' | 'done' | 'error'
 
 export interface MissionWorker {
@@ -239,6 +259,7 @@ git commit -m "feat(conductor): add mission and worker type definitions"
 ## Task 3: Operation Types
 
 **Files:**
+
 - Create: `src/types/operation.ts`
 
 - [ ] **Step 1: Create operation type definitions**
@@ -284,6 +305,7 @@ git commit -m "feat(operations): add operation agent type definitions"
 ## Task 4: Extend Template Types
 
 **Files:**
+
 - Modify: `src/types/template.ts`
 
 - [ ] **Step 1: Add templateType and conductor category to template types**
@@ -352,6 +374,7 @@ git commit -m "feat(templates): add templateType and conductorConfig to CrewTemp
 ## Task 5: Extend Template Store with Conductor Templates
 
 **Files:**
+
 - Modify: `src/server/template-store.ts`
 
 - [ ] **Step 1: Read the current template-store.ts to understand built-in template format**
@@ -455,6 +478,7 @@ git commit -m "feat(templates): add conductor templates and templateType default
 ## Task 6: Task Store
 
 **Files:**
+
 - Create: `src/server/task-store.ts`
 - Create: `src/test/task-store.test.ts`
 
@@ -532,7 +556,11 @@ describe('task-store', () => {
   it('listTasks() filters by sourceType', async () => {
     const { createTask, listTasks } = await getStore()
     createTask({ title: 'Manual' })
-    createTask({ title: 'From Conductor', sourceType: 'conductor', sourceId: 'mission-1' })
+    createTask({
+      title: 'From Conductor',
+      sourceType: 'conductor',
+      sourceId: 'mission-1',
+    })
     const filtered = listTasks({ sourceType: 'conductor' })
     expect(filtered).toHaveLength(1)
     expect(filtered[0].title).toBe('From Conductor')
@@ -663,10 +691,14 @@ export function listTasks(filter?: TaskFilter): HermesTask[] {
   let tasks = Object.values(store.tasks)
 
   if (filter?.column) tasks = tasks.filter((t) => t.column === filter.column)
-  if (filter?.assignee) tasks = tasks.filter((t) => t.assignee === filter.assignee)
-  if (filter?.priority) tasks = tasks.filter((t) => t.priority === filter.priority)
-  if (filter?.sourceType) tasks = tasks.filter((t) => t.sourceType === filter.sourceType)
-  if (filter?.sourceId) tasks = tasks.filter((t) => t.sourceId === filter.sourceId)
+  if (filter?.assignee)
+    tasks = tasks.filter((t) => t.assignee === filter.assignee)
+  if (filter?.priority)
+    tasks = tasks.filter((t) => t.priority === filter.priority)
+  if (filter?.sourceType)
+    tasks = tasks.filter((t) => t.sourceType === filter.sourceType)
+  if (filter?.sourceId)
+    tasks = tasks.filter((t) => t.sourceId === filter.sourceId)
 
   return tasks.sort((a, b) => b.createdAt - a.createdAt)
 }
@@ -705,7 +737,8 @@ export function updateTask(
   const task = store.tasks[taskId]
   if (!task) return null
   if (updates.title !== undefined) task.title = updates.title.trim()
-  if (updates.description !== undefined) task.description = updates.description.trim()
+  if (updates.description !== undefined)
+    task.description = updates.description.trim()
   if (updates.column !== undefined) task.column = updates.column
   if (updates.priority !== undefined) task.priority = updates.priority
   if (updates.assignee !== undefined) task.assignee = updates.assignee
@@ -717,7 +750,10 @@ export function updateTask(
   return task
 }
 
-export function moveTask(taskId: string, column: TaskColumn): HermesTask | null {
+export function moveTask(
+  taskId: string,
+  column: TaskColumn,
+): HermesTask | null {
   return updateTask(taskId, { column })
 }
 
@@ -746,6 +782,7 @@ git commit -m "feat(tasks): add task store with file-backed persistence"
 ## Task 7: Mission Store
 
 **Files:**
+
 - Create: `src/server/mission-store.ts`
 - Create: `src/test/mission-store.test.ts`
 
@@ -831,10 +868,14 @@ describe('mission-store', () => {
   })
 
   it('appendMissionEvent() stores events', async () => {
-    const { createMission, appendMissionEvent, getMissionEvents } = await getStore()
+    const { createMission, appendMissionEvent, getMissionEvents } =
+      await getStore()
     const mission = createMission({ goal: 'Event test' })
     appendMissionEvent(mission.id, 'worker.spawned', { workerId: 'w1' })
-    appendMissionEvent(mission.id, 'worker.output', { workerId: 'w1', text: 'hello' })
+    appendMissionEvent(mission.id, 'worker.output', {
+      workerId: 'w1',
+      text: 'hello',
+    })
     const events = getMissionEvents(mission.id)
     expect(events).toHaveLength(2)
     expect(events[0].type).toBe('worker.spawned')
@@ -858,7 +899,8 @@ describe('mission-store', () => {
   })
 
   it('updateWorkerStatus() changes worker status and tokens', async () => {
-    const { createMission, addWorker, updateWorkerStatus, getMission } = await getStore()
+    const { createMission, addWorker, updateWorkerStatus, getMission } =
+      await getStore()
     const mission = createMission({ goal: 'Status test' })
     addWorker(mission.id, {
       sessionKey: 'sess-1',
@@ -1145,6 +1187,7 @@ git commit -m "feat(conductor): add mission store with file-backed persistence"
 ## Task 8: Operations Aggregator
 
 **Files:**
+
 - Create: `src/server/operations-aggregator.ts`
 - Create: `src/test/operations-aggregator.test.ts`
 
@@ -1173,7 +1216,8 @@ afterEach(() => {
 
 describe('operations-aggregator', () => {
   it('getOperationsOverview() returns empty array with no crews or missions', async () => {
-    const { getOperationsOverview } = await import('@/server/operations-aggregator')
+    const { getOperationsOverview } =
+      await import('@/server/operations-aggregator')
     const agents = getOperationsOverview()
     expect(agents).toEqual([])
   })
@@ -1196,7 +1240,8 @@ describe('operations-aggregator', () => {
         },
       ],
     })
-    const { getOperationsOverview } = await import('@/server/operations-aggregator')
+    const { getOperationsOverview } =
+      await import('@/server/operations-aggregator')
     const agents = getOperationsOverview()
     expect(agents).toHaveLength(1)
     expect(agents[0].name).toBe('Kai')
@@ -1214,7 +1259,8 @@ describe('operations-aggregator', () => {
       personaName: 'nova',
       model: null,
     })
-    const { getOperationsOverview } = await import('@/server/operations-aggregator')
+    const { getOperationsOverview } =
+      await import('@/server/operations-aggregator')
     const agents = getOperationsOverview()
     expect(agents).toHaveLength(1)
     expect(agents[0].name).toBe('nova')
@@ -1352,6 +1398,7 @@ git commit -m "feat(operations): add operations aggregator"
 ## Task 9: Tasks API Routes
 
 **Files:**
+
 - Create: `src/routes/api/tasks/index.ts`
 - Create: `src/routes/api/tasks/$taskId.ts`
 - Create: `src/routes/api/tasks/$taskId.move.ts`
@@ -1370,9 +1417,19 @@ import { json } from '@tanstack/react-start'
 import { isAuthenticated } from '../../../server/auth-middleware'
 import { requireJsonContentType } from '../../../server/rate-limit'
 import { listTasks, createTask } from '../../../server/task-store'
-import type { TaskColumn, TaskPriority, TaskSourceType } from '../../../types/task'
+import type {
+  TaskColumn,
+  TaskPriority,
+  TaskSourceType,
+} from '../../../types/task'
 
-const VALID_COLUMNS: TaskColumn[] = ['backlog', 'todo', 'in_progress', 'review', 'done']
+const VALID_COLUMNS: TaskColumn[] = [
+  'backlog',
+  'todo',
+  'in_progress',
+  'review',
+  'done',
+]
 const VALID_PRIORITIES: TaskPriority[] = ['high', 'medium', 'low']
 const VALID_SOURCES: TaskSourceType[] = ['manual', 'conductor', 'crew']
 
@@ -1387,14 +1444,18 @@ export const Route = createFileRoute('/api/tasks/')({
         const column = url.searchParams.get('column') as TaskColumn | null
         const assignee = url.searchParams.get('assignee')
         const priority = url.searchParams.get('priority') as TaskPriority | null
-        const sourceType = url.searchParams.get('sourceType') as TaskSourceType | null
+        const sourceType = url.searchParams.get(
+          'sourceType',
+        ) as TaskSourceType | null
         const sourceId = url.searchParams.get('sourceId')
 
         const filter: Record<string, unknown> = {}
         if (column && VALID_COLUMNS.includes(column)) filter.column = column
         if (assignee) filter.assignee = assignee
-        if (priority && VALID_PRIORITIES.includes(priority)) filter.priority = priority
-        if (sourceType && VALID_SOURCES.includes(sourceType)) filter.sourceType = sourceType
+        if (priority && VALID_PRIORITIES.includes(priority))
+          filter.priority = priority
+        if (sourceType && VALID_SOURCES.includes(sourceType))
+          filter.sourceType = sourceType
         if (sourceId) filter.sourceId = sourceId
 
         return json({ ok: true, tasks: listTasks(filter as any) })
@@ -1407,23 +1468,41 @@ export const Route = createFileRoute('/api/tasks/')({
         const csrfCheck = requireJsonContentType(request)
         if (csrfCheck) return csrfCheck
 
-        const body = (await request.json().catch(() => ({}))) as Record<string, unknown>
+        const body = (await request.json().catch(() => ({}))) as Record<
+          string,
+          unknown
+        >
         const title = typeof body.title === 'string' ? body.title.trim() : ''
         if (!title) {
-          return json({ ok: false, error: 'title is required' }, { status: 400 })
+          return json(
+            { ok: false, error: 'title is required' },
+            { status: 400 },
+          )
         }
 
         const task = createTask({
           title,
-          description: typeof body.description === 'string' ? body.description : undefined,
-          column: VALID_COLUMNS.includes(body.column as TaskColumn) ? (body.column as TaskColumn) : undefined,
-          priority: VALID_PRIORITIES.includes(body.priority as TaskPriority) ? (body.priority as TaskPriority) : undefined,
-          assignee: typeof body.assignee === 'string' ? body.assignee : undefined,
-          tags: Array.isArray(body.tags) ? body.tags.filter((t): t is string => typeof t === 'string') : undefined,
+          description:
+            typeof body.description === 'string' ? body.description : undefined,
+          column: VALID_COLUMNS.includes(body.column as TaskColumn)
+            ? (body.column as TaskColumn)
+            : undefined,
+          priority: VALID_PRIORITIES.includes(body.priority as TaskPriority)
+            ? (body.priority as TaskPriority)
+            : undefined,
+          assignee:
+            typeof body.assignee === 'string' ? body.assignee : undefined,
+          tags: Array.isArray(body.tags)
+            ? body.tags.filter((t): t is string => typeof t === 'string')
+            : undefined,
           dueDate: typeof body.dueDate === 'string' ? body.dueDate : undefined,
-          sourceType: VALID_SOURCES.includes(body.sourceType as TaskSourceType) ? (body.sourceType as TaskSourceType) : undefined,
-          sourceId: typeof body.sourceId === 'string' ? body.sourceId : undefined,
-          createdBy: typeof body.createdBy === 'string' ? body.createdBy : undefined,
+          sourceType: VALID_SOURCES.includes(body.sourceType as TaskSourceType)
+            ? (body.sourceType as TaskSourceType)
+            : undefined,
+          sourceId:
+            typeof body.sourceId === 'string' ? body.sourceId : undefined,
+          createdBy:
+            typeof body.createdBy === 'string' ? body.createdBy : undefined,
         })
         return json({ ok: true, task }, { status: 201 })
       },
@@ -1449,7 +1528,13 @@ import { requireJsonContentType } from '../../../server/rate-limit'
 import { getTask, updateTask, deleteTask } from '../../../server/task-store'
 import type { TaskColumn, TaskPriority } from '../../../types/task'
 
-const VALID_COLUMNS: TaskColumn[] = ['backlog', 'todo', 'in_progress', 'review', 'done']
+const VALID_COLUMNS: TaskColumn[] = [
+  'backlog',
+  'todo',
+  'in_progress',
+  'review',
+  'done',
+]
 const VALID_PRIORITIES: TaskPriority[] = ['high', 'medium', 'low']
 
 export const Route = createFileRoute('/api/tasks/$taskId')({
@@ -1473,15 +1558,26 @@ export const Route = createFileRoute('/api/tasks/$taskId')({
         const csrfCheck = requireJsonContentType(request)
         if (csrfCheck) return csrfCheck
 
-        const body = (await request.json().catch(() => ({}))) as Record<string, unknown>
+        const body = (await request.json().catch(() => ({}))) as Record<
+          string,
+          unknown
+        >
         const updates: Record<string, unknown> = {}
         if (typeof body.title === 'string') updates.title = body.title
-        if (typeof body.description === 'string') updates.description = body.description
-        if (VALID_COLUMNS.includes(body.column as TaskColumn)) updates.column = body.column
-        if (VALID_PRIORITIES.includes(body.priority as TaskPriority)) updates.priority = body.priority
-        if (body.assignee === null || typeof body.assignee === 'string') updates.assignee = body.assignee
-        if (Array.isArray(body.tags)) updates.tags = body.tags.filter((t): t is string => typeof t === 'string')
-        if (body.dueDate === null || typeof body.dueDate === 'string') updates.dueDate = body.dueDate
+        if (typeof body.description === 'string')
+          updates.description = body.description
+        if (VALID_COLUMNS.includes(body.column as TaskColumn))
+          updates.column = body.column
+        if (VALID_PRIORITIES.includes(body.priority as TaskPriority))
+          updates.priority = body.priority
+        if (body.assignee === null || typeof body.assignee === 'string')
+          updates.assignee = body.assignee
+        if (Array.isArray(body.tags))
+          updates.tags = body.tags.filter(
+            (t): t is string => typeof t === 'string',
+          )
+        if (body.dueDate === null || typeof body.dueDate === 'string')
+          updates.dueDate = body.dueDate
 
         const task = updateTask(params.taskId, updates as any)
         if (!task) {
@@ -1520,7 +1616,13 @@ import { requireJsonContentType } from '../../../server/rate-limit'
 import { moveTask } from '../../../server/task-store'
 import type { TaskColumn } from '../../../types/task'
 
-const VALID_COLUMNS: TaskColumn[] = ['backlog', 'todo', 'in_progress', 'review', 'done']
+const VALID_COLUMNS: TaskColumn[] = [
+  'backlog',
+  'todo',
+  'in_progress',
+  'review',
+  'done',
+]
 
 export const Route = createFileRoute('/api/tasks/$taskId/move')({
   server: {
@@ -1532,7 +1634,10 @@ export const Route = createFileRoute('/api/tasks/$taskId/move')({
         const csrfCheck = requireJsonContentType(request)
         if (csrfCheck) return csrfCheck
 
-        const body = (await request.json().catch(() => ({}))) as Record<string, unknown>
+        const body = (await request.json().catch(() => ({}))) as Record<
+          string,
+          unknown
+        >
         const column = body.column as TaskColumn
         if (!VALID_COLUMNS.includes(column)) {
           return json({ ok: false, error: 'Invalid column' }, { status: 400 })
@@ -1566,6 +1671,7 @@ git commit -m "feat(tasks): add tasks API routes (CRUD + move)"
 ## Task 10: Missions API Routes
 
 **Files:**
+
 - Create: `src/routes/api/missions/index.ts`
 - Create: `src/routes/api/missions/$missionId.ts`
 - Create: `src/routes/api/missions/$missionId.abort.ts`
@@ -1603,13 +1709,17 @@ export const Route = createFileRoute('/api/missions/')({
         const csrfCheck = requireJsonContentType(request)
         if (csrfCheck) return csrfCheck
 
-        const body = (await request.json().catch(() => ({}))) as Record<string, unknown>
+        const body = (await request.json().catch(() => ({}))) as Record<
+          string,
+          unknown
+        >
         const goal = typeof body.goal === 'string' ? body.goal.trim() : ''
         if (!goal) {
           return json({ ok: false, error: 'goal is required' }, { status: 400 })
         }
 
-        const templateId = typeof body.templateId === 'string' ? body.templateId : undefined
+        const templateId =
+          typeof body.templateId === 'string' ? body.templateId : undefined
 
         const mission = createMission({ goal, templateId })
         return json({ ok: true, mission }, { status: 201 })
@@ -1631,7 +1741,11 @@ export const Route = createFileRoute('/api/missions/')({
 import { createFileRoute } from '@tanstack/react-router'
 import { json } from '@tanstack/react-start'
 import { isAuthenticated } from '../../../server/auth-middleware'
-import { getMission, deleteMission, getMissionEvents } from '../../../server/mission-store'
+import {
+  getMission,
+  deleteMission,
+  getMissionEvents,
+} from '../../../server/mission-store'
 
 export const Route = createFileRoute('/api/missions/$missionId')({
   server: {
@@ -1642,7 +1756,10 @@ export const Route = createFileRoute('/api/missions/$missionId')({
         }
         const mission = getMission(params.missionId)
         if (!mission) {
-          return json({ ok: false, error: 'Mission not found' }, { status: 404 })
+          return json(
+            { ok: false, error: 'Mission not found' },
+            { status: 404 },
+          )
         }
         return json({ ok: true, mission })
       },
@@ -1653,7 +1770,10 @@ export const Route = createFileRoute('/api/missions/$missionId')({
         }
         const deleted = deleteMission(params.missionId)
         if (!deleted) {
-          return json({ ok: false, error: 'Mission not found' }, { status: 404 })
+          return json(
+            { ok: false, error: 'Mission not found' },
+            { status: 404 },
+          )
         }
         return json({ ok: true })
       },
@@ -1689,7 +1809,10 @@ export const Route = createFileRoute('/api/missions/$missionId/abort')({
 
         const mission = abortMission(params.missionId)
         if (!mission) {
-          return json({ ok: false, error: 'Mission not found' }, { status: 404 })
+          return json(
+            { ok: false, error: 'Mission not found' },
+            { status: 404 },
+          )
         }
 
         appendMissionEvent(params.missionId, 'mission.aborted', {
@@ -1729,7 +1852,10 @@ export const Route = createFileRoute('/api/missions/$missionId/events')({
           return json({ ok: false, error: 'Unauthorized' }, { status: 401 })
         }
         const url = new URL(request.url)
-        const limit = Math.min(parseInt(url.searchParams.get('limit') || '50', 10), 200)
+        const limit = Math.min(
+          parseInt(url.searchParams.get('limit') || '50', 10),
+          200,
+        )
         const offset = parseInt(url.searchParams.get('offset') || '0', 10)
 
         const events = getMissionEvents(params.missionId, limit, offset)
@@ -1752,6 +1878,7 @@ git commit -m "feat(conductor): add missions API routes (CRUD + abort + events)"
 ## Task 11: Operations API Route
 
 **Files:**
+
 - Create: `src/routes/api/operations/index.ts`
 
 - [ ] **Step 1: Create operations overview route**
@@ -1793,6 +1920,7 @@ git commit -m "feat(operations): add operations API route"
 ## Task 12: Client API Helpers
 
 **Files:**
+
 - Create: `src/lib/tasks-api.ts`
 - Create: `src/lib/missions-api.ts`
 - Create: `src/lib/operations-api.ts`
@@ -1806,7 +1934,12 @@ git commit -m "feat(operations): add operations API route"
  * Client-side API helpers for task management.
  */
 
-import type { HermesTask, CreateTaskInput, UpdateTaskInput, TaskColumn } from '@/types/task'
+import type {
+  HermesTask,
+  CreateTaskInput,
+  UpdateTaskInput,
+  TaskColumn,
+} from '@/types/task'
 import type { TaskFilter } from '@/server/task-store'
 
 export async function fetchTasks(filter?: TaskFilter): Promise<HermesTask[]> {
@@ -1835,30 +1968,51 @@ export async function createTask(input: CreateTaskInput): Promise<HermesTask> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
   })
-  const data = (await res.json()) as { ok: boolean; task?: HermesTask; error?: string }
-  if (!data.ok || !data.task) throw new Error(data.error ?? 'Failed to create task')
+  const data = (await res.json()) as {
+    ok: boolean
+    task?: HermesTask
+    error?: string
+  }
+  if (!data.ok || !data.task)
+    throw new Error(data.error ?? 'Failed to create task')
   return data.task
 }
 
-export async function updateTask(taskId: string, updates: UpdateTaskInput): Promise<HermesTask> {
+export async function updateTask(
+  taskId: string,
+  updates: UpdateTaskInput,
+): Promise<HermesTask> {
   const res = await fetch(`/api/tasks/${taskId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updates),
   })
-  const data = (await res.json()) as { ok: boolean; task?: HermesTask; error?: string }
-  if (!data.ok || !data.task) throw new Error(data.error ?? 'Failed to update task')
+  const data = (await res.json()) as {
+    ok: boolean
+    task?: HermesTask
+    error?: string
+  }
+  if (!data.ok || !data.task)
+    throw new Error(data.error ?? 'Failed to update task')
   return data.task
 }
 
-export async function moveTask(taskId: string, column: TaskColumn): Promise<HermesTask> {
+export async function moveTask(
+  taskId: string,
+  column: TaskColumn,
+): Promise<HermesTask> {
   const res = await fetch(`/api/tasks/${taskId}/move`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ column }),
   })
-  const data = (await res.json()) as { ok: boolean; task?: HermesTask; error?: string }
-  if (!data.ok || !data.task) throw new Error(data.error ?? 'Failed to move task')
+  const data = (await res.json()) as {
+    ok: boolean
+    task?: HermesTask
+    error?: string
+  }
+  if (!data.ok || !data.task)
+    throw new Error(data.error ?? 'Failed to move task')
   return data.task
 }
 
@@ -1880,7 +2034,11 @@ export async function deleteTask(taskId: string): Promise<void> {
  * Client-side API helpers for conductor missions.
  */
 
-import type { Mission, MissionEvent, CreateMissionInput } from '@/types/conductor'
+import type {
+  Mission,
+  MissionEvent,
+  CreateMissionInput,
+} from '@/types/conductor'
 
 export async function fetchMissions(): Promise<Mission[]> {
   const res = await fetch('/api/missions')
@@ -1895,14 +2053,21 @@ export async function fetchMission(missionId: string): Promise<Mission | null> {
   return data.mission ?? null
 }
 
-export async function createMission(input: CreateMissionInput): Promise<Mission> {
+export async function createMission(
+  input: CreateMissionInput,
+): Promise<Mission> {
   const res = await fetch('/api/missions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
   })
-  const data = (await res.json()) as { ok: boolean; mission?: Mission; error?: string }
-  if (!data.ok || !data.mission) throw new Error(data.error ?? 'Failed to create mission')
+  const data = (await res.json()) as {
+    ok: boolean
+    mission?: Mission
+    error?: string
+  }
+  if (!data.ok || !data.mission)
+    throw new Error(data.error ?? 'Failed to create mission')
   return data.mission
 }
 
@@ -1912,8 +2077,13 @@ export async function abortMission(missionId: string): Promise<Mission> {
     headers: { 'Content-Type': 'application/json' },
     body: '{}',
   })
-  const data = (await res.json()) as { ok: boolean; mission?: Mission; error?: string }
-  if (!data.ok || !data.mission) throw new Error(data.error ?? 'Failed to abort mission')
+  const data = (await res.json()) as {
+    ok: boolean
+    mission?: Mission
+    error?: string
+  }
+  if (!data.ok || !data.mission)
+    throw new Error(data.error ?? 'Failed to abort mission')
   return data.mission
 }
 
@@ -1930,7 +2100,9 @@ export async function fetchMissionEvents(
   limit = 50,
   offset = 0,
 ): Promise<MissionEvent[]> {
-  const res = await fetch(`/api/missions/${missionId}/events?limit=${limit}&offset=${offset}`)
+  const res = await fetch(
+    `/api/missions/${missionId}/events?limit=${limit}&offset=${offset}`,
+  )
   const data = (await res.json()) as { ok: boolean; events?: MissionEvent[] }
   return data.events ?? []
 }
@@ -1966,6 +2138,7 @@ git commit -m "feat: add client API helpers for tasks, missions, and operations"
 ## Task 13: Tasks Kanban Screen
 
 **Files:**
+
 - Create: `src/routes/tasks.tsx`
 - Create: `src/screens/tasks/tasks-screen.tsx`
 - Create: `src/screens/tasks/components/task-column.tsx`
@@ -2478,6 +2651,7 @@ git commit -m "feat(tasks): add Kanban board UI with drag-and-drop"
 ## Task 14: Conductor Screen
 
 **Files:**
+
 - Create: `src/routes/conductor.tsx`
 - Create: `src/screens/conductor/conductor-screen.tsx`
 - Create: `src/screens/conductor/components/mission-home.tsx`
@@ -3160,6 +3334,7 @@ git commit -m "feat(conductor): add conductor screen with phase-based mission UI
 ## Task 15: Operations Screen
 
 **Files:**
+
 - Create: `src/routes/operations.tsx`
 - Create: `src/screens/operations/operations-screen.tsx`
 - Create: `src/screens/operations/components/agent-grid.tsx`
@@ -3487,6 +3662,7 @@ git commit -m "feat(operations): add operations dashboard with grid and outputs 
 ## Task 16: Sidebar Navigation
 
 **Files:**
+
 - Modify: `src/screens/chat/components/chat-sidebar.tsx`
 - Modify: `src/components/workspace-shell.tsx`
 
@@ -3574,6 +3750,7 @@ git commit -m "feat: add Conductor, Operations, and Tasks to sidebar navigation"
 ## Task 17: Integration — Audit Trail Events
 
 **Files:**
+
 - Modify: `src/server/task-store.ts`
 - Modify: `src/server/mission-store.ts`
 
@@ -3588,11 +3765,18 @@ import { publishChatEvent } from './chat-event-bus'
 Then add `publishChatEvent` calls to `createTask`, `moveTask`, and `deleteTask`:
 
 In `createTask`, after `saveToDisk()`:
+
 ```typescript
-publishChatEvent('task.created', { sessionKey: 'all', taskId: task.id, title: task.title, sourceType: task.sourceType })
+publishChatEvent('task.created', {
+  sessionKey: 'all',
+  taskId: task.id,
+  title: task.title,
+  sourceType: task.sourceType,
+})
 ```
 
 In `moveTask`, after the `updateTask` call (if successful):
+
 ```typescript
 if (result) {
   publishChatEvent('task.moved', { sessionKey: 'all', taskId, column })
@@ -3601,6 +3785,7 @@ return result
 ```
 
 In `deleteTask`, before `return true`:
+
 ```typescript
 publishChatEvent('task.deleted', { sessionKey: 'all', taskId })
 ```
@@ -3616,16 +3801,23 @@ import { publishChatEvent } from './chat-event-bus'
 Add `publishChatEvent` calls to `createMission`, `completeMission`, and `abortMission`:
 
 In `createMission`, after `saveMissionsToDisk()`:
+
 ```typescript
-publishChatEvent('mission.created', { sessionKey: 'all', missionId: mission.id, goal: mission.goal })
+publishChatEvent('mission.created', {
+  sessionKey: 'all',
+  missionId: mission.id,
+  goal: mission.goal,
+})
 ```
 
 In `completeMission`, after `saveMissionsToDisk()`:
+
 ```typescript
 publishChatEvent('mission.completed', { sessionKey: 'all', missionId })
 ```
 
 In `abortMission`, after `saveMissionsToDisk()`:
+
 ```typescript
 publishChatEvent('mission.aborted', { sessionKey: 'all', missionId })
 ```
@@ -3647,6 +3839,7 @@ git commit -m "feat: wire task and mission events into audit trail via chat-even
 ## Task 18: Integration — Cross-Link Task Creation
 
 **Files:**
+
 - Modify: `src/routes/api/missions/index.ts` (POST handler)
 
 - [ ] **Step 1: Add task auto-creation when a mission is created**
@@ -3687,6 +3880,7 @@ git commit -m "feat: auto-create task on Kanban board when conductor mission is 
 ## Task 19: Integration — Crew Detail Operations Tab
 
 **Files:**
+
 - Modify: `src/screens/crews/crew-detail-screen.tsx`
 
 - [ ] **Step 1: Read crew detail screen to understand its tab structure**
@@ -3733,6 +3927,7 @@ Expected: No new errors introduced by our changes
 - [ ] **Step 3: Start the dev server and verify routes load**
 
 Run: `cd /home/jpeetz/Hermes-Studio && npx vinxi dev &` then test:
+
 - `curl -s http://localhost:3000/api/tasks | head -1` → should return JSON with `ok: true`
 - `curl -s http://localhost:3000/api/missions | head -1` → should return JSON with `ok: true`
 - `curl -s http://localhost:3000/api/operations | head -1` → should return JSON with `ok: true`

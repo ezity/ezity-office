@@ -5,13 +5,19 @@ import { TASK_COLUMN_LABELS } from '@/types/task'
 
 interface TaskColumnProps {
   column: TaskColumnType
-  tasks: HermesTask[]
+  tasks: Array<HermesTask>
   onEdit: (task: HermesTask) => void
   onDragStart: (e: React.DragEvent, taskId: string) => void
   onDrop: (e: React.DragEvent, column: TaskColumnType) => void
 }
 
-export function TaskColumn({ column, tasks, onEdit, onDragStart, onDrop }: TaskColumnProps) {
+export function TaskColumn({
+  column,
+  tasks,
+  onEdit,
+  onDragStart,
+  onDrop,
+}: TaskColumnProps) {
   const [isDragOver, setIsDragOver] = useState(false)
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -45,7 +51,10 @@ export function TaskColumn({ column, tasks, onEdit, onDragStart, onDrop }: TaskC
         className="flex items-center justify-between px-3 py-2.5 border-b flex-shrink-0"
         style={{ borderColor: 'var(--theme-border)' }}
       >
-        <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--theme-muted)' }}>
+        <span
+          className="text-xs font-semibold uppercase tracking-wide"
+          style={{ color: 'var(--theme-muted)' }}
+        >
           {TASK_COLUMN_LABELS[column]}
         </span>
         <span

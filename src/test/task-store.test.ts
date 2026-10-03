@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/server/chat-event-bus', () => ({
   publishChatEvent: vi.fn(),
@@ -71,7 +71,11 @@ describe('task-store', () => {
   it('listTasks() filters by sourceType', async () => {
     const { createTask, listTasks } = await getStore()
     createTask({ title: 'Manual' })
-    createTask({ title: 'From Conductor', sourceType: 'conductor', sourceId: 'mission-1' })
+    createTask({
+      title: 'From Conductor',
+      sourceType: 'conductor',
+      sourceId: 'mission-1',
+    })
     const filtered = listTasks({ sourceType: 'conductor' })
     expect(filtered).toHaveLength(1)
     expect(filtered[0].title).toBe('From Conductor')

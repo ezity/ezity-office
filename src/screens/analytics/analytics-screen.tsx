@@ -49,7 +49,20 @@ function fmtNum(n: number): string {
 function fmtDate(iso: string): string {
   // iso = "YYYY-MM-DD"
   const [, m, d] = iso.split('-')
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ]
   return `${months[Number(m) - 1]} ${Number(d)}`
 }
 
@@ -169,10 +182,8 @@ export function AnalyticsScreen() {
     [data],
   )
 
-  const totalToolCalls =
-    (data?.eventTypeCounts?.['tool'] ?? 0)
-  const totalMessages =
-    (data?.eventTypeCounts?.['user_message'] ?? 0)
+  const totalToolCalls = data?.eventTypeCounts?.['tool'] ?? 0
+  const totalMessages = data?.eventTypeCounts?.['user_message'] ?? 0
 
   return (
     <div
@@ -199,7 +210,9 @@ export function AnalyticsScreen() {
           Event Store Analytics
         </h1>
         <p style={{ fontSize: '0.8rem', color: 'var(--theme-text-muted)' }}>
-          Aggregate insights from <code style={{ fontFamily: 'monospace' }}>.runtime/events.db</code> · auto-refreshes every 30 s
+          Aggregate insights from{' '}
+          <code style={{ fontFamily: 'monospace' }}>.runtime/events.db</code> ·
+          auto-refreshes every 30 s
         </p>
       </div>
 
@@ -320,9 +333,25 @@ export function AnalyticsScreen() {
                       }}
                       cursor={{ fill: 'var(--theme-border)', opacity: 0.15 }}
                     />
-                    <Bar dataKey="tool" stackId="a" fill="#6366f1" radius={[0,0,0,0]} />
-                    <Bar dataKey="user_message" stackId="a" fill="#3b82f6" radius={[0,0,0,0]} name="messages" />
-                    <Bar dataKey="approval" stackId="a" fill="#f59e0b" radius={[2,2,0,0]} />
+                    <Bar
+                      dataKey="tool"
+                      stackId="a"
+                      fill="#6366f1"
+                      radius={[0, 0, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="user_message"
+                      stackId="a"
+                      fill="#3b82f6"
+                      radius={[0, 0, 0, 0]}
+                      name="messages"
+                    />
+                    <Bar
+                      dataKey="approval"
+                      stackId="a"
+                      fill="#f59e0b"
+                      radius={[2, 2, 0, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </>
@@ -345,7 +374,10 @@ export function AnalyticsScreen() {
                 No tool calls recorded yet.
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height={Math.max(180, toolData.length * 28)}>
+              <ResponsiveContainer
+                width="100%"
+                height={Math.max(180, toolData.length * 28)}
+              >
                 <BarChart
                   data={toolData}
                   layout="vertical"
@@ -386,8 +418,18 @@ export function AnalyticsScreen() {
                       name === 'count' ? 'Completed' : 'Errors',
                     ]}
                   />
-                  <Bar dataKey="count" fill="#6366f1" opacity={0.85} radius={[0, 3, 3, 0]} />
-                  <Bar dataKey="errors" fill="#ef4444" opacity={0.7} radius={[0, 3, 3, 0]} />
+                  <Bar
+                    dataKey="count"
+                    fill="#6366f1"
+                    opacity={0.85}
+                    radius={[0, 3, 3, 0]}
+                  />
+                  <Bar
+                    dataKey="errors"
+                    fill="#ef4444"
+                    opacity={0.7}
+                    radius={[0, 3, 3, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -417,9 +459,9 @@ export function AnalyticsScreen() {
                 textAlign: 'right',
               }}
             >
-              Oldest event:{' '}
-              {new Date(data.timeRange.oldest).toLocaleString()} · Newest:{' '}
-              {new Date(data.timeRange.newest).toLocaleString()} · Retention: 7 days
+              Oldest event: {new Date(data.timeRange.oldest).toLocaleString()} ·
+              Newest: {new Date(data.timeRange.newest).toLocaleString()} ·
+              Retention: 7 days
             </div>
           )}
         </>
@@ -430,7 +472,9 @@ export function AnalyticsScreen() {
 
 function Legend({ color, label }: { color: string; label: string }) {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+    <span
+      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+    >
       <span
         style={{
           display: 'inline-block',

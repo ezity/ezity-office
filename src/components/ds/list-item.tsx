@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils'
 import type { ReactNode } from 'react'
+import { cn } from '@/lib/utils'
 
 interface ListItemProps {
   icon?: ReactNode
@@ -35,7 +35,9 @@ export function ListItem({
       onClick={onClick}
     >
       {icon && (
-        <span className="mt-0.5 shrink-0 text-[var(--theme-muted)]">{icon}</span>
+        <span className="mt-0.5 shrink-0 text-[var(--theme-muted)]">
+          {icon}
+        </span>
       )}
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm text-[var(--theme-text)]">

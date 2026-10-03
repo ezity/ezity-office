@@ -543,19 +543,25 @@ export function WorkspaceSkillsScreen() {
                   </div>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center justify-between gap-4 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-3 py-2">
-                      <span className="text-[var(--theme-muted)]">Workspace memory</span>
+                      <span className="text-[var(--theme-muted)]">
+                        Workspace memory
+                      </span>
                       <span className="font-medium text-[var(--theme-text)]">
                         Permanent
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-4 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-3 py-2">
-                      <span className="text-[var(--theme-muted)]">Project memory</span>
+                      <span className="text-[var(--theme-muted)]">
+                        Project memory
+                      </span>
                       <span className="font-medium text-[var(--theme-text)]">
                         Per-project
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-4 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-3 py-2">
-                      <span className="text-[var(--theme-muted)]">Agent memory</span>
+                      <span className="text-[var(--theme-muted)]">
+                        Agent memory
+                      </span>
                       <span className="font-medium text-[var(--theme-text)]">
                         30 day rolling
                       </span>

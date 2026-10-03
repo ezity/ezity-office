@@ -147,6 +147,11 @@ export const Route = createRootRoute({
         type: 'image/svg+xml',
         href: '/favicon.svg',
       },
+      {
+        rel: 'alternate icon',
+        type: 'image/png',
+        href: '/favicon-32.png',
+      },
       // PWA manifest and icons
       {
         rel: 'manifest',
@@ -299,7 +304,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             var d = document.createElement('div');
             d.id = 'splash-screen';
             d.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:'+bg+';transition:opacity 0.5s ease;';
-            d.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;width:72px;height:72px;margin-bottom:18px;border-radius:18px;background:'+accent+';color:#ffffff;font:bold 28px/1 system-ui,-apple-system,sans-serif;box-shadow:0 8px 32px color-mix(in srgb,'+accent+' 45%, transparent)">EA</div>'
+            d.innerHTML = '<img src="/ezity-logo.png" alt="EZity AI Office" style="width:72px;height:72px;margin-bottom:18px;object-fit:contain;filter:drop-shadow(0 8px 32px color-mix(in srgb,'+accent+' 45%, transparent))" />'
               + '<div style="font:700 24px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:-0.02em;color:'+txt+';margin-bottom:6px">EZity AI Office</div>'
               + '<div style="font:500 12px/1 system-ui,-apple-system,sans-serif;letter-spacing:0.06em;text-transform:uppercase;color:'+muted+'">EZity Solutions &middot; AI Workforce &amp; Operations</div>'
               + '<div style="margin-top:28px;width:140px;height:3px;background:'+(isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)')+';border-radius:3px;overflow:hidden;position:relative"><div id=splash-bar style="width:0%;height:100%;background:'+accent+';border-radius:3px;transition:width 0.4s ease"></div></div>';

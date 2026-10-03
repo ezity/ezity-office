@@ -191,7 +191,9 @@ function SettingsSection({ title, description, icon, children }: SectionProps) {
           <h2 className="text-base font-medium text-[var(--theme-text)] text-balance">
             {title}
           </h2>
-          <p className="text-sm text-[var(--theme-muted)] text-pretty">{description}</p>
+          <p className="text-sm text-[var(--theme-muted)] text-pretty">
+            {description}
+          </p>
         </div>
       </div>
       <div className="space-y-4">{children}</div>
@@ -213,7 +215,9 @@ function SettingsRow({ label, description, children }: RowProps) {
           {label}
         </p>
         {description ? (
-          <p className="text-xs text-[var(--theme-muted)] text-pretty">{description}</p>
+          <p className="text-xs text-[var(--theme-muted)] text-pretty">
+            {description}
+          </p>
         ) : null}
       </div>
       <div className="flex w-full items-center gap-2 md:w-auto md:justify-end">
@@ -649,7 +653,7 @@ const IDENTITY_FILES = [
     path: 'SOUL.md',
     label: 'Soul (persona)',
     description:
-      'Defines the agent\'s personality and tone. Loaded fresh on every message — changes take effect immediately without restarting Hermes.',
+      "Defines the agent's personality and tone. Loaded fresh on every message — changes take effect immediately without restarting Hermes.",
   },
   {
     path: 'persona.md',
@@ -668,7 +672,9 @@ const IDENTITY_FILES = [
 type IdentityFilePath = (typeof IDENTITY_FILES)[number]['path']
 
 async function readIdentityFile(path: IdentityFilePath): Promise<string> {
-  const res = await fetch(`/api/files?action=read&path=${encodeURIComponent(path)}`)
+  const res = await fetch(
+    `/api/files?action=read&path=${encodeURIComponent(path)}`,
+  )
   if (!res.ok) {
     if (res.status === 404) return ''
     throw new Error(`HTTP ${res.status}`)
@@ -724,7 +730,9 @@ function IdentityFileEditor() {
           setLoading(false)
         }
       })
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [selectedPath])
 
   const handleSave = async () => {
@@ -827,11 +835,7 @@ function IdentityFileEditor() {
               Discard
             </Button>
           )}
-          <Button
-            size="sm"
-            onClick={handleSave}
-            disabled={saving || !isDirty}
-          >
+          <Button size="sm" onClick={handleSave} disabled={saving || !isDirty}>
             {saving ? 'Saving…' : 'Save'}
           </Button>
         </div>
@@ -856,14 +860,20 @@ function IntegrationsSection() {
   useEffect(() => {
     fetch('/api/skills/settings')
       .then((r) => r.json())
-      .then((d: { skillsmpApiKeySet?: boolean; skillsmpApiKeyMasked?: string; skillsmpApiKeyFromEnv?: boolean }) => {
-        setStatus({
-          keySet: Boolean(d.skillsmpApiKeySet),
-          keyMasked: d.skillsmpApiKeyMasked || '',
-          fromEnv: Boolean(d.skillsmpApiKeyFromEnv),
-        })
-      })
-      .catch(() => { })
+      .then(
+        (d: {
+          skillsmpApiKeySet?: boolean
+          skillsmpApiKeyMasked?: string
+          skillsmpApiKeyFromEnv?: boolean
+        }) => {
+          setStatus({
+            keySet: Boolean(d.skillsmpApiKeySet),
+            keyMasked: d.skillsmpApiKeyMasked || '',
+            fromEnv: Boolean(d.skillsmpApiKeyFromEnv),
+          })
+        },
+      )
+      .catch(() => {})
   }, [])
 
   async function handleSave() {
@@ -875,7 +885,13 @@ function IntegrationsSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ skillsmpApiKey: apiKey }),
       })
-      const d = await res.json() as { ok?: boolean; skillsmpApiKeySet?: boolean; skillsmpApiKeyMasked?: string; skillsmpApiKeyFromEnv?: boolean; error?: string }
+      const d = (await res.json()) as {
+        ok?: boolean
+        skillsmpApiKeySet?: boolean
+        skillsmpApiKeyMasked?: string
+        skillsmpApiKeyFromEnv?: boolean
+        error?: string
+      }
       if (!res.ok || !d.ok) throw new Error(d.error || 'Failed to save')
       setStatus({
         keySet: Boolean(d.skillsmpApiKeySet),
@@ -901,7 +917,13 @@ function IntegrationsSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ skillsmpApiKey: '' }),
       })
-      const d = await res.json() as { ok?: boolean; skillsmpApiKeySet?: boolean; skillsmpApiKeyMasked?: string; skillsmpApiKeyFromEnv?: boolean; error?: string }
+      const d = (await res.json()) as {
+        ok?: boolean
+        skillsmpApiKeySet?: boolean
+        skillsmpApiKeyMasked?: string
+        skillsmpApiKeyFromEnv?: boolean
+        error?: string
+      }
       if (!res.ok || !d.ok) throw new Error(d.error || 'Failed to clear')
       setStatus({
         keySet: Boolean(d.skillsmpApiKeySet),
@@ -943,14 +965,19 @@ function IntegrationsSection() {
           <div className="flex w-full flex-col gap-2 md:max-w-sm">
             {status?.fromEnv ? (
               <p className="text-xs text-[var(--theme-muted)]">
-                Key is set via <code className="inline-code">SKILLSMP_API_KEY</code>{' '}
+                Key is set via{' '}
+                <code className="inline-code">SKILLSMP_API_KEY</code>{' '}
                 environment variable and cannot be changed here.
               </p>
             ) : (
               <>
                 {status?.keySet && (
                   <div className="flex items-center gap-2 rounded-lg border border-[var(--theme-border)] bg-[var(--theme-panel)]/60 px-3 py-2 text-sm">
-                    <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} className="shrink-0 text-green-600" />
+                    <HugeiconsIcon
+                      icon={CheckmarkCircle02Icon}
+                      size={16}
+                      className="shrink-0 text-green-600"
+                    />
                     <span className="font-mono text-xs text-[var(--theme-text)] flex-1 truncate">
                       {status.keyMasked}
                     </span>
@@ -967,7 +994,9 @@ function IntegrationsSection() {
                 <div className="flex gap-2">
                   <Input
                     type={showKey ? 'text' : 'password'}
-                    placeholder={status?.keySet ? 'Enter new key to replace…' : 'sk_live_…'}
+                    placeholder={
+                      status?.keySet ? 'Enter new key to replace…' : 'sk_live_…'
+                    }
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
                     className="flex-1 font-mono text-xs"
@@ -1093,7 +1122,7 @@ function PlatformsSection() {
         void d
         setEnvStatus({})
       })
-      .catch(() => { })
+      .catch(() => {})
   }, [])
 
   const setInput = (key: string, value: string) =>
@@ -1153,7 +1182,8 @@ function PlatformsSection() {
     } catch (err) {
       setMsgs((prev) => ({
         ...prev,
-        [`${platform.key}_allowed`]: err instanceof Error ? err.message : 'Failed',
+        [`${platform.key}_allowed`]:
+          err instanceof Error ? err.message : 'Failed',
       }))
     }
     setSaving((prev) => ({ ...prev, [`${platform.key}_allowed`]: false }))
@@ -1166,7 +1196,10 @@ function PlatformsSection() {
       icon={MessageMultiple01Icon}
     >
       {CHAT_PLATFORMS.map((platform) => (
-        <div key={platform.key} className="flex flex-col gap-3 border-t border-[var(--theme-border)] pt-4 first:border-0 first:pt-0">
+        <div
+          key={platform.key}
+          className="flex flex-col gap-3 border-t border-[var(--theme-border)] pt-4 first:border-0 first:pt-0"
+        >
           <p className="text-sm font-semibold text-[var(--theme-text)]">
             {platform.label}
             {envStatus[platform.key] && (
@@ -1342,7 +1375,9 @@ function _ProfileSection() {
           alt={displayName}
         />
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-[var(--theme-text)]">{displayName}</p>
+          <p className="text-sm font-medium text-[var(--theme-text)]">
+            {displayName}
+          </p>
           <p className="text-xs text-[var(--theme-muted)]">
             Shown in the sidebar and chat messages.
           </p>
@@ -1563,9 +1598,19 @@ type AvailableModelsResponse = {
 }
 
 const KNOWN_PLATFORMS = [
-  'telegram', 'discord', 'slack', 'whatsapp', 'signal',
-  'homeassistant', 'mattermost', 'matrix', 'bluebubbles',
-  'sms', 'email', 'webhook', 'cli',
+  'telegram',
+  'discord',
+  'slack',
+  'whatsapp',
+  'signal',
+  'homeassistant',
+  'mattermost',
+  'matrix',
+  'bluebubbles',
+  'sms',
+  'email',
+  'webhook',
+  'cli',
 ]
 
 function AddPlatformOverride({
@@ -1587,12 +1632,17 @@ function AddPlatformOverride({
       >
         <option value="">add platform…</option>
         {available.map((p) => (
-          <option key={p} value={p}>{p}</option>
+          <option key={p} value={p}>
+            {p}
+          </option>
         ))}
       </select>
       {selected && (
         <button
-          onClick={() => { onAdd(selected); setSelected('') }}
+          onClick={() => {
+            onAdd(selected)
+            setSelected('')
+          }}
           className="rounded px-2 py-0.5 text-xs font-medium transition-colors hover:bg-[var(--theme-hover)]"
           style={{ color: 'var(--theme-accent)' }}
         >
@@ -1606,7 +1656,13 @@ function AddPlatformOverride({
 function HermesConfigSection({
   activeView = 'hermes',
 }: {
-  activeView?: 'hermes' | 'agent' | 'permissions' | 'routing' | 'voice' | 'display'
+  activeView?:
+    | 'hermes'
+    | 'agent'
+    | 'permissions'
+    | 'routing'
+    | 'voice'
+    | 'display'
 }) {
   const [data, setData] = useState<HermesConfigData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -1786,8 +1842,8 @@ function HermesConfigSection({
     : []
   const quickCommands =
     data.config.quick_commands &&
-      typeof data.config.quick_commands === 'object' &&
-      !Array.isArray(data.config.quick_commands)
+    typeof data.config.quick_commands === 'object' &&
+    !Array.isArray(data.config.quick_commands)
       ? (data.config.quick_commands as Record<string, string>)
       : {}
 
@@ -1795,8 +1851,8 @@ function HermesConfigSection({
     (data.config.session_reset as Record<string, unknown>) || {}
   const platformOverrides =
     displayConfig.platforms &&
-      typeof displayConfig.platforms === 'object' &&
-      !Array.isArray(displayConfig.platforms)
+    typeof displayConfig.platforms === 'object' &&
+    !Array.isArray(displayConfig.platforms)
       ? (displayConfig.platforms as Record<string, Record<string, string>>)
       : {}
 
@@ -2227,51 +2283,53 @@ function HermesConfigSection({
       {['daily', 'both'].includes(
         (sessionResetConfig.mode as string) || 'both',
       ) && (
-          <SettingsRow
-            label="Reset hour"
-            description="Hour of day (0–23, local time) for daily session reset."
-          >
-            <Input
-              type="number"
-              min={0}
-              max={23}
-              value={readNumber(sessionResetConfig.at_hour, 4)}
-              onChange={(e) =>
-                saveNumberField('session_reset', 'at_hour', e.target.value, 4)
-              }
-              className="md:w-24"
-            />
-          </SettingsRow>
-        )}
+        <SettingsRow
+          label="Reset hour"
+          description="Hour of day (0–23, local time) for daily session reset."
+        >
+          <Input
+            type="number"
+            min={0}
+            max={23}
+            value={readNumber(sessionResetConfig.at_hour, 4)}
+            onChange={(e) =>
+              saveNumberField('session_reset', 'at_hour', e.target.value, 4)
+            }
+            className="md:w-24"
+          />
+        </SettingsRow>
+      )}
       {['idle', 'both'].includes(
         (sessionResetConfig.mode as string) || 'both',
       ) && (
-          <SettingsRow
-            label="Idle timeout"
-            description="Minutes of inactivity before the session resets."
-          >
-            <Input
-              type="number"
-              min={1}
-              value={readNumber(sessionResetConfig.idle_minutes, 1440)}
-              onChange={(e) =>
-                saveNumberField(
-                  'session_reset',
-                  'idle_minutes',
-                  e.target.value,
-                  1440,
-                )
-              }
-              className="md:w-28"
-            />
-          </SettingsRow>
-        )}
+        <SettingsRow
+          label="Idle timeout"
+          description="Minutes of inactivity before the session resets."
+        >
+          <Input
+            type="number"
+            min={1}
+            value={readNumber(sessionResetConfig.idle_minutes, 1440)}
+            onChange={(e) =>
+              saveNumberField(
+                'session_reset',
+                'idle_minutes',
+                e.target.value,
+                1440,
+              )
+            }
+            className="md:w-28"
+          />
+        </SettingsRow>
+      )}
     </SettingsSection>
   )
 
   const renderPermissions = () => {
     const removeToolset = (ts: string) => {
-      void saveConfig({ config: { toolsets: toolsets.filter((t) => t !== ts) } })
+      void saveConfig({
+        config: { toolsets: toolsets.filter((t) => t !== ts) },
+      })
     }
 
     const addToolset = () => {
@@ -2447,7 +2505,12 @@ function HermesConfigSection({
               max={3600}
               value={readNumber(codeExecConfig.timeout, 300)}
               onChange={(e) =>
-                saveNumberField('code_execution', 'timeout', e.target.value, 300)
+                saveNumberField(
+                  'code_execution',
+                  'timeout',
+                  e.target.value,
+                  300,
+                )
               }
               className="md:w-28"
             />
@@ -2523,7 +2586,9 @@ function HermesConfigSection({
             <div className="flex w-full flex-col gap-2">
               <div className="flex flex-wrap gap-2">
                 {commandAllowlist.length === 0 ? (
-                  <span className="text-xs text-[var(--theme-muted)]">No commands allowlisted</span>
+                  <span className="text-xs text-[var(--theme-muted)]">
+                    No commands allowlisted
+                  </span>
                 ) : (
                   commandAllowlist.map((cmd) => (
                     <span
@@ -2650,7 +2715,8 @@ function HermesConfigSection({
                       if (e.key === 'Enter') {
                         e.preventDefault()
                         const trimmed = newBlocklistDomain.trim().toLowerCase()
-                        if (!trimmed || blocklistDomains.includes(trimmed)) return
+                        if (!trimmed || blocklistDomains.includes(trimmed))
+                          return
                         void saveConfig({
                           config: {
                             security: {
@@ -3134,19 +3200,19 @@ function HermesConfigSection({
         <div className="flex flex-col gap-2">
           {Object.entries(platformOverrides).map(([platform, overrides]) => (
             <div key={platform} className="flex items-center gap-2">
-              <span
-                className="w-24 shrink-0 text-xs font-mono text-[var(--theme-text)]"
-              >
+              <span className="w-24 shrink-0 text-xs font-mono text-[var(--theme-text)]">
                 {platform}
               </span>
               <select
-                value={(overrides.tool_progress as string) || 'all'}
+                value={(overrides.tool_progress) || 'all'}
                 onChange={(e) => {
                   const updated = {
                     ...platformOverrides,
                     [platform]: { ...overrides, tool_progress: e.target.value },
                   }
-                  void saveConfig({ config: { display: { platforms: updated } } })
+                  void saveConfig({
+                    config: { display: { platforms: updated } },
+                  })
                 }}
                 className={selectClassName}
               >
@@ -3159,7 +3225,9 @@ function HermesConfigSection({
                 onClick={() => {
                   const updated = { ...platformOverrides }
                   delete updated[platform]
-                  void saveConfig({ config: { display: { platforms: updated } } })
+                  void saveConfig({
+                    config: { display: { platforms: updated } },
+                  })
                 }}
                 className="rounded px-2 py-0.5 text-xs transition-colors hover:bg-[var(--theme-hover)]"
                 style={{ color: 'var(--theme-danger)' }}
@@ -3321,7 +3389,9 @@ function SystemdAutoStartSection() {
     color: 'var(--theme-text)',
   }
 
-  const btnStyle = (variant: 'primary' | 'danger' | 'ghost'): React.CSSProperties => ({
+  const btnStyle = (
+    variant: 'primary' | 'danger' | 'ghost',
+  ): React.CSSProperties => ({
     padding: '0.375rem 0.875rem',
     borderRadius: '0.5rem',
     fontSize: '0.8125rem',
@@ -3404,7 +3474,9 @@ function SystemdAutoStartSection() {
       {/* Status Card */}
       <div style={cardStyle}>
         <h3 style={headingStyle}>Service Status</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+        <div
+          style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}
+        >
           <div style={rowStyle}>
             <span style={statusDotStyle(status.installed)} />
             <span>

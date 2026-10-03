@@ -6,10 +6,7 @@
  * the ProviderUsageEntry format consumed by the usage meter components.
  */
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  HERMES_API,
-  BEARER_TOKEN,
-} from '../../server/gateway-capabilities'
+import { BEARER_TOKEN, HERMES_API } from '../../server/gateway-capabilities'
 import { isAuthenticated } from '../../server/auth-middleware'
 
 type UsageLine = {
@@ -85,7 +82,9 @@ function displayName(provider: string, raw?: string): string {
 }
 
 /** Convert a Hermes reset string (e.g. "60s", "1m30s", ISO 8601) to an ISO string */
-function normalizeResetTime(reset: string | null | undefined): string | undefined {
+function normalizeResetTime(
+  reset: string | null | undefined,
+): string | undefined {
   if (!reset) return undefined
   // Already ISO 8601
   if (reset.includes('T') || reset.includes('-')) return reset
@@ -180,7 +179,9 @@ function mapEntry(entry: HermesProviderUsage): ProviderUsageEntry {
   }
 }
 
-async function fetchProviderUsage(force: boolean): Promise<Array<ProviderUsageEntry>> {
+async function fetchProviderUsage(
+  force: boolean,
+): Promise<Array<ProviderUsageEntry>> {
   const authHeaders: Record<string, string> = BEARER_TOKEN
     ? { Authorization: `Bearer ${BEARER_TOKEN}` }
     : {}
@@ -213,7 +214,10 @@ export const Route = createFileRoute('/api/provider-usage')({
     handlers: {
       GET: async ({ request }) => {
         if (!isAuthenticated(request)) {
-          return Response.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+          return Response.json(
+            { ok: false, error: 'Unauthorized' },
+            { status: 401 },
+          )
         }
 
         const url = new URL(request.url)

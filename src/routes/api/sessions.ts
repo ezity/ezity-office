@@ -20,15 +20,17 @@ import {
   toLocalSessionSummary,
   updateLocalSessionTitle,
 } from '../../server/local-session-store'
-import { createCapabilityUnavailablePayload } from '@/lib/feature-gates'
 
 import { getAgent } from '../../server/agent-definitions-store'
 import {
   getSessionAgent,
   setSessionAgent,
 } from '../../server/session-agent-store'
+import { createCapabilityUnavailablePayload } from '@/lib/feature-gates'
 
-export function decorateWithAgent(s: Record<string, unknown>): Record<string, unknown> {
+export function decorateWithAgent(
+  s: Record<string, unknown>,
+): Record<string, unknown> {
   const key =
     (typeof s.key === 'string' && s.key) ||
     (typeof s.friendlyId === 'string' && s.friendlyId) ||
@@ -40,13 +42,20 @@ export function decorateWithAgent(s: Record<string, unknown>): Record<string, un
   if (!agentId && key) {
     const label = typeof s.label === 'string' ? s.label.toLowerCase() : ''
     const title = typeof s.title === 'string' ? s.title.toLowerCase() : ''
-    const derived = typeof s.derivedTitle === 'string' ? s.derivedTitle.toLowerCase() : ''
+    const derived =
+      typeof s.derivedTitle === 'string' ? s.derivedTitle.toLowerCase() : ''
     const searchTarget = `${label} ${title} ${derived}`
 
-    if (label.startsWith('worker-accountant') || searchTarget.includes('accountant')) {
+    if (
+      label.startsWith('worker-accountant') ||
+      searchTarget.includes('accountant')
+    ) {
       agentId = 'ezity-accountant'
       setSessionAgent(key, 'ezity-accountant')
-    } else if (label.startsWith('worker-developer') || searchTarget.includes('developer')) {
+    } else if (
+      label.startsWith('worker-developer') ||
+      searchTarget.includes('developer')
+    ) {
       agentId = 'ezity-developer'
       setSessionAgent(key, 'ezity-developer')
     }
@@ -77,7 +86,9 @@ export const Route = createFileRoute('/api/sessions')({
           const localSessions = listLocalSessions()
           return json({
             ok: true,
-            sessions: localSessions.map(toLocalSessionSummary).map(decorateWithAgent),
+            sessions: localSessions
+              .map(toLocalSessionSummary)
+              .map(decorateWithAgent),
             source: 'local',
           })
         }

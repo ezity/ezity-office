@@ -57,7 +57,9 @@ export function ThemeToggle({ variant = 'pill' }: ThemeToggleProps) {
                 ? 'bg-accent-500 text-white shadow-sm'
                 : 'text-[var(--theme-muted)] hover:text-[var(--theme-text)]',
             )}
-            aria-label={active ? `${mode.label} theme (current)` : `${mode.label} theme`}
+            aria-label={
+              active ? `${mode.label} theme (current)` : `${mode.label} theme`
+            }
             title={mode.label}
           >
             <HugeiconsIcon icon={mode.icon} size={14} strokeWidth={1.8} />

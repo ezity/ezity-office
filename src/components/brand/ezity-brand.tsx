@@ -6,17 +6,16 @@ export type EZityLogoMarkProps = HTMLAttributes<HTMLDivElement> & {
 }
 
 const SIZE_MAP = {
-  xs: 'size-4 text-[9px] rounded',
-  sm: 'size-6 text-xs rounded-lg',
-  md: 'size-8 text-sm rounded-xl',
-  lg: 'size-12 text-lg rounded-2xl',
-  xl: 'size-16 text-2xl rounded-2xl',
+  xs: 'size-4',
+  sm: 'size-6',
+  md: 'size-8',
+  lg: 'size-12',
+  xl: 'size-16',
 }
 
 /**
  * Centralized EZity brand logo mark.
- * Defaults to the themed 'EA' fallback badge using design system tokens.
- * Replace or enhance this component when final graphic assets are supplied.
+ * Uses the official EZity logo graphic with responsive sizing.
  */
 export function EZityLogoMark({
   size = 'md',
@@ -26,19 +25,19 @@ export function EZityLogoMark({
   return (
     <div
       className={cn(
-        'inline-flex shrink-0 items-center justify-center font-bold tracking-tight select-none',
-        'bg-[var(--theme-accent)] text-white shadow-sm',
+        'inline-flex shrink-0 items-center justify-center select-none',
         SIZE_MAP[size],
         className,
       )}
-      style={{
-        boxShadow:
-          '0 2px 8px color-mix(in srgb, var(--theme-accent) 35%, transparent)',
-      }}
       aria-label="EZity AI Office"
       {...props}
     >
-      EA
+      <img
+        src="/ezity-logo.png"
+        alt="EZity AI Office"
+        className="h-full w-full object-contain"
+        draggable={false}
+      />
     </div>
   )
 }

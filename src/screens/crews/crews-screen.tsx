@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState  } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
+  ActivitySparkIcon,
   Add01Icon,
   CheckmarkCircle02Icon,
   Copy01Icon,
@@ -12,20 +13,12 @@ import {
   GridViewIcon,
   PauseIcon,
   UserMultiple02Icon,
-  ActivitySparkIcon,
 } from '@hugeicons/core-free-icons'
-import { useMemo } from 'react'
 import { CreateCrewDialog } from './components/create-crew-dialog'
 import { TemplatesGallery } from './components/templates-gallery'
-import type { Crew } from '@/lib/crews-api'
-import type { CrewMemberRole } from '@/lib/crews-api'
-import {
-  cloneCrew,
-  createCrew,
-  deleteCrew,
-  fetchCrews,
-} from '@/lib/crews-api'
+import type { Crew, CrewMemberRole  } from '@/lib/crews-api'
 import type { CrewTemplate } from '@/lib/templates-api'
+import { cloneCrew, createCrew, deleteCrew, fetchCrews } from '@/lib/crews-api'
 import { toast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils'
 
@@ -73,9 +66,7 @@ function StatChip({
   icon?: React.ReactNode
 }) {
   return (
-    <div
-      className="flex min-w-0 flex-1 flex-col gap-1 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-card)] px-4 py-3"
-    >
+    <div className="flex min-w-0 flex-1 flex-col gap-1 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-card)] px-4 py-3">
       <div className="flex items-center gap-1.5">
         {icon}
         <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--theme-muted)]">
@@ -97,9 +88,14 @@ function StatChip({
   )
 }
 
-function RecentActivityFeed({ crews }: { crews: Crew[] }) {
+function RecentActivityFeed({ crews }: { crews: Array<Crew> }) {
   const items = useMemo(() => {
-    const entries: Array<{ memberName: string; crewName: string; text: string; ts: number }> = []
+    const entries: Array<{
+      memberName: string
+      crewName: string
+      text: string
+      ts: number
+    }> = []
     for (const crew of crews) {
       for (const m of crew.members) {
         if (m.lastActivity) {
@@ -129,8 +125,12 @@ function RecentActivityFeed({ crews }: { crews: Crew[] }) {
               {item.memberName}
             </span>
             <span className="text-[var(--theme-muted)]">·</span>
-            <span className="truncate text-[var(--theme-text)]">{item.text}</span>
-            <span className="ml-auto shrink-0 text-[var(--theme-muted)]">{item.crewName}</span>
+            <span className="truncate text-[var(--theme-text)]">
+              {item.text}
+            </span>
+            <span className="ml-auto shrink-0 text-[var(--theme-muted)]">
+              {item.crewName}
+            </span>
           </div>
         ))}
       </div>
@@ -138,7 +138,7 @@ function RecentActivityFeed({ crews }: { crews: Crew[] }) {
   )
 }
 
-function StatsStrip({ crews }: { crews: Crew[] }) {
+function StatsStrip({ crews }: { crews: Array<Crew> }) {
   const stats = useMemo(() => {
     const totalAgents = crews.reduce((sum, c) => sum + c.members.length, 0)
     const runningAgents = crews.reduce(
@@ -163,37 +163,79 @@ function StatsStrip({ crews }: { crews: Crew[] }) {
         <StatChip
           label="Crews"
           value={stats.total}
-          icon={<HugeiconsIcon icon={UserMultiple02Icon} size={12} strokeWidth={1.8} className="text-[var(--theme-muted)]" />}
+          icon={
+            <HugeiconsIcon
+              icon={UserMultiple02Icon}
+              size={12}
+              strokeWidth={1.8}
+              className="text-[var(--theme-muted)]"
+            />
+          }
         />
         <StatChip
           label="Active"
           value={stats.active}
           accent={stats.active > 0 ? 'var(--theme-success)' : undefined}
           pulse={stats.active > 0}
-          icon={<HugeiconsIcon icon={ActivitySparkIcon} size={12} strokeWidth={1.8} className="text-[var(--theme-muted)]" />}
+          icon={
+            <HugeiconsIcon
+              icon={ActivitySparkIcon}
+              size={12}
+              strokeWidth={1.8}
+              className="text-[var(--theme-muted)]"
+            />
+          }
         />
         <StatChip
           label="Paused"
           value={stats.paused}
-          icon={<HugeiconsIcon icon={PauseIcon} size={12} strokeWidth={1.8} className="text-[var(--theme-muted)]" />}
+          icon={
+            <HugeiconsIcon
+              icon={PauseIcon}
+              size={12}
+              strokeWidth={1.8}
+              className="text-[var(--theme-muted)]"
+            />
+          }
         />
         <StatChip
           label="Complete"
           value={stats.complete}
           accent={stats.complete > 0 ? 'var(--theme-accent)' : undefined}
-          icon={<HugeiconsIcon icon={CheckmarkCircle02Icon} size={12} strokeWidth={1.8} className="text-[var(--theme-muted)]" />}
+          icon={
+            <HugeiconsIcon
+              icon={CheckmarkCircle02Icon}
+              size={12}
+              strokeWidth={1.8}
+              className="text-[var(--theme-muted)]"
+            />
+          }
         />
         <StatChip
           label="Agents"
           value={stats.totalAgents}
-          icon={<HugeiconsIcon icon={UserMultiple02Icon} size={12} strokeWidth={1.8} className="text-[var(--theme-muted)]" />}
+          icon={
+            <HugeiconsIcon
+              icon={UserMultiple02Icon}
+              size={12}
+              strokeWidth={1.8}
+              className="text-[var(--theme-muted)]"
+            />
+          }
         />
         <StatChip
           label="Running"
           value={stats.runningAgents}
           accent={stats.runningAgents > 0 ? 'var(--theme-success)' : undefined}
           pulse={stats.runningAgents > 0}
-          icon={<HugeiconsIcon icon={ActivitySparkIcon} size={12} strokeWidth={1.8} className="text-[var(--theme-muted)]" />}
+          icon={
+            <HugeiconsIcon
+              icon={ActivitySparkIcon}
+              size={12}
+              strokeWidth={1.8}
+              className="text-[var(--theme-muted)]"
+            />
+          }
         />
       </div>
       <RecentActivityFeed crews={crews} />
@@ -213,9 +255,7 @@ function CrewCard({
   isCloning: boolean
 }) {
   const status = STATUS_CONFIG[crew.status]
-  const activeCount = crew.members.filter(
-    (m) => m.status === 'running',
-  ).length
+  const activeCount = crew.members.filter((m) => m.status === 'running').length
 
   return (
     <div className="group relative rounded-xl border border-[var(--theme-border)] bg-[var(--theme-card)] p-4 transition-colors hover:border-[var(--theme-accent)]/40">
@@ -258,7 +298,8 @@ function CrewCard({
             title={`${m.displayName} — ${m.roleLabel} (${m.status})`}
             className={cn(
               'inline-flex items-center gap-1 rounded-full border border-[var(--theme-border)] px-2 py-0.5 text-[10px]',
-              m.status === 'running' && 'border-[var(--theme-accent)]/40 bg-[var(--theme-accent)]/10',
+              m.status === 'running' &&
+                'border-[var(--theme-accent)]/40 bg-[var(--theme-accent)]/10',
             )}
           >
             <span>{m.displayName.split(' ')[0]}</span>
@@ -366,7 +407,9 @@ export function CrewsScreen() {
       toast(`Cloned as "${crew.name}"`)
     },
     onError: (err) => {
-      toast(err instanceof Error ? err.message : 'Failed to clone crew', { type: 'error' })
+      toast(err instanceof Error ? err.message : 'Failed to clone crew', {
+        type: 'error',
+      })
     },
   })
 
@@ -441,18 +484,21 @@ export function CrewsScreen() {
           </div>
         ) : (
           <>
-          <StatsStrip crews={crews} />
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {crews.map((crew) => (
-              <CrewCard
-                key={crew.id}
-                crew={crew}
-                onDelete={(id) => deleteMutation.mutate(id)}
-                onClone={(id) => cloneMutation.mutate(id)}
-                isCloning={cloneMutation.isPending && cloneMutation.variables === crew.id}
-              />
-            ))}
-          </div>
+            <StatsStrip crews={crews} />
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {crews.map((crew) => (
+                <CrewCard
+                  key={crew.id}
+                  crew={crew}
+                  onDelete={(id) => deleteMutation.mutate(id)}
+                  onClone={(id) => cloneMutation.mutate(id)}
+                  isCloning={
+                    cloneMutation.isPending &&
+                    cloneMutation.variables === crew.id
+                  }
+                />
+              ))}
+            </div>
           </>
         )}
       </div>

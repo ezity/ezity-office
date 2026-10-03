@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 let tmpDir: string
 
@@ -27,7 +27,8 @@ describe('session-agent-store', () => {
   })
 
   it('setSessionAgent() stores mapping and getSessionAgent() retrieves it', async () => {
-    const { setSessionAgent, getSessionAgent, listSessionAgents } = await getStore()
+    const { setSessionAgent, getSessionAgent, listSessionAgents } =
+      await getStore()
     setSessionAgent('session-123', 'ezity-chief-of-staff')
 
     expect(getSessionAgent('session-123')).toBe('ezity-chief-of-staff')
@@ -37,7 +38,8 @@ describe('session-agent-store', () => {
   })
 
   it('deleteSessionAgent() removes mapping', async () => {
-    const { setSessionAgent, deleteSessionAgent, getSessionAgent } = await getStore()
+    const { setSessionAgent, deleteSessionAgent, getSessionAgent } =
+      await getStore()
     setSessionAgent('session-456', 'ezity-accountant')
     expect(getSessionAgent('session-456')).toBe('ezity-accountant')
 

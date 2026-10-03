@@ -5,22 +5,29 @@
  * the Hermes sessions API for conductor workers.
  */
 
-import type { OperationAgent, OperationAgentStatus } from '../types/operation'
 import { listCrews } from './crew-store'
-import type { CrewMemberStatus } from './crew-store'
 import { listSessions } from './hermes-api'
+import type { OperationAgent, OperationAgentStatus } from '../types/operation'
+import type { CrewMemberStatus } from './crew-store'
 
 function crewStatusToOpStatus(status: CrewMemberStatus): OperationAgentStatus {
   switch (status) {
-    case 'running': return 'online'
+    case 'running':
+      return 'online'
     case 'idle':
-    case 'done': return 'offline'
-    case 'error': return 'error'
-    default: return 'unknown'
+    case 'done':
+      return 'offline'
+    case 'error':
+      return 'error'
+    default:
+      return 'unknown'
   }
 }
 
-function sessionStatusToOpStatus(updatedAt: number | undefined | null, totalTokens: number): OperationAgentStatus {
+function sessionStatusToOpStatus(
+  updatedAt: number | undefined | null,
+  totalTokens: number,
+): OperationAgentStatus {
   if (!updatedAt) return 'unknown'
   const staleness = Date.now() - updatedAt * 1000
   if (totalTokens > 0 && staleness > 30_000) return 'offline'
@@ -29,8 +36,8 @@ function sessionStatusToOpStatus(updatedAt: number | undefined | null, totalToke
   return 'unknown'
 }
 
-export async function getOperationsOverview(): Promise<OperationAgent[]> {
-  const agents: OperationAgent[] = []
+export async function getOperationsOverview(): Promise<Array<OperationAgent>> {
+  const agents: Array<OperationAgent> = []
 
   // Crew agents — unchanged
   for (const crew of listCrews()) {
@@ -67,13 +74,18 @@ export async function getOperationsOverview(): Promise<OperationAgent[]> {
       const label = session.title ?? session.id ?? ''
       const key = session.id ?? ''
       // Match conductor worker sessions
-      if (!label.startsWith('worker-') && !label.startsWith('conductor-') && !key.includes(':subagent:')) {
+      if (
+        !label.startsWith('worker-') &&
+        !label.startsWith('conductor-') &&
+        !key.includes(':subagent:')
+      ) {
         continue
       }
       const updatedAt = session.last_active ?? session.started_at
       if (updatedAt && updatedAt * 1000 < cutoff) continue
 
-      const totalTokens = (session.input_tokens ?? 0) + (session.output_tokens ?? 0)
+      const totalTokens =
+        (session.input_tokens ?? 0) + (session.output_tokens ?? 0)
       const cleanLabel = label.replace(/^worker-/, '').replace(/[-_]+/g, ' ')
 
       agents.push({
@@ -84,7 +96,9 @@ export async function getOperationsOverview(): Promise<OperationAgent[]> {
         profileName: null,
         sessionKey: key,
         status: sessionStatusToOpStatus(updatedAt, totalTokens),
-        lastActivity: updatedAt ? new Date(updatedAt * 1000).toISOString() : null,
+        lastActivity: updatedAt
+          ? new Date(updatedAt * 1000).toISOString()
+          : null,
         totalTokens,
         totalCostUsd: 0,
         taskCount: 0,

@@ -339,7 +339,9 @@ function ModelCard() {
   const connectionQuery = useQuery({
     queryKey: ['hermes', 'connection-status'],
     queryFn: async () => {
-      const res = await fetch('/api/connection-status', { signal: AbortSignal.timeout(5000) })
+      const res = await fetch('/api/connection-status', {
+        signal: AbortSignal.timeout(5000),
+      })
       if (!res.ok) return null
       return res.json() as Promise<{ status: string; chatReady: boolean }>
     },
@@ -613,7 +615,7 @@ export function DashboardScreen() {
     refetchInterval: 30_000,
   })
 
-  const sessions = (sessionsQuery.data ?? [])
+  const sessions = sessionsQuery.data ?? []
 
   const stats = useMemo(() => {
     let totalMessages = 0,

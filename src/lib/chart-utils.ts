@@ -28,14 +28,17 @@ export type SessionUsage = {
  * no gaps. Timestamps may be seconds or milliseconds — auto-detected.
  */
 export function buildDayBuckets(
-  sessions: SessionUsage[],
+  sessions: Array<SessionUsage>,
   now = Date.now(),
-): DayBucket[] {
+): Array<DayBucket> {
   const buckets = new Map<string, DayBucket>()
 
   for (let i = CHART_DAYS - 1; i >= 0; i--) {
     const d = new Date(now - i * 86_400_000)
-    const key = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    const key = d.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    })
     buckets.set(key, { date: key, input: 0, output: 0, cost: 0 })
   }
 

@@ -9,19 +9,15 @@ import { isAuthenticated } from '../../../server/auth-middleware'
 import { requireJsonContentType } from '../../../server/rate-limit'
 import { AGENT_PERSONAS } from '../../../lib/agent-personas'
 import { listAgents } from '../../../server/agent-definitions-store'
+import { createCrew, listCrews } from '../../../server/crew-store'
 import {
-  createCrew,
-  listCrews,
-} from '../../../server/crew-store'
-import {
-  ensureGatewayProbed,
-  getGatewayCapabilities,
+  createSession,
+  ensureGatewayProbed, getGatewayCapabilities 
 } from '../../../server/hermes-api'
 import {
   ensureLocalSession,
   toLocalSessionSummary,
 } from '../../../server/local-session-store'
-import { createSession } from '../../../server/hermes-api'
 import { setSessionAgent } from '../../../server/session-agent-store'
 
 /**
@@ -76,10 +72,8 @@ export const Route = createFileRoute('/api/crews/')({
           unknown
         >
 
-        const name =
-          typeof body.name === 'string' ? body.name.trim() : ''
-        const goal =
-          typeof body.goal === 'string' ? body.goal.trim() : ''
+        const name = typeof body.name === 'string' ? body.name.trim() : ''
+        const goal = typeof body.goal === 'string' ? body.goal.trim() : ''
 
         if (!name) {
           return json({ ok: false, error: 'name is required' }, { status: 400 })
@@ -126,10 +120,12 @@ export const Route = createFileRoute('/api/crews/')({
             const model =
               agentDef?.model ??
               (typeof m.model === 'string' && m.model ? m.model : null)
-            const role =
-              typeof m.role === 'string' ? m.role : 'executor'
+            const role = typeof m.role === 'string' ? m.role : 'executor'
 
-            const sessionKey = await mintSession(displayName.toLowerCase(), model)
+            const sessionKey = await mintSession(
+              displayName.toLowerCase(),
+              model,
+            )
             if (agentDef?.id && sessionKey) {
               setSessionAgent(sessionKey, agentDef.id)
             }

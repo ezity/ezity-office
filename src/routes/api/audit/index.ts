@@ -26,11 +26,15 @@ export const Route = createFileRoute('/api/audit/')({
         }
 
         const url = new URL(request.url)
-        const sessionKey = url.searchParams.get('sessionKey')?.trim() || undefined
+        const sessionKey =
+          url.searchParams.get('sessionKey')?.trim() || undefined
 
         const typesParam = url.searchParams.get('types')
         const eventTypes = typesParam
-          ? typesParam.split(',').map((t) => t.trim()).filter(Boolean)
+          ? typesParam
+              .split(',')
+              .map((t) => t.trim())
+              .filter(Boolean)
           : DEFAULT_TYPES
 
         const sinceParam = url.searchParams.get('since')
@@ -38,15 +42,28 @@ export const Route = createFileRoute('/api/audit/')({
         const limitParam = url.searchParams.get('limit') ?? '100'
         const offsetParam = url.searchParams.get('offset') ?? '0'
 
-        const since = sinceParam && /^\d+$/.test(sinceParam) ? parseInt(sinceParam, 10) : undefined
-        const until = untilParam && /^\d+$/.test(untilParam) ? parseInt(untilParam, 10) : undefined
+        const since =
+          sinceParam && /^\d+$/.test(sinceParam)
+            ? parseInt(sinceParam, 10)
+            : undefined
+        const until =
+          untilParam && /^\d+$/.test(untilParam)
+            ? parseInt(untilParam, 10)
+            : undefined
         const limit = Math.min(
           /^\d+$/.test(limitParam) ? parseInt(limitParam, 10) : 100,
           MAX_LIMIT,
         )
         const offset = /^\d+$/.test(offsetParam) ? parseInt(offsetParam, 10) : 0
 
-        const result = queryAuditEvents({ sessionKey, eventTypes, since, until, limit, offset })
+        const result = queryAuditEvents({
+          sessionKey,
+          eventTypes,
+          since,
+          until,
+          limit,
+          offset,
+        })
 
         return json({
           ok: true,

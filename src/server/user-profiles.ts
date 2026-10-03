@@ -9,7 +9,7 @@ export type UserRole = 'super_admin' | 'regular_admin'
 export interface UserProfile {
   userId: string
   role: UserRole
-  profileIds: string[] // Profiles this user can access
+  profileIds: Array<string> // Profiles this user can access
 }
 
 const USERS_KEY = 'hermes:studio:users'
@@ -60,7 +60,10 @@ export function getUserProfile(userId: string): UserProfile {
 /**
  * Update a user's role and profile bindings.
  */
-export function updateUserProfile(userId: string, updates: Partial<UserProfile>): UserProfile {
+export function updateUserProfile(
+  userId: string,
+  updates: Partial<UserProfile>,
+): UserProfile {
   const current = getUserProfile(userId)
   const updated: UserProfile = {
     ...current,
@@ -83,7 +86,10 @@ export function updateUserProfile(userId: string, updates: Partial<UserProfile>)
 /**
  * Add a profile to a user's bindings.
  */
-export function addProfileBinding(userId: string, profileId: string): UserProfile {
+export function addProfileBinding(
+  userId: string,
+  profileId: string,
+): UserProfile {
   const profile = getUserProfile(userId)
   if (!profile.profileIds.includes(profileId)) {
     profile.profileIds.push(profileId)
@@ -94,7 +100,10 @@ export function addProfileBinding(userId: string, profileId: string): UserProfil
 /**
  * Remove a profile from a user's bindings.
  */
-export function removeProfileBinding(userId: string, profileId: string): UserProfile {
+export function removeProfileBinding(
+  userId: string,
+  profileId: string,
+): UserProfile {
   const profile = getUserProfile(userId)
   profile.profileIds = profile.profileIds.filter((id) => id !== profileId)
   return updateUserProfile(userId, profile)
@@ -113,7 +122,7 @@ export function canAccessProfile(userId: string, profileId: string): boolean {
 /**
  * Get all profiles a user can access.
  */
-export function getAccessibleProfiles(userId: string): string[] {
+export function getAccessibleProfiles(userId: string): Array<string> {
   const profile = getUserProfile(userId)
   if (profile.role === 'super_admin') return [] // null = all profiles
   return profile.profileIds

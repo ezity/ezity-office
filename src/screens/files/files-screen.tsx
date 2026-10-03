@@ -656,9 +656,7 @@ function Breadcrumb({ path }: { path: string }) {
       <span className="shrink-0">workspace</span>
       {parts.map((part, i) => (
         <span key={i} className="flex items-center gap-1 min-w-0">
-          <span className="shrink-0 text-[var(--theme-muted)] ">
-            /
-          </span>
+          <span className="shrink-0 text-[var(--theme-muted)] ">/</span>
           <span
             className={cn(
               'truncate',
@@ -926,7 +924,9 @@ function FilePanel({ selectedEntry }: FilePanelProps) {
                 className="max-h-full max-w-full rounded-lg border border-[var(--theme-border)]  shadow-sm object-contain"
               />
             ) : (
-              <div className="text-sm text-[var(--theme-muted)]">No preview</div>
+              <div className="text-sm text-[var(--theme-muted)]">
+                No preview
+              </div>
             )}
           </div>
           {footer}

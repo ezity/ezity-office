@@ -55,10 +55,7 @@ export function ChatEmptyState({
               transform: 'scale(1.6)',
             }}
           />
-          <EZityLogoMark
-            size="xl"
-            className="relative size-20 rounded-2xl"
-          />
+          <EZityLogoMark size="xl" className="relative size-20 rounded-2xl" />
         </div>
 
         {/* Title + value prop */}
@@ -68,14 +65,18 @@ export function ChatEmptyState({
         >
           EZity AI Office
         </h2>
-        <p className="mt-1 text-xs font-medium" style={{ color: 'var(--theme-muted)' }}>
+        <p
+          className="mt-1 text-xs font-medium"
+          style={{ color: 'var(--theme-muted)' }}
+        >
           EZity Solutions &middot; AI Workforce &amp; Operations
         </p>
 
         {!compact && (
           <>
             <p className="mt-2 text-sm" style={{ color: 'var(--theme-muted)' }}>
-              Agent chat &middot; live tools &middot; memory &middot; full observability
+              Agent chat &middot; live tools &middot; memory &middot; full
+              observability
             </p>
           </>
         )}

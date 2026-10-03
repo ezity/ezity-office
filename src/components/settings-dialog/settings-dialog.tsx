@@ -147,69 +147,69 @@ const PROVIDER_CARDS: Array<{
   authType: 'oauth' | 'api_key' | 'none'
   envKey?: string
 }> = [
-    {
-      id: 'nous',
-      name: 'Nous Portal',
-      logo: '/providers/nous.png',
-      models: ['hermes-3-llama-3.1-405b', 'hermes-3-llama-3.1-70b'],
-      authType: 'oauth',
-    },
-    {
-      id: 'openai-codex',
-      name: 'OpenAI Codex',
-      logo: '/providers/openai.png',
-      models: ['gpt-5.4', 'gpt-5.3-codex', 'gpt-4o'],
-      authType: 'oauth',
-    },
-    {
-      id: 'anthropic',
-      name: 'Anthropic',
-      logo: '/providers/anthropic.png',
-      models: ['claude-sonnet-4-6', 'claude-opus-4-6', 'claude-haiku-3-5'],
-      authType: 'api_key',
-      envKey: 'ANTHROPIC_API_KEY',
-    },
-    {
-      id: 'openrouter',
-      name: 'OpenRouter',
-      logo: '/providers/openrouter.png',
-      models: ['auto', 'deepseek/deepseek-r1', 'google/gemini-2.5-pro'],
-      authType: 'api_key',
-      envKey: 'OPENROUTER_API_KEY',
-    },
-    {
-      id: 'zai',
-      name: 'Z.AI / GLM',
-      logo: '/providers/zhipu.png',
-      models: ['glm-4-plus', 'glm-4-air'],
-      authType: 'api_key',
-      envKey: 'GLM_API_KEY',
-    },
-    {
-      id: 'kimi-coding',
-      name: 'Kimi',
-      logo: '/providers/kimi.png',
-      models: ['kimi-latest', 'moonshot-v1-128k'],
-      authType: 'api_key',
-      envKey: 'KIMI_API_KEY',
-    },
-    {
-      id: 'minimax',
-      name: 'MiniMax',
-      logo: '/providers/minimax.png',
-      models: ['MiniMax-M2.5', 'MiniMax-M2.5-Lightning'],
-      authType: 'api_key',
-      envKey: 'MINIMAX_API_KEY',
-    },
-    {
-      id: 'ollama',
-      name: 'Ollama',
-      logo: '/providers/ollama.png',
-      models: ['llama3.1:70b', 'qwen3:32b', 'deepseek-r1:32b'],
-      authType: 'none',
-    },
-    { id: 'custom', name: 'Custom', logo: '', models: [], authType: 'api_key' },
-  ]
+  {
+    id: 'nous',
+    name: 'Nous Portal',
+    logo: '/providers/nous.png',
+    models: ['hermes-3-llama-3.1-405b', 'hermes-3-llama-3.1-70b'],
+    authType: 'oauth',
+  },
+  {
+    id: 'openai-codex',
+    name: 'OpenAI Codex',
+    logo: '/providers/openai.png',
+    models: ['gpt-5.4', 'gpt-5.3-codex', 'gpt-4o'],
+    authType: 'oauth',
+  },
+  {
+    id: 'anthropic',
+    name: 'Anthropic',
+    logo: '/providers/anthropic.png',
+    models: ['claude-sonnet-4-6', 'claude-opus-4-6', 'claude-haiku-3-5'],
+    authType: 'api_key',
+    envKey: 'ANTHROPIC_API_KEY',
+  },
+  {
+    id: 'openrouter',
+    name: 'OpenRouter',
+    logo: '/providers/openrouter.png',
+    models: ['auto', 'deepseek/deepseek-r1', 'google/gemini-2.5-pro'],
+    authType: 'api_key',
+    envKey: 'OPENROUTER_API_KEY',
+  },
+  {
+    id: 'zai',
+    name: 'Z.AI / GLM',
+    logo: '/providers/zhipu.png',
+    models: ['glm-4-plus', 'glm-4-air'],
+    authType: 'api_key',
+    envKey: 'GLM_API_KEY',
+  },
+  {
+    id: 'kimi-coding',
+    name: 'Kimi',
+    logo: '/providers/kimi.png',
+    models: ['kimi-latest', 'moonshot-v1-128k'],
+    authType: 'api_key',
+    envKey: 'KIMI_API_KEY',
+  },
+  {
+    id: 'minimax',
+    name: 'MiniMax',
+    logo: '/providers/minimax.png',
+    models: ['MiniMax-M2.5', 'MiniMax-M2.5-Lightning'],
+    authType: 'api_key',
+    envKey: 'MINIMAX_API_KEY',
+  },
+  {
+    id: 'ollama',
+    name: 'Ollama',
+    logo: '/providers/ollama.png',
+    models: ['llama3.1:70b', 'qwen3:32b', 'deepseek-r1:32b'],
+    authType: 'none',
+  },
+  { id: 'custom', name: 'Custom', logo: '', models: [], authType: 'api_key' },
+]
 
 function HermesContent() {
   const configAvailable = useFeatureAvailable('config')
@@ -259,7 +259,7 @@ function HermesContent() {
         }
         setConfiguredKeys(keys)
       })
-      .catch(() => { })
+      .catch(() => {})
   }, [])
 
   const save = async (updates: {
@@ -411,7 +411,7 @@ function HermesContent() {
             {(availableModels.length > 0
               ? availableModels
               : PROVIDER_CARDS.find((p) => p.id === activeProvider)?.models ||
-              []
+                []
             ).map((model) => (
               <button
                 key={model}
@@ -815,18 +815,50 @@ function AppearanceContent() {
   )
 }
 
-
-const THEME_PREVIEWS: Record<string, { bg: string; panel: string; border: string; accent: string; text: string }> = {
-  'hermes-official': { bg: '#0A0E1A', panel: '#11182A', border: '#24304A', accent: '#6366F1', text: '#E6EAF2' },
-  'hermes-classic': { bg: '#0d0f12', panel: '#1a1f26', border: '#2a313b', accent: '#b98a44', text: '#eceff4' },
-  'hermes-slate': { bg: '#0d1117', panel: '#1c2128', border: '#30363d', accent: '#7eb8f6', text: '#c9d1d9' },
-  'hermes-mono': { bg: '#111111', panel: '#222222', border: '#333333', accent: '#aaaaaa', text: '#e6edf3' },
+const THEME_PREVIEWS: Record<
+  string,
+  { bg: string; panel: string; border: string; accent: string; text: string }
+> = {
+  'hermes-official': {
+    bg: '#0A0E1A',
+    panel: '#11182A',
+    border: '#24304A',
+    accent: '#6366F1',
+    text: '#E6EAF2',
+  },
+  'hermes-classic': {
+    bg: '#0d0f12',
+    panel: '#1a1f26',
+    border: '#2a313b',
+    accent: '#b98a44',
+    text: '#eceff4',
+  },
+  'hermes-slate': {
+    bg: '#0d1117',
+    panel: '#1c2128',
+    border: '#30363d',
+    accent: '#7eb8f6',
+    text: '#c9d1d9',
+  },
+  'hermes-mono': {
+    bg: '#111111',
+    panel: '#222222',
+    border: '#333333',
+    accent: '#aaaaaa',
+    text: '#e6edf3',
+  },
 }
 
 const ENTERPRISE_THEMES = THEMES.map((theme) => ({
   ...theme,
   desc: theme.description,
-  preview: THEME_PREVIEWS[theme.id] ?? { bg: '#080c14', panel: '#111827', border: '#1e293b', accent: '#38bdf8', text: '#e2e8f0' },
+  preview: THEME_PREVIEWS[theme.id] ?? {
+    bg: '#080c14',
+    panel: '#111827',
+    border: '#1e293b',
+    accent: '#38bdf8',
+    text: '#e2e8f0',
+  },
 }))
 
 function ThemeSwatch({
@@ -1107,7 +1139,9 @@ function _AdvancedContent() {
 
   const urlErrorId = 'hermes-url-error'
 
-  const [backupStatus, setBackupStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle')
+  const [backupStatus, setBackupStatus] = useState<
+    'idle' | 'running' | 'done' | 'error'
+  >('idle')
   const importRef = useRef<HTMLInputElement>(null)
 
   async function triggerBackup() {
@@ -1160,7 +1194,10 @@ function _AdvancedContent() {
             )}
           </div>
         </Row>
-        <Row label="API Server Key" description="API_SERVER_KEY for non-loopback Hermes instances (v0.9.0)">
+        <Row
+          label="API Server Key"
+          description="API_SERVER_KEY for non-loopback Hermes instances (v0.9.0)"
+        >
           <Input
             type="password"
             placeholder="sk-…"
@@ -1175,13 +1212,13 @@ function _AdvancedContent() {
             className={cn(
               'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium',
               connectionStatus === 'connected' &&
-              'border-green-500/35 bg-green-500/10 text-green-600',
+                'border-green-500/35 bg-green-500/10 text-green-600',
               connectionStatus === 'failed' &&
-              'border-red-500/35 bg-red-500/10 text-red-600',
+                'border-red-500/35 bg-red-500/10 text-red-600',
               connectionStatus === 'testing' &&
-              'border-accent-500/35 bg-accent-500/10 text-accent-600',
+                'border-accent-500/35 bg-accent-500/10 text-accent-600',
               connectionStatus === 'idle' &&
-              'border-primary-300 bg-primary-100 text-primary-700',
+                'border-primary-300 bg-primary-100 text-primary-700',
             )}
           >
             {connectionStatus === 'idle'
@@ -1209,7 +1246,10 @@ function _AdvancedContent() {
         </Row>
       </div>
       <div className={SETTINGS_CARD_CLASS}>
-        <Row label="Backup" description="Export config, sessions, skills, and memory to a snapshot file.">
+        <Row
+          label="Backup"
+          description="Export config, sessions, skills, and memory to a snapshot file."
+        >
           <Button
             variant="outline"
             size="sm"
@@ -1217,10 +1257,19 @@ function _AdvancedContent() {
             disabled={backupStatus === 'running'}
             className="h-8 rounded-lg border-primary-200 px-3"
           >
-            {backupStatus === 'running' ? 'Backing up…' : backupStatus === 'done' ? 'Done ✓' : backupStatus === 'error' ? 'Error' : 'Create backup'}
+            {backupStatus === 'running'
+              ? 'Backing up…'
+              : backupStatus === 'done'
+                ? 'Done ✓'
+                : backupStatus === 'error'
+                  ? 'Error'
+                  : 'Create backup'}
           </Button>
         </Row>
-        <Row label="Import" description="Restore a previously created backup archive.">
+        <Row
+          label="Import"
+          description="Restore a previously created backup archive."
+        >
           <div>
             <input
               ref={importRef}
@@ -1290,7 +1339,7 @@ function AgentBehaviorContent() {
       .then((d: any) => {
         setConfig((d.config?.agent as Record<string, unknown>) || {})
       })
-      .catch(() => { })
+      .catch(() => {})
   }, [])
 
   const save = async (key: string, value: unknown) => {
@@ -1382,13 +1431,13 @@ function SmartRoutingContent() {
           (d.config?.smart_model_routing as Record<string, unknown>) || {},
         )
       })
-      .catch(() => { })
+      .catch(() => {})
     fetch('/api/models')
       .then((r) => r.json())
       .then((d: any) => {
         setModels(d.models || [])
       })
-      .catch(() => { })
+      .catch(() => {})
   }, [])
 
   const save = async (key: string, value: unknown) => {
@@ -1493,7 +1542,7 @@ function VoiceContent() {
         setTts((d.config?.tts as Record<string, unknown>) || {})
         setStt((d.config?.stt as Record<string, unknown>) || {})
       })
-      .catch(() => { })
+      .catch(() => {})
   }, [])
 
   const saveTts = async (key: string, value: unknown) => {
@@ -1626,7 +1675,7 @@ function DisplayContent() {
       .then((d: any) => {
         setConfig((d.config?.display as Record<string, unknown>) || {})
       })
-      .catch(() => { })
+      .catch(() => {})
   }, [])
 
   const save = async (key: string, value: unknown) => {
@@ -1796,7 +1845,7 @@ export function SettingsDialog({
                       className={cn(
                         'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-primary-600 transition-colors hover:bg-primary-100',
                         active === s.id &&
-                        'bg-accent-50 font-medium text-accent-700',
+                          'bg-accent-50 font-medium text-accent-700',
                       )}
                     >
                       <HugeiconsIcon

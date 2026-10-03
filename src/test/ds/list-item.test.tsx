@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { ListItem } from '@/components/ds/list-item'
 
 describe('ListItem', () => {
@@ -40,6 +40,8 @@ describe('ListItem', () => {
 
   it('applies active style when active=true', () => {
     const { container } = render(<ListItem label="L" active />)
-    expect((container.firstChild as HTMLElement).className).toContain('--theme-accent-subtle')
+    expect((container.firstChild as HTMLElement).className).toContain(
+      '--theme-accent-subtle',
+    )
   })
 })

@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon } from '@hugeicons/core-free-icons'
-import { AGENT_PERSONAS } from '@/lib/agent-personas'
-import { fetchAgents } from '@/lib/agents-api'
 import type { AgentDefinition } from '@/types/agent'
 import type { CreateCrewInput, CrewMemberRole } from '@/lib/crews-api'
+import { AGENT_PERSONAS } from '@/lib/agent-personas'
+import { fetchAgents } from '@/lib/agents-api'
 import { cn } from '@/lib/utils'
 
 const ROLES: Array<{ value: CrewMemberRole; label: string }> = [
@@ -22,7 +22,7 @@ type MemberDraft = {
   role: CrewMemberRole
 }
 
-function getInitialMembers(): MemberDraft[] {
+function getInitialMembers(): Array<MemberDraft> {
   return [
     { persona: 'kai', role: 'coordinator' },
     { persona: 'luna', role: 'executor' },
@@ -50,7 +50,7 @@ export function CreateCrewDialog({
 }: Props) {
   const [name, setName] = useState(initialName ?? '')
   const [goal, setGoal] = useState(initialGoal ?? '')
-  const [members, setMembers] = useState<MemberDraft[]>(
+  const [members, setMembers] = useState<Array<MemberDraft>>(
     initialMembers ?? getInitialMembers(),
   )
 
@@ -63,21 +63,24 @@ export function CreateCrewDialog({
   })
 
   // Merge AGENT_PERSONAS display info with custom agents for picker options
-  const agentOptions = allAgents.length > 0
-    ? allAgents
-    : AGENT_PERSONAS.map((p): AgentDefinition => ({
-        id: `builtin-${p.name.toLowerCase()}`,
-        name: p.name,
-        emoji: p.emoji,
-        color: p.color,
-        roleLabel: p.role,
-        systemPrompt: '',
-        model: null,
-        tags: [],
-        isBuiltIn: true,
-        createdAt: 0,
-        updatedAt: 0,
-      }))
+  const agentOptions =
+    allAgents.length > 0
+      ? allAgents
+      : AGENT_PERSONAS.map(
+          (p): AgentDefinition => ({
+            id: `builtin-${p.name.toLowerCase()}`,
+            name: p.name,
+            emoji: p.emoji,
+            color: p.color,
+            roleLabel: p.role,
+            systemPrompt: '',
+            model: null,
+            tags: [],
+            isBuiltIn: true,
+            createdAt: 0,
+            updatedAt: 0,
+          }),
+        )
 
   useEffect(() => {
     if (!open) {
@@ -173,8 +176,7 @@ export function CreateCrewDialog({
           {/* Goal */}
           <div>
             <label className="mb-1.5 block text-xs font-medium text-[var(--theme-muted)]">
-              Goal{' '}
-              <span className="font-normal opacity-60">(optional)</span>
+              Goal <span className="font-normal opacity-60">(optional)</span>
             </label>
             <textarea
               value={goal}
@@ -220,40 +222,52 @@ export function CreateCrewDialog({
                       className="flex-1 rounded border-0 bg-transparent text-sm text-[var(--theme-text)] focus:outline-none cursor-pointer"
                     >
                       {agentOptions.length > AGENT_PERSONAS.length && (
-                        <optgroup label="Built-in" className="bg-[var(--theme-bg)]">
-                          {agentOptions.filter((a) => a.isBuiltIn).map((a) => (
-                            <option
-                              key={a.id}
-                              value={a.name.toLowerCase()}
-                              className="bg-[var(--theme-bg)]"
-                            >
-                              {a.emoji} {a.name} — {a.roleLabel}
-                            </option>
-                          ))}
-                        </optgroup>
-                      )}
-                      {agentOptions.length > AGENT_PERSONAS.length && agentOptions.some((a) => !a.isBuiltIn) && (
-                        <optgroup label="Custom" className="bg-[var(--theme-bg)]">
-                          {agentOptions.filter((a) => !a.isBuiltIn).map((a) => (
-                            <option
-                              key={a.id}
-                              value={a.name.toLowerCase()}
-                              className="bg-[var(--theme-bg)]"
-                            >
-                              {a.emoji} {a.name} — {a.roleLabel}
-                            </option>
-                          ))}
-                        </optgroup>
-                      )}
-                      {agentOptions.length <= AGENT_PERSONAS.length && agentOptions.map((a) => (
-                        <option
-                          key={a.id}
-                          value={a.name.toLowerCase()}
+                        <optgroup
+                          label="Built-in"
                           className="bg-[var(--theme-bg)]"
                         >
-                          {a.emoji} {a.name} — {a.roleLabel}
-                        </option>
-                      ))}
+                          {agentOptions
+                            .filter((a) => a.isBuiltIn)
+                            .map((a) => (
+                              <option
+                                key={a.id}
+                                value={a.name.toLowerCase()}
+                                className="bg-[var(--theme-bg)]"
+                              >
+                                {a.emoji} {a.name} — {a.roleLabel}
+                              </option>
+                            ))}
+                        </optgroup>
+                      )}
+                      {agentOptions.length > AGENT_PERSONAS.length &&
+                        agentOptions.some((a) => !a.isBuiltIn) && (
+                          <optgroup
+                            label="Custom"
+                            className="bg-[var(--theme-bg)]"
+                          >
+                            {agentOptions
+                              .filter((a) => !a.isBuiltIn)
+                              .map((a) => (
+                                <option
+                                  key={a.id}
+                                  value={a.name.toLowerCase()}
+                                  className="bg-[var(--theme-bg)]"
+                                >
+                                  {a.emoji} {a.name} — {a.roleLabel}
+                                </option>
+                              ))}
+                          </optgroup>
+                        )}
+                      {agentOptions.length <= AGENT_PERSONAS.length &&
+                        agentOptions.map((a) => (
+                          <option
+                            key={a.id}
+                            value={a.name.toLowerCase()}
+                            className="bg-[var(--theme-bg)]"
+                          >
+                            {a.emoji} {a.name} — {a.roleLabel}
+                          </option>
+                        ))}
                     </select>
 
                     {/* Role picker */}

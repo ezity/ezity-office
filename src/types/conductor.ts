@@ -64,11 +64,11 @@ export type MissionHistoryEntry = {
   status: 'completed' | 'failed'
   projectPath: string | null
   outputPath?: string | null
-  workerSummary?: string[]
+  workerSummary?: Array<string>
   outputText?: string
   streamText?: string
   completeSummary?: string
-  workerDetails?: MissionHistoryWorkerDetail[]
+  workerDetails?: Array<MissionHistoryWorkerDetail>
   error?: string | null
   isEZityStaff?: boolean
 }
@@ -76,7 +76,12 @@ export type MissionHistoryEntry = {
 export type StreamEvent =
   | { type: 'assistant'; text: string }
   | { type: 'thinking'; text: string }
-  | { type: 'tool'; name?: string; phase?: string; data?: Record<string, unknown> }
+  | {
+      type: 'tool'
+      name?: string
+      phase?: string
+      data?: Record<string, unknown>
+    }
   | { type: 'done'; state?: string; message?: string }
   | { type: 'error'; message: string }
   | { type: 'started'; runId?: string; sessionKey?: string }
@@ -89,13 +94,13 @@ export type PersistedMission = {
   pausedElapsedMs: number
   accumulatedPausedMs: number
   pauseStartedAt: string | null
-  workerKeys: string[]
-  workerLabels: string[]
+  workerKeys: Array<string>
+  workerLabels: Array<string>
   workerOutputs: Record<string, string>
   streamText: string
   planText: string
   completedAt: string | null
-  tasks: ConductorTask[]
+  tasks: Array<ConductorTask>
   isEZityStaff?: boolean
 }
 

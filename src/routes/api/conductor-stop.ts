@@ -12,17 +12,23 @@ export const Route = createFileRoute('/api/conductor-stop')({
     handlers: {
       POST: async ({ request }) => {
         if (!isAuthenticated(request)) {
-          return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), {
-            status: 401,
-            headers: { 'Content-Type': 'application/json' },
-          })
+          return new Response(
+            JSON.stringify({ ok: false, error: 'Unauthorized' }),
+            {
+              status: 401,
+              headers: { 'Content-Type': 'application/json' },
+            },
+          )
         }
         const csrfCheck = requireJsonContentType(request)
         if (csrfCheck) return csrfCheck
 
         try {
           await ensureGatewayProbed()
-          const body = (await request.json().catch(() => ({}))) as Record<string, unknown>
+          const body = (await request.json().catch(() => ({}))) as Record<
+            string,
+            unknown
+          >
           const sessionKeys = Array.isArray(body.sessionKeys)
             ? body.sessionKeys.filter(
                 (value): value is string =>
@@ -40,10 +46,10 @@ export const Route = createFileRoute('/api/conductor-stop')({
             }
           }
 
-          return new Response(
-            JSON.stringify({ ok: true, deleted }),
-            { status: 200, headers: { 'Content-Type': 'application/json' } },
-          )
+          return new Response(JSON.stringify({ ok: true, deleted }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          })
         } catch (error) {
           return new Response(
             JSON.stringify({

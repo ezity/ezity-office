@@ -17,22 +17,26 @@ const CREWS_FILE = join(DATA_DIR, 'crews.json')
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type CrewMemberStatus = 'idle' | 'running' | 'done' | 'error'
-export type CrewMemberRole = 'coordinator' | 'executor' | 'reviewer' | 'specialist'
+export type CrewMemberRole =
+  | 'coordinator'
+  | 'executor'
+  | 'reviewer'
+  | 'specialist'
 export type CrewStatus = 'draft' | 'active' | 'paused' | 'complete'
 
 export interface CrewMember {
   id: string
   sessionKey: string
   role: CrewMemberRole
-  persona: string        // 'roger', 'sally', etc.
-  displayName: string    // '🎨 Roger'
-  roleLabel: string      // 'Frontend Developer'
-  color: string          // Tailwind color class
+  persona: string // 'roger', 'sally', etc.
+  displayName: string // '🎨 Roger'
+  roleLabel: string // 'Frontend Developer'
+  color: string // Tailwind color class
   model: string | null
   /** Optional profile name — scopes this agent's file explorer to that profile's workspace */
   profileName: string | null
   status: CrewMemberStatus
-  lastActivity: string | null  // ISO string of latest message preview
+  lastActivity: string | null // ISO string of latest message preview
 }
 
 export interface Crew {
@@ -42,7 +46,7 @@ export interface Crew {
   status: CrewStatus
   createdAt: number
   updatedAt: number
-  members: CrewMember[]
+  members: Array<CrewMember>
 }
 
 type StoreData = { crews: Record<string, Crew> }
@@ -90,7 +94,7 @@ loadFromDisk()
 
 // ─── Public API ──────────────────────────────────────────────────────────────
 
-export function listCrews(): Crew[] {
+export function listCrews(): Array<Crew> {
   return Object.values(store.crews).sort((a, b) => b.updatedAt - a.updatedAt)
 }
 
@@ -101,7 +105,11 @@ export function getCrew(crewId: string): Crew | null {
 export function createCrew(input: {
   name: string
   goal: string
-  members: Array<Omit<CrewMember, 'id' | 'status' | 'lastActivity'> & { profileName?: string | null }>
+  members: Array<
+    Omit<CrewMember, 'id' | 'status' | 'lastActivity'> & {
+      profileName?: string | null
+    }
+  >
 }): Crew {
   const now = Date.now()
   const crew: Crew = {
@@ -120,7 +128,7 @@ export function createCrew(input: {
     })),
   }
   store.crews[crew.id] = crew
-  saveToDisk()  // sync write — important for correctness on first create
+  saveToDisk() // sync write — important for correctness on first create
   return crew
 }
 

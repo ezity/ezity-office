@@ -22,7 +22,11 @@ async function fetchStatus(): Promise<ConnectionStatus> {
   return res.json() as Promise<ConnectionStatus>
 }
 
-function StatusPip({ status }: { status: ConnectionStatus['status'] | undefined }) {
+function StatusPip({
+  status,
+}: {
+  status: ConnectionStatus['status'] | undefined
+}) {
   const color =
     status === 'enhanced' || status === 'connected'
       ? '#22d3ee'
@@ -45,7 +49,10 @@ function StatusPip({ status }: { status: ConnectionStatus['status'] | undefined 
 function truncateModel(model: string): string {
   if (!model) return '—'
   // Strip common prefixes for display
-  return model.replace(/^(accounts\/|fireworks\/|openai\/|anthropic\/|meta-llama\/)/i, '')
+  return model.replace(
+    /^(accounts\/|fireworks\/|openai\/|anthropic\/|meta-llama\/)/i,
+    '',
+  )
 }
 
 export function AgentStatusStrip() {
@@ -68,12 +75,15 @@ export function AgentStatusStrip() {
   })()
 
   const model = truncateModel(data?.activeModel ?? '')
-  const statusLabel =
-    isLoading ? 'PROBING' :
-    data?.status === 'enhanced' ? 'ENHANCED' :
-    data?.status === 'connected' ? 'ONLINE' :
-    data?.status === 'partial' ? 'PARTIAL' :
-    'OFFLINE'
+  const statusLabel = isLoading
+    ? 'PROBING'
+    : data?.status === 'enhanced'
+      ? 'ENHANCED'
+      : data?.status === 'connected'
+        ? 'ONLINE'
+        : data?.status === 'partial'
+          ? 'PARTIAL'
+          : 'OFFLINE'
 
   return (
     <div className="agent-status-strip" aria-hidden="true">
@@ -87,15 +97,29 @@ export function AgentStatusStrip() {
       </span>
 
       {/* Separator */}
-      <span style={{ color: '#18263c', fontSize: 16, lineHeight: 1, userSelect: 'none' }}>│</span>
+      <span
+        style={{
+          color: '#18263c',
+          fontSize: 16,
+          lineHeight: 1,
+          userSelect: 'none',
+        }}
+      >
+        │
+      </span>
 
       {/* Session */}
       {sessionLabel ? (
         <span style={{ color: 'rgba(103,232,249,0.55)', fontSize: 9 }}>
-          SESSION <span style={{ color: 'rgba(103,232,249,0.85)' }}>{sessionLabel}</span>
+          SESSION{' '}
+          <span style={{ color: 'rgba(103,232,249,0.85)' }}>
+            {sessionLabel}
+          </span>
         </span>
       ) : (
-        <span style={{ color: 'rgba(103,232,249,0.3)', fontSize: 9 }}>NO ACTIVE SESSION</span>
+        <span style={{ color: 'rgba(103,232,249,0.3)', fontSize: 9 }}>
+          NO ACTIVE SESSION
+        </span>
       )}
 
       {/* Grow */}
@@ -103,18 +127,38 @@ export function AgentStatusStrip() {
 
       {/* Model */}
       {model !== '—' && (
-        <span style={{ color: 'rgba(129,140,248,0.8)', fontSize: 9, maxWidth: 180 }} className="truncate">
+        <span
+          style={{ color: 'rgba(129,140,248,0.8)', fontSize: 9, maxWidth: 180 }}
+          className="truncate"
+        >
           {model}
         </span>
       )}
 
       {/* Separator */}
-      <span style={{ color: '#18263c', fontSize: 16, lineHeight: 1, userSelect: 'none' }}>│</span>
+      <span
+        style={{
+          color: '#18263c',
+          fontSize: 16,
+          lineHeight: 1,
+          userSelect: 'none',
+        }}
+      >
+        │
+      </span>
 
       {/* Status */}
       <span className="flex items-center gap-1.5">
         <StatusPip status={data?.status} />
-        <span style={{ color: data?.status === 'connected' || data?.status === 'enhanced' ? 'rgba(34,211,238,0.75)' : 'rgba(251,191,36,0.75)', fontSize: 9 }}>
+        <span
+          style={{
+            color:
+              data?.status === 'connected' || data?.status === 'enhanced'
+                ? 'rgba(34,211,238,0.75)'
+                : 'rgba(251,191,36,0.75)',
+            fontSize: 9,
+          }}
+        >
           {statusLabel}
         </span>
       </span>

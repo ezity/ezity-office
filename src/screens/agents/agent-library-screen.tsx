@@ -7,21 +7,21 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Add01Icon,
   Chat01Icon,
+  Copy01Icon,
   Delete01Icon,
   Edit01Icon,
+  LockIcon,
   Search01Icon,
   UserMultiple02Icon,
-  LockIcon,
-  Copy01Icon,
 } from '@hugeicons/core-free-icons'
-import {
-  fetchAgents,
-  createAgent,
-  updateAgent,
-  deleteAgent,
-} from '@/lib/agents-api'
-import type { AgentDefinition, CreateAgentInput } from '@/types/agent'
 import { AgentEditorDialog } from './agent-editor-dialog'
+import type { AgentDefinition, CreateAgentInput } from '@/types/agent'
+import {
+  createAgent,
+  deleteAgent,
+  fetchAgents,
+  updateAgent,
+} from '@/lib/agents-api'
 import { toast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils'
 
@@ -77,7 +77,9 @@ function AgentCard({
               </span>
             )}
           </div>
-          <p className="text-xs text-[var(--theme-muted)] truncate">{agent.roleLabel}</p>
+          <p className="text-xs text-[var(--theme-muted)] truncate">
+            {agent.roleLabel}
+          </p>
 
           {/* Tags */}
           {agent.tags.length > 0 && (
@@ -190,7 +192,9 @@ export function AgentLibraryScreen() {
       const sessionKey = data.session?.key || data.session?.id
       if (!sessionKey) throw new Error('No session returned from server')
       void queryClient.invalidateQueries({ queryKey: ['sessions'] })
-      void queryClient.invalidateQueries({ queryKey: ['dashboard', 'sessions'] })
+      void queryClient.invalidateQueries({
+        queryKey: ['dashboard', 'sessions'],
+      })
       navigate({
         to: '/chat/$sessionKey',
         params: { sessionKey },
@@ -294,7 +298,9 @@ export function AgentLibraryScreen() {
       <div className="border-b border-[var(--theme-border)] bg-[var(--theme-bg)] px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-semibold text-[var(--theme-text)]">Agent Library</h1>
+            <h1 className="text-lg font-semibold text-[var(--theme-text)]">
+              Agent Library
+            </h1>
             <p className="text-xs text-[var(--theme-muted)] mt-0.5">
               {builtInCount} built-in · {customCount} custom
             </p>
@@ -354,9 +360,15 @@ export function AgentLibraryScreen() {
           </div>
         ) : displayed.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <HugeiconsIcon icon={UserMultiple02Icon} size={40} className="text-[var(--theme-muted)]" />
+            <HugeiconsIcon
+              icon={UserMultiple02Icon}
+              size={40}
+              className="text-[var(--theme-muted)]"
+            />
             <p className="text-sm text-[var(--theme-muted)]">
-              {search ? 'No agents match your search.' : 'No agents yet. Create your first one!'}
+              {search
+                ? 'No agents match your search.'
+                : 'No agents yet. Create your first one!'}
             </p>
             {!search && (
               <button

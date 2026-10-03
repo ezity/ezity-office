@@ -47,10 +47,11 @@ export interface HermesTask {
 ```
 
 Then update task filtering:
+
 ```typescript
 // In /api/tasks GET handler:
 if (userProfile.role !== 'super_admin') {
-  tasks = tasks.filter(t => userProfile.profileIds.includes(t.profileId))
+  tasks = tasks.filter((t) => userProfile.profileIds.includes(t.profileId))
 }
 ```
 
@@ -58,6 +59,7 @@ if (userProfile.role !== 'super_admin') {
 
 Current: Users created only via environment variables or direct API calls.  
 Needed: Login/signup flow that:
+
 - Allows creating multiple user accounts
 - Stores passwords securely (bcrypt)
 - Issues session tokens
@@ -69,6 +71,7 @@ Suggested location: `src/routes/api/auth/index.ts` (extend existing auth endpoin
 
 Current: Profile bindings set only via API (`addProfileBinding`).  
 Needed: Settings page that:
+
 - Shows super_admin the list of users and their role
 - Shows all users which profiles they can access
 - Allows admins to assign profiles to users
@@ -78,6 +81,7 @@ Needed: Settings page that:
 
 Current: Only `/api/tasks` implements filtering.  
 Needed: Apply same pattern to:
+
 - `/api/sessions` — filter sessions by profile
 - `/api/chat` — filter chat history by profile
 - Any profile-bound data endpoints
@@ -145,6 +149,7 @@ curl http://localhost:3000/api/tasks  # Should see 0 tasks
 ## References
 
 This is a common pattern in multi-tenant SaaS:
+
 - **Stripe:** Workspace -> Organization -> Users with roles
 - **Notion:** Workspace -> Pages -> Users with permissions
 - **Linear:** Team -> Cycles -> Members with access levels

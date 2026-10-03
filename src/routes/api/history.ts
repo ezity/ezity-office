@@ -34,7 +34,12 @@ export const Route = createFileRoute('/api/history')({
             localKey = sessions[0]?.id ?? 'new'
           }
           if (localKey === 'new') {
-            return json({ sessionKey: 'new', sessionId: 'new', messages: [], source: 'local' })
+            return json({
+              sessionKey: 'new',
+              sessionId: 'new',
+              messages: [],
+              source: 'local',
+            })
           }
           const limit2 = Number(url2.searchParams.get('limit') || '200')
           const msgs = getLocalMessages(localKey)

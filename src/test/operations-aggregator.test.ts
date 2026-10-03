@@ -1,14 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockListSessions = vi.fn().mockResolvedValue([])
 const mockListCrews = vi.fn().mockReturnValue([])
 
 vi.mock('@/server/hermes-api', () => ({
-  listSessions: (...args: unknown[]) => mockListSessions(...args),
+  listSessions: (...args: Array<unknown>) => mockListSessions(...args),
 }))
 
 vi.mock('@/server/crew-store', () => ({
-  listCrews: (...args: unknown[]) => mockListCrews(...args),
+  listCrews: (...args: Array<unknown>) => mockListCrews(...args),
 }))
 
 beforeEach(() => {
@@ -18,7 +18,8 @@ beforeEach(() => {
 
 describe('operations-aggregator', () => {
   it('returns empty array when no crews or sessions', async () => {
-    const { getOperationsOverview } = await import('@/server/operations-aggregator')
+    const { getOperationsOverview } =
+      await import('@/server/operations-aggregator')
     const result = await getOperationsOverview()
     expect(result).toEqual([])
   })
@@ -44,7 +45,8 @@ describe('operations-aggregator', () => {
       },
     ])
 
-    const { getOperationsOverview } = await import('@/server/operations-aggregator')
+    const { getOperationsOverview } =
+      await import('@/server/operations-aggregator')
     const result = await getOperationsOverview()
     expect(result.length).toBe(1)
     expect(result[0].source).toBe('crew')
@@ -64,7 +66,8 @@ describe('operations-aggregator', () => {
       },
     ])
 
-    const { getOperationsOverview } = await import('@/server/operations-aggregator')
+    const { getOperationsOverview } =
+      await import('@/server/operations-aggregator')
     const result = await getOperationsOverview()
     expect(result.length).toBe(1)
     expect(result[0].source).toBe('conductor')
@@ -85,7 +88,8 @@ describe('operations-aggregator', () => {
       },
     ])
 
-    const { getOperationsOverview } = await import('@/server/operations-aggregator')
+    const { getOperationsOverview } =
+      await import('@/server/operations-aggregator')
     const result = await getOperationsOverview()
     expect(result.length).toBe(0)
   })

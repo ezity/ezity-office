@@ -68,7 +68,12 @@ type HubSkill = {
   tags: Array<string>
   downloads?: number
   stars?: number
-  source: 'skillsmp' | 'skills-sh' | 'official' | 'github' | 'installed-fallback'
+  source:
+    | 'skillsmp'
+    | 'skills-sh'
+    | 'official'
+    | 'github'
+    | 'installed-fallback'
   installCommand?: string
   homepage?: string
   installed: boolean
@@ -133,7 +138,9 @@ export function SkillsScreen() {
   const [sort, setSort] = useState<SkillsSort>('name')
   const [page, setPage] = useState(1)
   const [actionSkillId, setActionSkillId] = useState<string | null>(null)
-  const [actionType, setActionType] = useState<'install' | 'uninstall' | 'toggle' | null>(null)
+  const [actionType, setActionType] = useState<
+    'install' | 'uninstall' | 'toggle' | null
+  >(null)
   const [selectedSkill, setSelectedSkill] = useState<SkillSummary | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   // clawhubHint removed — not applicable in Hermes Studio local deployment
@@ -375,8 +382,8 @@ export function SkillsScreen() {
   function handleTabChange(nextTab: string) {
     const parsedTab: SkillsTab =
       nextTab === 'installed' ||
-        nextTab === 'marketplace' ||
-        nextTab === 'featured'
+      nextTab === 'marketplace' ||
+      nextTab === 'featured'
         ? nextTab
         : 'installed'
 
@@ -536,10 +543,15 @@ export function SkillsScreen() {
 
               {hubQuery.data?.source === 'no-api-key' ? (
                 <div className="rounded-xl border border-[var(--theme-border)] bg-[var(--theme-panel)] px-4 py-4 text-sm text-[var(--theme-text)]">
-                  <p className="font-medium mb-1">skillsmp.com API key not configured</p>
+                  <p className="font-medium mb-1">
+                    skillsmp.com API key not configured
+                  </p>
                   <p className="text-[var(--theme-muted)] text-pretty">
                     To search the Skills marketplace, add your API key in{' '}
-                    <a href="/settings" className="underline underline-offset-2 hover:opacity-80">
+                    <a
+                      href="/settings"
+                      className="underline underline-offset-2 hover:opacity-80"
+                    >
                       Settings → Integrations
                     </a>
                     .{' '}
@@ -563,7 +575,11 @@ export function SkillsScreen() {
 
               <SkillsGrid
                 skills={marketplaceSkills}
-                loading={hubQuery.isPending && (hubQuery.data as HubSearchResponse | undefined)?.source !== 'no-api-key'}
+                loading={
+                  hubQuery.isPending &&
+                  (hubQuery.data as HubSearchResponse | undefined)?.source !==
+                    'no-api-key'
+                }
                 actionSkillId={actionSkillId}
                 tab="marketplace"
                 emptyState={{
@@ -736,7 +752,9 @@ export function SkillsScreen() {
                         })
                       }}
                     >
-                      {actionSkillId === selectedSkill.id ? '⏳ Removing…' : 'Uninstall'}
+                      {actionSkillId === selectedSkill.id
+                        ? '⏳ Removing…'
+                        : 'Uninstall'}
                     </Button>
                   ) : (
                     <Button
@@ -746,7 +764,9 @@ export function SkillsScreen() {
                         runSkillAction('install', { skillId: selectedSkill.id })
                       }
                     >
-                      {actionSkillId === selectedSkill.id ? '⏳ Installing…' : 'Install'}
+                      {actionSkillId === selectedSkill.id
+                        ? '⏳ Installing…'
+                        : 'Install'}
                     </Button>
                   )}
                   <Button
@@ -914,7 +934,9 @@ function SecurityScanCard({ security }: { security: SecurityRisk }) {
                   key={flag}
                   className="flex items-start gap-2 text-[var(--theme-muted)]"
                 >
-                  <span className="mt-0.5 text-[9px] text-[var(--theme-muted)]">●</span>
+                  <span className="mt-0.5 text-[9px] text-[var(--theme-muted)]">
+                    ●
+                  </span>
                   <span>{flag}</span>
                 </div>
               ))}
@@ -1120,7 +1142,9 @@ function FeaturedGrid({
                 <h3 className="text-lg font-medium text-ink text-balance">
                   {skill.icon} {skill.name}
                 </h3>
-                <p className="text-sm text-[var(--theme-muted)]">by {skill.author}</p>
+                <p className="text-sm text-[var(--theme-muted)]">
+                  by {skill.author}
+                </p>
               </div>
 
               <span

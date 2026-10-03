@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import type { SessionUsage } from '@/lib/chart-utils'
 import {
+  CHART_DAYS,
   buildDayBuckets,
   formatTokens,
   progressColor,
-  CHART_DAYS,
 } from '@/lib/chart-utils'
-import type { SessionUsage } from '@/lib/chart-utils'
 
 const NOW = new Date('2026-04-17T12:00:00Z').getTime()
 
@@ -38,8 +38,18 @@ describe('buildDayBuckets()', () => {
   })
 
   it('accumulates multiple sessions into the same day bucket', () => {
-    const s1: SessionUsage = { startedAt: NOW, inputTokens: 50, outputTokens: 50, costUsd: 0.005 }
-    const s2: SessionUsage = { startedAt: NOW - 3600_000, inputTokens: 50, outputTokens: 50, costUsd: 0.005 }
+    const s1: SessionUsage = {
+      startedAt: NOW,
+      inputTokens: 50,
+      outputTokens: 50,
+      costUsd: 0.005,
+    }
+    const s2: SessionUsage = {
+      startedAt: NOW - 3600_000,
+      inputTokens: 50,
+      outputTokens: 50,
+      costUsd: 0.005,
+    }
     const buckets = buildDayBuckets([s1, s2], NOW)
     const today = buckets[buckets.length - 1]
     expect(today.input).toBe(100)
@@ -71,7 +81,11 @@ describe('buildDayBuckets()', () => {
   })
 
   it('ignores sessions with no timestamp', () => {
-    const s: SessionUsage = { inputTokens: 100, outputTokens: 100, costUsd: 0.01 }
+    const s: SessionUsage = {
+      inputTokens: 100,
+      outputTokens: 100,
+      costUsd: 0.01,
+    }
     const buckets = buildDayBuckets([s], NOW)
     const total = buckets.reduce((acc, b) => acc + b.input, 0)
     expect(total).toBe(0)

@@ -172,7 +172,8 @@ function ChatHeaderComponent({
   const activeSession = sessions.find(
     (s) =>
       (s.friendlyId && s.friendlyId === activeFriendlyId) ||
-      (s.key && (s.key === activeFriendlyId || s.key.endsWith(`:${activeFriendlyId}`))),
+      (s.key &&
+        (s.key === activeFriendlyId || s.key.endsWith(`:${activeFriendlyId}`))),
   )
   void _agentModel
   void agentConnected
@@ -290,7 +291,9 @@ function ChatHeaderComponent({
             aria-label="Switch session"
           >
             {activeSession?.agentEmoji && (
-              <span className="shrink-0 text-xs">{activeSession.agentEmoji}</span>
+              <span className="shrink-0 text-xs">
+                {activeSession.agentEmoji}
+              </span>
             )}
             <span className="truncate text-[13px] font-medium text-ink">
               {mobileTitle === 'new' ? 'New Chat' : mobileTitle}
@@ -473,7 +476,9 @@ function ChatHeaderComponent({
                             )}
                           >
                             <span className="flex-1 min-w-0 truncate text-[var(--theme-text)] dark:text-neutral-200 flex items-center gap-1.5">
-                              {s.agentEmoji && <span className="shrink-0">{s.agentEmoji}</span>}
+                              {s.agentEmoji && (
+                                <span className="shrink-0">{s.agentEmoji}</span>
+                              )}
                               <span className="truncate">{label}</span>
                             </span>
                             {isActive && (
@@ -592,7 +597,9 @@ function ChatHeaderComponent({
                     variant="ghost"
                     className={cn(
                       'hover:bg-[var(--theme-hover)] dark:hover:bg-primary-800',
-                      clearConfirm ? 'text-red-500' : 'text-[var(--theme-muted)]',
+                      clearConfirm
+                        ? 'text-red-500'
+                        : 'text-[var(--theme-muted)]',
                     )}
                     aria-label={
                       clearConfirm ? 'Confirm clear' : 'Clear session'

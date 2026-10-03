@@ -9,8 +9,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { randomUUID } from 'node:crypto'
-import type { AgentDefinition } from '../types/agent'
 import { AGENT_PERSONAS } from '../lib/agent-personas'
+import type { AgentDefinition } from '../types/agent'
 
 const DATA_DIR = join(process.cwd(), '.runtime')
 const AGENTS_FILE = join(DATA_DIR, 'agent-definitions.json')
@@ -29,7 +29,7 @@ const BUILTIN_SYSTEM_PROMPTS: Record<string, string> = {
   nova: `You are Nova, a Security Specialist agent. Your expertise covers authentication, authorization, encryption, vulnerability assessment, and secure coding practices. When given a task, identify and address security risks, enforce least-privilege principles, and harden the system against threats.`,
 }
 
-export const EZITY_STAFF: AgentDefinition[] = [
+export const EZITY_STAFF: Array<AgentDefinition> = [
   {
     id: 'ezity-chief-of-staff',
     name: 'Chief of Staff',
@@ -49,7 +49,20 @@ export const EZITY_STAFF: AgentDefinition[] = [
     emoji: '📊',
     color: 'text-emerald-400',
     roleLabel: 'Financial & Accounting Specialist',
-    systemPrompt: `You are the Accountant for EZity Solutions. You specialize in bookkeeping, financial reporting, ledger reconciliation, budget tracking, and tax compliance. Adhere to strict double-entry principles, maintain precision in financial figures, and highlight financial risks or discrepancies clearly.`,
+    systemPrompt: `You are the Accountant for EZity Solutions. You specialize in bookkeeping, financial reporting, ledger reconciliation, budget tracking, and tax compliance.
+
+Authoritative Financial System:
+- EzityHub is the sole authoritative source for all EZity Solutions financial data, ledger accounts, bank movements, and invoices.
+- You must retrieve current financial data from EzityHub using your available finance tools before answering factual financial questions.
+- Never invent, extrapolate, or hallucinate financial figures, balances, transactions, invoices, or reports.
+- All current integration tools are strictly READ-ONLY. Do not attempt write, post, or modify operations without explicit human authorization and write tooling.
+- Clearly distinguish between:
+  1. Recorded data (verified figures retrieved directly from EzityHub)
+  2. Calculations (derived math, sums, or financial ratios)
+  3. Assumptions (underlying premises, unaccrued items, or date parameters)
+  4. Recommendations (accounting advice, risk mitigations, or action plans)
+
+Adhere to strict double-entry principles, maintain precision in financial figures, and highlight financial risks or discrepancies clearly.`,
     model: null,
     tags: ['finance', 'accounting', 'reconciliation', 'reporting', 'tax'],
     isBuiltIn: true,
@@ -71,8 +84,8 @@ export const EZITY_STAFF: AgentDefinition[] = [
   },
 ]
 
-export function getBuiltInAgents(): AgentDefinition[] {
-  const personas: AgentDefinition[] = AGENT_PERSONAS.map((p) => ({
+export function getBuiltInAgents(): Array<AgentDefinition> {
+  const personas: Array<AgentDefinition> = AGENT_PERSONAS.map((p) => ({
     id: `builtin-${p.name.toLowerCase()}`,
     name: p.name,
     emoji: p.emoji,
@@ -122,8 +135,10 @@ loadFromDisk()
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 /** List all agents: built-ins first, then user-created sorted by newest. */
-export function listAgents(): AgentDefinition[] {
-  const custom = Object.values(store.agents).sort((a, b) => b.createdAt - a.createdAt)
+export function listAgents(): Array<AgentDefinition> {
+  const custom = Object.values(store.agents).sort(
+    (a, b) => b.createdAt - a.createdAt,
+  )
   return [...getBuiltInAgents(), ...custom]
 }
 
@@ -142,7 +157,7 @@ export function createAgent(input: {
   roleLabel: string
   systemPrompt: string
   model: string | null
-  tags: string[]
+  tags: Array<string>
 }): AgentDefinition {
   const id = randomUUID()
   const now = Date.now()
@@ -168,7 +183,7 @@ export function updateAgent(
     roleLabel: string
     systemPrompt: string
     model: string | null
-    tags: string[]
+    tags: Array<string>
   }>,
 ): AgentDefinition | null {
   const existing = store.agents[id]

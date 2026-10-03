@@ -14,18 +14,21 @@ import { createFileRoute } from '@tanstack/react-router'
 import { json } from '@tanstack/react-start'
 import { isAuthenticated } from '../../../server/auth-middleware'
 import { requireJsonContentType } from '../../../server/rate-limit'
-import { getCrew, createCrew } from '../../../server/crew-store'
+import { createCrew, getCrew } from '../../../server/crew-store'
 import {
+  createSession,
   ensureGatewayProbed,
   getGatewayCapabilities,
-  createSession,
 } from '../../../server/hermes-api'
 import {
   ensureLocalSession,
   toLocalSessionSummary,
 } from '../../../server/local-session-store'
 
-async function mintSession(persona: string, model: string | null): Promise<string> {
+async function mintSession(
+  persona: string,
+  model: string | null,
+): Promise<string> {
   const friendlyId = `crew-${persona}-${randomUUID().slice(0, 8)}`
   await ensureGatewayProbed()
   if (getGatewayCapabilities().sessions) {
@@ -64,9 +67,12 @@ export const Route = createFileRoute('/api/crews/$crewId/clone')({
         const members = await Promise.all(
           source.members.map(async (m) => {
             const personaForSession = m.displayName
-              .replace(/^[^\s]+\s*/, '')  // strip leading emoji+space
+              .replace(/^[^\s]+\s*/, '') // strip leading emoji+space
               .toLowerCase()
-            const sessionKey = await mintSession(personaForSession || m.persona, m.model)
+            const sessionKey = await mintSession(
+              personaForSession || m.persona,
+              m.model,
+            )
             return {
               sessionKey,
               role: m.role,
