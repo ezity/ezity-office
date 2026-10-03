@@ -1,7 +1,7 @@
 {
-  "name": "Hermes Studio",
-  "short_name": "Hermes",
-  "description": "Native web control surface for Hermes Agent",
+  "name": "Ezity AI Office",
+  "short_name": "Ezity Office",
+  "description": "AI Workforce & Operations for Ezity Solutions",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A0E1A",

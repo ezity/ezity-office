@@ -157,7 +157,7 @@ export function ConductorActive({ conductor }: ConductorActiveProps) {
       {/* Header badge */}
       <div className="text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--theme-border)] bg-[var(--theme-card)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[var(--theme-muted)]">
-          Conductor
+          Ezity AI Office
           <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
         </div>
       </div>
@@ -250,7 +250,7 @@ export function ConductorActive({ conductor }: ConductorActiveProps) {
           missionRunning
           onViewOutput={() => {}}
           processType="parallel"
-          companyName="Conductor Office"
+          companyName="Ezity AI Office"
           containerHeight={360}
           hideHeader
         />

@@ -1,6 +1,7 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BrainIcon, CodeIcon, PuzzleIcon } from '@hugeicons/core-free-icons'
 import { motion } from 'motion/react'
+import { EzityLogoMark } from '@/components/brand/ezity-brand'
 
 type SuggestionChip = {
   label: string
@@ -54,14 +55,9 @@ export function ChatEmptyState({
               transform: 'scale(1.6)',
             }}
           />
-          <img
-            src="/hermes-avatar.webp"
-            alt="Hermes"
+          <EzityLogoMark
+            size="xl"
             className="relative size-20 rounded-2xl"
-            style={{
-              boxShadow:
-                '0 8px 32px color-mix(in srgb, var(--theme-accent) 30%, transparent)',
-            }}
           />
         </div>
 
@@ -70,13 +66,16 @@ export function ChatEmptyState({
           className="text-xl font-semibold tracking-tight"
           style={{ color: 'var(--theme-text)' }}
         >
-          Hermes Studio
+          Ezity AI Office
         </h2>
+        <p className="mt-1 text-xs font-medium" style={{ color: 'var(--theme-muted)' }}>
+          Ezity Solutions &middot; AI Workforce &amp; Operations
+        </p>
 
         {!compact && (
           <>
             <p className="mt-2 text-sm" style={{ color: 'var(--theme-muted)' }}>
-              Agent chat · live tools · memory · full observability
+              Agent chat &middot; live tools &middot; memory &middot; full observability
             </p>
           </>
         )}

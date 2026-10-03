@@ -13,6 +13,7 @@ import {
 import type { ReactNode } from 'react'
 import type { HermesSession } from '@/server/hermes-api'
 import { cn } from '@/lib/utils'
+import { EzityLogoMark } from '@/components/brand/ezity-brand'
 
 // ── Helpers ──────────────────────────────────────────────────────
 
@@ -652,16 +653,15 @@ export function DashboardScreen() {
 
   return (
     <div className="min-h-full px-4 py-4 md:px-8 md:py-6 lg:px-10 space-y-5 pb-28">
-      {/* ── Header: Hermes Logo + Quick Actions ── */}
-      <div className="flex flex-col items-center gap-3 py-3">
-        <img
-          src="/hermes-avatar.webp"
-          alt="Hermes"
-          className="size-12 md:size-14 rounded-xl shadow-md shadow-indigo-500/10 border border-[var(--theme-border)]"
-        />
-        <h1 className="text-sm font-semibold text-ink tracking-wide">
-          Hermes Studio
+      {/* ── Header: Ezity Logo + Quick Actions ── */}
+      <div className="flex flex-col items-center gap-1.5 py-3">
+        <EzityLogoMark size="lg" className="mb-1" />
+        <h1 className="text-base font-semibold text-ink tracking-wide">
+          Ezity AI Office
         </h1>
+        <p className="text-xs text-[var(--theme-muted)]">
+          Ezity Solutions &middot; AI Workforce &amp; Operations
+        </p>
         <div className="mt-1 grid w-full max-w-2xl grid-cols-2 gap-2 sm:grid-cols-4">
           <QuickAction
             label="New Chat"

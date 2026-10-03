@@ -20,6 +20,9 @@
 
 </div>
 
+> [!NOTE]
+> **Ezity AI Office**: This repository is the Ezity Solutions fork of Hermes Studio for enterprise AI Workforce & Operations. Upstream architecture and internal Hermes contracts are intentionally preserved. For details on fork architecture and upstream compatibility, see [docs/EZITY_FORK.md](docs/EZITY_FORK.md).
+
 ## What is Hermes Studio?
 
 Hermes Studio is an open-source, self-hosted web dashboard for [Hermes Agent](https://github.com/NousResearch/hermes-agent) by [NousResearch](https://nousresearch.com). It turns the Hermes AI agent into a full workspace you can control from your browser — with multi-agent orchestration, cron job scheduling, execution approvals, MCP server management, and 30+ features no other Hermes UI offers. Works with Ollama, OpenAI, Anthropic, and any OpenAI-compatible backend. Built with React, TypeScript, and TanStack. MIT licensed.

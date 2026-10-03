@@ -4,7 +4,7 @@ import { ConductorScreen } from '@/screens/conductor/conductor-screen'
 
 export const Route = createFileRoute('/conductor')({
   component: function ConductorRoute() {
-    usePageTitle('Conductor')
+    usePageTitle('Ezity AI Office')
     return <ConductorScreen />
   },
 })

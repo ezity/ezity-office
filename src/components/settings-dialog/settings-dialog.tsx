@@ -1758,7 +1758,7 @@ export function SettingsDialog({
                 Settings
               </DialogTitle>
               <DialogDescription className="sr-only">
-                Configure Hermes Studio
+                Configure Ezity AI Office
               </DialogDescription>
             </div>
             <DialogClose

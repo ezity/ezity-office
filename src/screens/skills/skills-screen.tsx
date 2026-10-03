@@ -410,7 +410,7 @@ export function SkillsScreen() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="space-y-1.5">
               <p className="text-xs font-medium uppercase text-[var(--theme-muted)] tabular-nums">
-                Hermes Studio Marketplace
+                Ezity AI Office Marketplace
               </p>
               <h1 className="text-2xl font-medium text-ink text-balance sm:text-3xl">
                 Skills Browser
@@ -872,8 +872,8 @@ function SecurityScanCard({ security }: { security: SecurityRisk }) {
         </p>
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <span className="text-[var(--theme-muted)] font-medium w-16 shrink-0">
-              Hermes Studio
+            <span className="text-[var(--theme-muted)] font-medium w-24 shrink-0">
+              Ezity AI Office
             </span>
             <span
               className={cn(

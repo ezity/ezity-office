@@ -305,7 +305,7 @@ export function ConductorHome({ conductor, goalDraft, setGoalDraft, onSubmit, on
       <div className="space-y-2 text-center">
         <div className="relative flex items-center justify-center">
           <div className="inline-flex items-center gap-2.5 rounded-full border border-[var(--theme-border)] bg-[var(--theme-card)] px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.24em] text-[var(--theme-muted)]">
-            Conductor
+            Ezity AI Office
             <span className="size-2.5 rounded-full bg-emerald-400" />
           </div>
           <div className="absolute right-0 flex items-center gap-2">

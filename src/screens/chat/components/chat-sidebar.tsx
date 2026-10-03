@@ -41,6 +41,7 @@ import { SidebarSessions } from './sidebar/sidebar-sessions'
 import type { ChatOpenSettingsDetail } from '../chat-events'
 import type { SessionMeta } from '../types'
 import { SettingsDialog } from '@/components/settings-dialog'
+import { EzityLogoMark } from '@/components/brand/ezity-brand'
 import {
   TooltipContent,
   TooltipProvider,
@@ -942,20 +943,24 @@ function ChatSidebarComponent({
                 to="/chat"
                 className={cn(
                   buttonVariants({ variant: 'ghost', size: 'sm' }),
-                  'w-full pl-1.5 justify-start gap-2',
+                  'h-auto py-1 pl-1.5 pr-2 justify-start gap-2.5',
                 )}
               >
-                <img
-                  src="/hermes-avatar.webp"
-                  alt="Hermes"
-                  className="size-6 rounded-lg"
-                />
-                <span
-                  className="text-sm font-semibold tracking-tight"
-                  style={{ color: 'var(--theme-text)' }}
-                >
-                  Hermes Studio
-                </span>
+                <EzityLogoMark size="sm" />
+                <div className="flex flex-col text-left leading-none">
+                  <span
+                    className="text-sm font-semibold tracking-tight"
+                    style={{ color: 'var(--theme-text)' }}
+                  >
+                    Ezity AI Office
+                  </span>
+                  <span
+                    className="text-[10px] font-medium tracking-tight mt-0.5"
+                    style={{ color: 'var(--theme-muted)' }}
+                  >
+                    Ezity Solutions
+                  </span>
+                </div>
               </Link>
             </motion.div>
           ) : null}

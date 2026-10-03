@@ -32,8 +32,8 @@ export type OnboardingStep = {
 export const ONBOARDING_STEPS: Array<OnboardingStep> = [
   {
     id: 'welcome',
-    title: 'Welcome to Hermes Studio',
-    description: 'Your AI workspace powered by Hermes Agent',
+    title: 'Welcome to Ezity AI Office',
+    description: 'AI Workforce & Operations for Ezity Solutions',
     icon: Home01Icon,
     iconBg: 'bg-orange-500',
     nextLabel: 'Get Started',

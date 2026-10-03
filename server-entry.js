@@ -159,5 +159,5 @@ const httpServer = createServer(async (req, res) => {
 })
 
 httpServer.listen(port, host, () => {
-  console.log(`Hermes Workspace running at http://${host}:${port}`)
+  console.log(`Ezity AI Office running at http://${host}:${port}`)
 })

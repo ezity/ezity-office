@@ -100,12 +100,12 @@ export const Route = createRootRoute({
           'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-visual',
       },
       {
-        title: 'Hermes Studio',
+        title: 'Ezity AI Office',
       },
       {
         name: 'description',
         content:
-          'Hermes Studio — premium AI agent operating system for chat, tools, files, memory, and jobs.',
+          'Ezity AI Office — AI Workforce & Operations for Ezity Solutions.',
       },
       {
         property: 'og:image',
@@ -144,8 +144,8 @@ export const Route = createRootRoute({
       },
       {
         rel: 'icon',
-        type: 'image/png',
-        href: '/hermes-avatar.png',
+        type: 'image/svg+xml',
+        href: '/favicon.svg',
       },
       // PWA manifest and icons
       {
@@ -299,9 +299,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             var d = document.createElement('div');
             d.id = 'splash-screen';
             d.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:'+bg+';transition:opacity 0.5s ease;';
-            d.innerHTML = '<img src="/hermes-avatar.webp" alt="Hermes" style="width:80px;height:80px;margin-bottom:20px;border-radius:16px;filter:drop-shadow(0 8px 32px color-mix(in srgb,'+accent+' 45%, transparent))" />'
-              + '<img src="'+(isDark ? '/hermes-banner.png' : '/hermes-banner-light.png')+'" alt="Hermes Studio" style="width:280px;height:auto;margin-bottom:8px;filter:drop-shadow(0 4px 16px '+(isDark ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.1)')+')" />'
-              + '<div style="font:400 14px/1 system-ui,-apple-system,sans-serif;letter-spacing:0.04em;color:'+muted+'">Studio</div>'
+            d.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;width:72px;height:72px;margin-bottom:18px;border-radius:18px;background:'+accent+';color:#ffffff;font:bold 28px/1 system-ui,-apple-system,sans-serif;box-shadow:0 8px 32px color-mix(in srgb,'+accent+' 45%, transparent)">EA</div>'
+              + '<div style="font:700 24px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:-0.02em;color:'+txt+';margin-bottom:6px">Ezity AI Office</div>'
+              + '<div style="font:500 12px/1 system-ui,-apple-system,sans-serif;letter-spacing:0.06em;text-transform:uppercase;color:'+muted+'">Ezity Solutions &middot; AI Workforce &amp; Operations</div>'
               + '<div style="margin-top:28px;width:140px;height:3px;background:'+(isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)')+';border-radius:3px;overflow:hidden;position:relative"><div id=splash-bar style="width:0%;height:100%;background:'+accent+';border-radius:3px;transition:width 0.4s ease"></div></div>';
             document.body.prepend(d);
 

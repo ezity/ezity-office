@@ -489,7 +489,7 @@ export function OfficeView({
   onNewMission,
   selectedOutputAgentId,
   activeTemplateName: _activeTemplateName,
-  companyName = 'Mission Control',
+  companyName = 'Ezity AI Office',
   agentTasks = {},
   remoteSessions = [],
   onViewRemoteOutput,

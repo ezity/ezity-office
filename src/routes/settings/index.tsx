@@ -921,7 +921,7 @@ function IntegrationsSection() {
     <>
     <SettingsSection
       title="Integrations"
-      description="Connect external services used by Hermes Studio features."
+      description="Connect external services used by Ezity AI Office features."
       icon={SparklesIcon}
     >
       <SettingsRow
@@ -3379,7 +3379,7 @@ function SystemdAutoStartSection() {
           }}
         >
           <p style={{ ...headingStyle, fontWeight: 400, ...muteStyle }}>
-            You can still start Hermes Studio manually:
+            You can still start Ezity AI Office manually:
           </p>
           <pre
             style={{

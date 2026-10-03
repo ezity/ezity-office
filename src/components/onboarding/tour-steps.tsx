@@ -1,11 +1,12 @@
 import type { Step } from 'react-joyride'
+import { EzityLogoMark } from '@/components/brand/ezity-brand'
 
 export const tourSteps: Array<Step> = [
   // Step 1: Welcome
   {
     target: 'body',
     placement: 'center',
-    title: 'Welcome to Hermes Studio! ⚕',
+    title: 'Welcome to Ezity AI Office! 🎉',
     content: (
       <div
         style={{
@@ -15,11 +16,7 @@ export const tourSteps: Array<Step> = [
           gap: '12px',
         }}
       >
-        <img
-          src="/hermes-avatar.webp"
-          alt="Hermes"
-          style={{ width: 48, height: 48, borderRadius: 12 }}
-        />
+        <EzityLogoMark size="lg" />
         <p style={{ textAlign: 'center', margin: 0 }}>
           Your AI-powered command center for managing agents, chats, files, and
           more. Let&apos;s take a quick tour!
@@ -74,7 +71,7 @@ export const tourSteps: Array<Step> = [
     placement: 'right',
     title: 'Built-in Terminal',
     content:
-      'Built-in terminal for quick commands. Execute shell commands without leaving Hermes Studio.',
+      'Built-in terminal for quick commands. Execute shell commands without leaving Ezity AI Office.',
   },
   // Step 9: Usage Meter (in header)
   {
@@ -90,7 +87,7 @@ export const tourSteps: Array<Step> = [
     placement: 'right',
     title: 'Settings & Customization',
     content:
-      'Configure providers, themes, accent colors, and more. Make Hermes Studio yours.',
+      'Configure providers, themes, accent colors, and more. Make Ezity AI Office yours.',
   },
   // Step 11: Finish
   {
@@ -98,6 +95,6 @@ export const tourSteps: Array<Step> = [
     placement: 'center',
     title: "You're all set! 🎉",
     content:
-      'Start chatting with your AI, explore the tools, and customize Hermes Studio to fit your workflow. Need help? Press ? to see all keyboard shortcuts.',
+      'Start chatting with your AI, explore the tools, and customize Ezity AI Office to fit your workflow. Need help? Press ? to see all keyboard shortcuts.',
   },
 ]

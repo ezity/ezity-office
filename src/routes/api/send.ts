@@ -27,7 +27,7 @@ export const Route = createFileRoute('/api/send')({
         return json(
           {
             ok: false,
-            error: 'Legacy send is not available in Hermes Studio.',
+            error: 'Legacy send is not available in Ezity AI Office.',
           },
           { status: 501 },
         )
