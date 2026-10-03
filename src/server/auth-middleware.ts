@@ -51,9 +51,9 @@ export function storeSessionToken(token: string, userId?: string): void {
   }
   const client = getRedisClientSync()
   if (client) {
-    void client.sadd(TOKENS_KEY, token).then(() =>
-      client.expire(TOKENS_KEY, TOKEN_TTL_S),
-    )
+    void client
+      .sadd(TOKENS_KEY, token)
+      .then(() => client.expire(TOKENS_KEY, TOKEN_TTL_S))
     if (userId) {
       void client.hset(TOKEN_USER_KEY, token, userId)
     }

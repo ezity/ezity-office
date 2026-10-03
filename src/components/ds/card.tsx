@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils'
 import type { ReactNode } from 'react'
+import { cn } from '@/lib/utils'
 
 interface CardProps {
   variant?: 'default' | 'panel' | 'subtle'
@@ -11,11 +11,17 @@ interface CardProps {
 
 const variantStyles = {
   default: 'bg-[var(--theme-card)] border-[var(--theme-border)]',
-  panel:   'bg-[var(--theme-panel)] border-[var(--theme-border)]',
-  subtle:  'bg-[var(--theme-accent-subtle)] border-[var(--theme-accent-border)]',
+  panel: 'bg-[var(--theme-panel)] border-[var(--theme-border)]',
+  subtle: 'bg-[var(--theme-accent-subtle)] border-[var(--theme-accent-border)]',
 }
 
-export function Card({ variant = 'default', header, footer, className, children }: CardProps) {
+export function Card({
+  variant = 'default',
+  header,
+  footer,
+  className,
+  children,
+}: CardProps) {
   return (
     <div className={cn('rounded-lg border', variantStyles[variant], className)}>
       {header && (

@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
+  AlertCircleIcon,
   Cancel01Icon,
   CheckmarkCircle01Icon,
   Clock01Icon,
@@ -12,7 +13,6 @@ import {
   Search01Icon,
   TaskEdit01Icon,
   UserIcon,
-  AlertCircleIcon,
 } from '@hugeicons/core-free-icons'
 import { cn } from '@/lib/utils'
 
@@ -30,15 +30,15 @@ interface AuditEvent {
 interface AuditResponse {
   ok: boolean
   total: number
-  sessions: string[]
-  events: AuditEvent[]
+  sessions: Array<string>
+  events: Array<AuditEvent>
 }
 
 // ─── API ─────────────────────────────────────────────────────────────────────
 
 async function fetchAudit(params: {
   sessionKey?: string
-  types: string[]
+  types: Array<string>
   since?: number
   until?: number
   limit: number
@@ -107,11 +107,12 @@ function ToolEventCard({ event }: { event: AuditEvent }) {
   const result = typeof p.result === 'string' ? p.result : undefined
   const preview = typeof p.preview === 'string' ? p.preview : undefined
 
-  const phaseIcon = phase === 'complete'
-    ? CheckmarkCircle01Icon
-    : phase === 'error'
-      ? AlertCircleIcon
-      : TaskEdit01Icon
+  const phaseIcon =
+    phase === 'complete'
+      ? CheckmarkCircle01Icon
+      : phase === 'error'
+        ? AlertCircleIcon
+        : TaskEdit01Icon
 
   const phaseColor =
     phase === 'complete'
@@ -190,7 +191,9 @@ function ToolEventCard({ event }: { event: AuditEvent }) {
         </div>
 
         <div className="shrink-0 text-right">
-          <div className="text-[10px] text-[var(--theme-muted)]">{formatTs(event.ts)}</div>
+          <div className="text-[10px] text-[var(--theme-muted)]">
+            {formatTs(event.ts)}
+          </div>
           <div
             className="mt-0.5 text-[10px] text-[var(--theme-muted)] font-mono"
             title={event.sessionKey}
@@ -205,14 +208,16 @@ function ToolEventCard({ event }: { event: AuditEvent }) {
 
 function UserMessageCard({ event }: { event: AuditEvent }) {
   const p = event.payload
-  const msg = p.message && typeof p.message === 'object'
-    ? (p.message as Record<string, unknown>)
-    : {}
-  const text = typeof msg.content === 'string'
-    ? msg.content
-    : typeof p.text === 'string'
-      ? p.text
-      : ''
+  const msg =
+    p.message && typeof p.message === 'object'
+      ? (p.message as Record<string, unknown>)
+      : {}
+  const text =
+    typeof msg.content === 'string'
+      ? msg.content
+      : typeof p.text === 'string'
+        ? p.text
+        : ''
 
   return (
     <div className="rounded-xl border border-[var(--theme-border)] bg-[var(--theme-card)] p-4">
@@ -222,18 +227,27 @@ function UserMessageCard({ event }: { event: AuditEvent }) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-[var(--theme-text)]">User</span>
+            <span className="text-sm font-semibold text-[var(--theme-text)]">
+              User
+            </span>
             <span className="rounded-full border border-[var(--theme-border)] bg-[var(--theme-card2)] px-2 py-px text-[10px] text-[var(--theme-muted)]">
               message
             </span>
           </div>
           {text && (
-            <p className="mt-1 text-xs text-[var(--theme-muted)] line-clamp-2">{truncate(text, 200)}</p>
+            <p className="mt-1 text-xs text-[var(--theme-muted)] line-clamp-2">
+              {truncate(text, 200)}
+            </p>
           )}
         </div>
         <div className="shrink-0 text-right">
-          <div className="text-[10px] text-[var(--theme-muted)]">{formatTs(event.ts)}</div>
-          <div className="mt-0.5 text-[10px] text-[var(--theme-muted)] font-mono" title={event.sessionKey}>
+          <div className="text-[10px] text-[var(--theme-muted)]">
+            {formatTs(event.ts)}
+          </div>
+          <div
+            className="mt-0.5 text-[10px] text-[var(--theme-muted)] font-mono"
+            title={event.sessionKey}
+          >
             {shortSession(event.sessionKey)}
           </div>
         </div>
@@ -255,7 +269,9 @@ function ApprovalCard({ event }: { event: AuditEvent }) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-[var(--theme-text)]">Approval</span>
+            <span className="text-sm font-semibold text-[var(--theme-text)]">
+              Approval
+            </span>
             <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-px text-[10px] text-amber-400">
               {status}
             </span>
@@ -265,8 +281,13 @@ function ApprovalCard({ event }: { event: AuditEvent }) {
           </p>
         </div>
         <div className="shrink-0 text-right">
-          <div className="text-[10px] text-[var(--theme-muted)]">{formatTs(event.ts)}</div>
-          <div className="mt-0.5 text-[10px] text-[var(--theme-muted)] font-mono" title={event.sessionKey}>
+          <div className="text-[10px] text-[var(--theme-muted)]">
+            {formatTs(event.ts)}
+          </div>
+          <div
+            className="mt-0.5 text-[10px] text-[var(--theme-muted)] font-mono"
+            title={event.sessionKey}
+          >
             {shortSession(event.sessionKey)}
           </div>
         </div>
@@ -277,7 +298,8 @@ function ApprovalCard({ event }: { event: AuditEvent }) {
 
 function EventCard({ event }: { event: AuditEvent }) {
   if (event.eventType === 'tool') return <ToolEventCard event={event} />
-  if (event.eventType === 'user_message') return <UserMessageCard event={event} />
+  if (event.eventType === 'user_message')
+    return <UserMessageCard event={event} />
   if (event.eventType === 'approval') return <ApprovalCard event={event} />
   return null
 }
@@ -288,7 +310,7 @@ const PAGE_SIZE = 50
 
 export function AuditTrailScreen() {
   const [selectedSession, setSelectedSession] = useState<string>('')
-  const [selectedTypes, setSelectedTypes] = useState<string[]>(ALL_TYPES)
+  const [selectedTypes, setSelectedTypes] = useState<Array<string>>(ALL_TYPES)
   const [dateRangeIdx, setDateRangeIdx] = useState(4) // All time
   const [page, setPage] = useState(0)
 
@@ -328,7 +350,9 @@ export function AuditTrailScreen() {
       <div className="shrink-0 border-b border-[var(--theme-border)] px-6 py-5">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-lg font-semibold text-[var(--theme-text)]">Audit Trail</h1>
+            <h1 className="text-lg font-semibold text-[var(--theme-text)]">
+              Audit Trail
+            </h1>
             <p className="mt-0.5 text-xs text-[var(--theme-muted)]">
               Timeline of all agent and tool actions across sessions
             </p>
@@ -345,7 +369,11 @@ export function AuditTrailScreen() {
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {/* Session filter */}
           <div className="flex items-center gap-1.5">
-            <HugeiconsIcon icon={FilterIcon} size={13} className="text-[var(--theme-muted)]" />
+            <HugeiconsIcon
+              icon={FilterIcon}
+              size={13}
+              className="text-[var(--theme-muted)]"
+            />
             <select
               value={selectedSession}
               onChange={(e) => {
@@ -416,10 +444,17 @@ export function AuditTrailScreen() {
           </div>
         ) : events.length === 0 ? (
           <div className="flex h-40 flex-col items-center justify-center gap-2 text-center">
-            <HugeiconsIcon icon={Search01Icon} size={24} className="text-[var(--theme-muted)]" />
-            <p className="text-sm text-[var(--theme-muted)]">No audit events found</p>
+            <HugeiconsIcon
+              icon={Search01Icon}
+              size={24}
+              className="text-[var(--theme-muted)]"
+            />
+            <p className="text-sm text-[var(--theme-muted)]">
+              No audit events found
+            </p>
             <p className="text-xs text-[var(--theme-muted)]">
-              Events are recorded as agents run. Try adjusting the filters or date range.
+              Events are recorded as agents run. Try adjusting the filters or
+              date range.
             </p>
           </div>
         ) : (
@@ -435,7 +470,8 @@ export function AuditTrailScreen() {
       {totalPages > 1 && (
         <div className="shrink-0 flex items-center justify-between border-t border-[var(--theme-border)] px-6 py-3">
           <span className="text-xs text-[var(--theme-muted)]">
-            Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, total)} of{' '}
+            Showing {page * PAGE_SIZE + 1}–
+            {Math.min((page + 1) * PAGE_SIZE, total)} of{' '}
             {total.toLocaleString()}
           </span>
           <div className="flex items-center gap-2">

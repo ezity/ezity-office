@@ -607,7 +607,9 @@ function SettingCard(props: {
               </span>
             ) : null}
           </div>
-          <p className="text-sm text-[var(--theme-muted)]">{setting.description}</p>
+          <p className="text-sm text-[var(--theme-muted)]">
+            {setting.description}
+          </p>
           {setting.path ? (
             <p className="text-xs text-[var(--theme-muted)]">{setting.path}</p>
           ) : null}
@@ -878,7 +880,9 @@ function ModelConfigSection(props: {
   return (
     <section className="rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-card)] p-4 shadow-sm">
       <div className="space-y-1">
-        <h3 className="text-sm font-semibold text-[var(--theme-text)]">{title}</h3>
+        <h3 className="text-sm font-semibold text-[var(--theme-text)]">
+          {title}
+        </h3>
         <p className="text-sm text-[var(--theme-muted)]">{description}</p>
       </div>
 
@@ -1176,7 +1180,9 @@ function ActiveModelCard({
                     }))
                   }}
                 />
-                <p className="text-xs text-[var(--theme-muted)]">Default: 90s</p>
+                <p className="text-xs text-[var(--theme-muted)]">
+                  Default: 90s
+                </p>
               </label>
 
               <label className="space-y-1.5">
@@ -1195,7 +1201,9 @@ function ActiveModelCard({
                     }))
                   }}
                 />
-                <p className="text-xs text-[var(--theme-muted)]">Default: 60s</p>
+                <p className="text-xs text-[var(--theme-muted)]">
+                  Default: 60s
+                </p>
               </label>
             </div>
 
@@ -1558,7 +1566,9 @@ export function ProvidersScreen({ embedded = false }: ProvidersScreenProps) {
     return (
       <div
         className={cn(
-          embedded ? 'h-full bg-[var(--theme-bg)]' : 'min-h-full bg-[var(--theme-bg)]',
+          embedded
+            ? 'h-full bg-[var(--theme-bg)]'
+            : 'min-h-full bg-[var(--theme-bg)]',
         )}
       >
         <BackendUnavailableState
@@ -1572,7 +1582,9 @@ export function ProvidersScreen({ embedded = false }: ProvidersScreenProps) {
   return (
     <div
       className={cn(
-        embedded ? 'h-full bg-[var(--theme-bg)]' : 'min-h-full bg-[var(--theme-bg)]',
+        embedded
+          ? 'h-full bg-[var(--theme-bg)]'
+          : 'min-h-full bg-[var(--theme-bg)]',
       )}
     >
       <main

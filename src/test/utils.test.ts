@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { cn } from '@/lib/utils'
 
 describe('cn()', () => {
@@ -20,7 +20,7 @@ describe('cn()', () => {
   })
 
   it('handles conditional object syntax from clsx', () => {
-    expect(cn({ 'font-bold': true, 'italic': false })).toBe('font-bold')
+    expect(cn({ 'font-bold': true, italic: false })).toBe('font-bold')
   })
 
   it('handles array syntax', () => {

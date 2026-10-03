@@ -24,7 +24,7 @@ export type MemoryEntry = {
  * Parse a raw MEMORY.md string into individual entries.
  * Empty chunks (whitespace only) are discarded.
  */
-export function parseEntries(raw: string): MemoryEntry[] {
+export function parseEntries(raw: string): Array<MemoryEntry> {
   return raw
     .split('§')
     .map((chunk) => chunk.trim())
@@ -36,7 +36,10 @@ export function parseEntries(raw: string): MemoryEntry[] {
         .startsWith(CORRECTION_PREFIX)
       const body = isCorrection
         ? chunk
-            .slice(chunk.toUpperCase().indexOf(CORRECTION_PREFIX) + CORRECTION_PREFIX.length)
+            .slice(
+              chunk.toUpperCase().indexOf(CORRECTION_PREFIX) +
+                CORRECTION_PREFIX.length,
+            )
             .trim()
         : chunk
       return { index: i, raw: chunk, isCorrection, body }
@@ -46,7 +49,7 @@ export function parseEntries(raw: string): MemoryEntry[] {
 /**
  * Serialise an array of entries back to MEMORY.md format.
  */
-export function buildMemoryContent(entries: MemoryEntry[]): string {
+export function buildMemoryContent(entries: Array<MemoryEntry>): string {
   return entries.map((e) => e.raw).join('\n§\n')
 }
 

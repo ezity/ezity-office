@@ -2,11 +2,16 @@
  * Client-side API helpers for crew templates.
  */
 import type { CrewTemplate, CrewTemplateCategory } from '@/types/template'
+
 export type { CrewTemplate, CrewTemplateCategory }
 
-export async function fetchTemplates(): Promise<CrewTemplate[]> {
+export async function fetchTemplates(): Promise<Array<CrewTemplate>> {
   const res = await fetch('/api/crews/templates')
-  const data = (await res.json()) as { ok: boolean; templates?: CrewTemplate[]; error?: string }
+  const data = (await res.json()) as {
+    ok: boolean
+    templates?: Array<CrewTemplate>
+    error?: string
+  }
   if (!data.ok) throw new Error(data.error ?? 'Failed to fetch templates')
   return data.templates ?? []
 }
@@ -18,14 +23,18 @@ export async function createUserTemplate(input: {
   category: CrewTemplateCategory
   defaultGoal: string
   defaultMembers: Array<{ persona: string; role: string }>
-  tags: string[]
+  tags: Array<string>
 }): Promise<CrewTemplate> {
   const res = await fetch('/api/crews/templates', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
   })
-  const data = (await res.json()) as { ok: boolean; template?: CrewTemplate; error?: string }
+  const data = (await res.json()) as {
+    ok: boolean
+    template?: CrewTemplate
+    error?: string
+  }
   if (!data.ok) throw new Error(data.error ?? 'Failed to create template')
   return data.template!
 }

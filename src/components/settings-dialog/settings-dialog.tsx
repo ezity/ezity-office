@@ -815,18 +815,50 @@ function AppearanceContent() {
   )
 }
 
-
-const THEME_PREVIEWS: Record<string, { bg: string; panel: string; border: string; accent: string; text: string }> = {
-  'hermes-official': { bg: '#0A0E1A', panel: '#11182A', border: '#24304A', accent: '#6366F1', text: '#E6EAF2' },
-  'hermes-classic': { bg: '#0d0f12', panel: '#1a1f26', border: '#2a313b', accent: '#b98a44', text: '#eceff4' },
-  'hermes-slate': { bg: '#0d1117', panel: '#1c2128', border: '#30363d', accent: '#7eb8f6', text: '#c9d1d9' },
-  'hermes-mono': { bg: '#111111', panel: '#222222', border: '#333333', accent: '#aaaaaa', text: '#e6edf3' },
+const THEME_PREVIEWS: Record<
+  string,
+  { bg: string; panel: string; border: string; accent: string; text: string }
+> = {
+  'hermes-official': {
+    bg: '#0A0E1A',
+    panel: '#11182A',
+    border: '#24304A',
+    accent: '#6366F1',
+    text: '#E6EAF2',
+  },
+  'hermes-classic': {
+    bg: '#0d0f12',
+    panel: '#1a1f26',
+    border: '#2a313b',
+    accent: '#b98a44',
+    text: '#eceff4',
+  },
+  'hermes-slate': {
+    bg: '#0d1117',
+    panel: '#1c2128',
+    border: '#30363d',
+    accent: '#7eb8f6',
+    text: '#c9d1d9',
+  },
+  'hermes-mono': {
+    bg: '#111111',
+    panel: '#222222',
+    border: '#333333',
+    accent: '#aaaaaa',
+    text: '#e6edf3',
+  },
 }
 
 const ENTERPRISE_THEMES = THEMES.map((theme) => ({
   ...theme,
   desc: theme.description,
-  preview: THEME_PREVIEWS[theme.id] ?? { bg: '#080c14', panel: '#111827', border: '#1e293b', accent: '#38bdf8', text: '#e2e8f0' },
+  preview: THEME_PREVIEWS[theme.id] ?? {
+    bg: '#080c14',
+    panel: '#111827',
+    border: '#1e293b',
+    accent: '#38bdf8',
+    text: '#e2e8f0',
+  },
 }))
 
 function ThemeSwatch({
@@ -1107,7 +1139,9 @@ function _AdvancedContent() {
 
   const urlErrorId = 'hermes-url-error'
 
-  const [backupStatus, setBackupStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle')
+  const [backupStatus, setBackupStatus] = useState<
+    'idle' | 'running' | 'done' | 'error'
+  >('idle')
   const importRef = useRef<HTMLInputElement>(null)
 
   async function triggerBackup() {
@@ -1160,7 +1194,10 @@ function _AdvancedContent() {
             )}
           </div>
         </Row>
-        <Row label="API Server Key" description="API_SERVER_KEY for non-loopback Hermes instances (v0.9.0)">
+        <Row
+          label="API Server Key"
+          description="API_SERVER_KEY for non-loopback Hermes instances (v0.9.0)"
+        >
           <Input
             type="password"
             placeholder="sk-…"
@@ -1209,7 +1246,10 @@ function _AdvancedContent() {
         </Row>
       </div>
       <div className={SETTINGS_CARD_CLASS}>
-        <Row label="Backup" description="Export config, sessions, skills, and memory to a snapshot file.">
+        <Row
+          label="Backup"
+          description="Export config, sessions, skills, and memory to a snapshot file."
+        >
           <Button
             variant="outline"
             size="sm"
@@ -1217,10 +1257,19 @@ function _AdvancedContent() {
             disabled={backupStatus === 'running'}
             className="h-8 rounded-lg border-primary-200 px-3"
           >
-            {backupStatus === 'running' ? 'Backing up…' : backupStatus === 'done' ? 'Done ✓' : backupStatus === 'error' ? 'Error' : 'Create backup'}
+            {backupStatus === 'running'
+              ? 'Backing up…'
+              : backupStatus === 'done'
+                ? 'Done ✓'
+                : backupStatus === 'error'
+                  ? 'Error'
+                  : 'Create backup'}
           </Button>
         </Row>
-        <Row label="Import" description="Restore a previously created backup archive.">
+        <Row
+          label="Import"
+          description="Restore a previously created backup archive."
+        >
           <div>
             <input
               ref={importRef}

@@ -452,7 +452,9 @@ export function CreateJobDialog({
                     <span
                       style={{
                         display: 'inline-block',
-                        transform: form.showPreRunScript ? 'rotate(90deg)' : 'rotate(0deg)',
+                        transform: form.showPreRunScript
+                          ? 'rotate(90deg)'
+                          : 'rotate(0deg)',
                         transition: 'transform 0.15s',
                       }}
                     >
@@ -462,8 +464,12 @@ export function CreateJobDialog({
                   </button>
                   {form.showPreRunScript && (
                     <div className="mt-2 space-y-1">
-                      <p className="text-xs" style={{ color: 'var(--theme-muted)' }}>
-                        Shell script that runs before the agent prompt — useful for change detection or data collection.
+                      <p
+                        className="text-xs"
+                        style={{ color: 'var(--theme-muted)' }}
+                      >
+                        Shell script that runs before the agent prompt — useful
+                        for change detection or data collection.
                       </p>
                       <textarea
                         value={form.preRunScript}

@@ -9,23 +9,25 @@ import { isAuthenticated } from '../../../server/auth-middleware'
 import { requireJsonContentType } from '../../../server/rate-limit'
 import { getCrew } from '../../../server/crew-store'
 import {
+  deleteWorkflow,
   getWorkflow,
   upsertWorkflow,
-  deleteWorkflow,
 } from '../../../server/workflow-store'
-import type { WorkflowTask, WorkflowEdge } from '../../../types/workflow'
+import type { WorkflowEdge, WorkflowTask } from '../../../types/workflow'
 
 // ─── Cycle detection (DFS) ──────────────────────────────────────────────────
 
-function hasCycle(taskIds: string[], edges: WorkflowEdge[]): boolean {
-  const adj = new Map<string, string[]>()
+function hasCycle(taskIds: Array<string>, edges: Array<WorkflowEdge>): boolean {
+  const adj = new Map<string, Array<string>>()
   for (const id of taskIds) adj.set(id, [])
   for (const e of edges) {
     const list = adj.get(e.from)
     if (list) list.push(e.to)
   }
 
-  const WHITE = 0, GRAY = 1, BLACK = 2
+  const WHITE = 0,
+    GRAY = 1,
+    BLACK = 2
   const color = new Map<string, number>()
   for (const id of taskIds) color.set(id, WHITE)
 
@@ -82,8 +84,8 @@ export const Route = createFileRoute('/api/crews/$crewId/workflow')({
           )
         }
 
-        const tasks = body.tasks as WorkflowTask[]
-        const edges = body.edges as WorkflowEdge[]
+        const tasks = body.tasks as Array<WorkflowTask>
+        const edges = body.edges as Array<WorkflowEdge>
 
         // Validate edge references
         const taskIds = new Set(tasks.map((t) => t.id))

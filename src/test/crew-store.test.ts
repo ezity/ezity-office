@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 let tmpDir: string
 
@@ -42,7 +42,11 @@ describe('crew-store', () => {
 
   it('createCrew() trims whitespace from name and goal', async () => {
     const { createCrew } = await getStore()
-    const crew = createCrew({ name: '  Trimmed  ', goal: '  Goal  ', members: [] })
+    const crew = createCrew({
+      name: '  Trimmed  ',
+      goal: '  Goal  ',
+      members: [],
+    })
     expect(crew.name).toBe('Trimmed')
     expect(crew.goal).toBe('Goal')
   })

@@ -14,10 +14,10 @@ import { json } from '@tanstack/react-start'
 import { isAuthenticated } from '../../server/auth-middleware'
 import { requireJsonContentType } from '../../server/rate-limit'
 import {
+  HERMES_API,
   ensureGatewayProbed,
   getGatewayCapabilities,
   sendChat,
-  HERMES_API,
 } from '../../server/hermes-api'
 
 export const Route = createFileRoute('/api/approvals/$approvalId/approve')({
@@ -34,7 +34,7 @@ export const Route = createFileRoute('/api/approvals/$approvalId/approve')({
         await ensureGatewayProbed()
 
         // Parse optional body for scope (once | session | always)
-        let scope: string = 'once'
+        let scope = 'once'
         try {
           const body = (await request.json().catch(() => ({}))) as Record<
             string,
@@ -60,8 +60,7 @@ export const Route = createFileRoute('/api/approvals/$approvalId/approve')({
 
         // The approvalId may encode sessionKey as "<sessionKey>:<uuid>"
         const colonIdx = approvalId.indexOf(':')
-        const sessionKey =
-          colonIdx > 0 ? approvalId.slice(0, colonIdx) : 'main'
+        const sessionKey = colonIdx > 0 ? approvalId.slice(0, colonIdx) : 'main'
 
         // Strategy 1: try the gateway's native approval endpoint first
         const caps = getGatewayCapabilities()

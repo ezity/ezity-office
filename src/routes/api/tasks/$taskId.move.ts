@@ -8,7 +8,13 @@ import { requireJsonContentType } from '../../../server/rate-limit'
 import { moveTask } from '../../../server/task-store'
 import type { TaskColumn } from '../../../types/task'
 
-const VALID_COLUMNS: TaskColumn[] = ['backlog', 'todo', 'in_progress', 'review', 'done']
+const VALID_COLUMNS: Array<TaskColumn> = [
+  'backlog',
+  'todo',
+  'in_progress',
+  'review',
+  'done',
+]
 
 export const Route = createFileRoute('/api/tasks/$taskId/move')({
   server: {
@@ -20,12 +26,18 @@ export const Route = createFileRoute('/api/tasks/$taskId/move')({
         const csrfCheck = requireJsonContentType(request)
         if (csrfCheck) return csrfCheck
 
-        const body = (await request.json().catch(() => ({}))) as Record<string, unknown>
+        const body = (await request.json().catch(() => ({}))) as Record<
+          string,
+          unknown
+        >
 
         const column = typeof body.column === 'string' ? body.column : ''
         if (!VALID_COLUMNS.includes(column as TaskColumn)) {
           return json(
-            { ok: false, error: `column must be one of: ${VALID_COLUMNS.join(', ')}` },
+            {
+              ok: false,
+              error: `column must be one of: ${VALID_COLUMNS.join(', ')}`,
+            },
             { status: 400 },
           )
         }

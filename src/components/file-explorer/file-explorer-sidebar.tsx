@@ -308,7 +308,11 @@ export function FileExplorerSidebar({
       await fetch('/api/files', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ action: 'mkdir', path: nextPath, ...profilePayload }),
+        body: JSON.stringify({
+          action: 'mkdir',
+          path: nextPath,
+          ...profilePayload,
+        }),
       })
     } else {
       const nextPath = promptState.targetPath

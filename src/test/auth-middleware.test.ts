@@ -1,4 +1,16 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import {
+  createSessionCookie,
+  generateSessionToken,
+  getSessionTokenFromCookie,
+  isAuthenticated,
+  isPasswordProtectionEnabled,
+  isValidSessionToken,
+  revokeSessionToken,
+  storeSessionToken,
+  verifyPassword,
+} from '@/server/auth-middleware'
 
 // We test the pure, non-Redis-dependent exports directly.
 // Redis interactions are triggered only on module load; we suppress them
@@ -8,18 +20,6 @@ vi.mock('@/server/redis-client', () => ({
   getRedisClient: () => Promise.resolve(null),
   getRedisClientSync: () => null,
 }))
-
-import {
-  generateSessionToken,
-  storeSessionToken,
-  isValidSessionToken,
-  revokeSessionToken,
-  isPasswordProtectionEnabled,
-  verifyPassword,
-  getSessionTokenFromCookie,
-  isAuthenticated,
-  createSessionCookie,
-} from '@/server/auth-middleware'
 
 beforeEach(() => {
   delete process.env.HERMES_PASSWORD

@@ -26,9 +26,30 @@ const COLOR_OPTIONS = [
 ]
 
 const COMMON_EMOJIS = [
-  '🤖', '🧠', '🎯', '⚡', '🔥', '🌟', '💡', '🛠️',
-  '🎨', '🏗️', '📣', '🔍', '⚙️', '🔬', '🛡️', '🚀',
-  '📊', '✍️', '🧬', '🔐', '📱', '🌐', '💻', '🗂️',
+  '🤖',
+  '🧠',
+  '🎯',
+  '⚡',
+  '🔥',
+  '🌟',
+  '💡',
+  '🛠️',
+  '🎨',
+  '🏗️',
+  '📣',
+  '🔍',
+  '⚙️',
+  '🔬',
+  '🛡️',
+  '🚀',
+  '📊',
+  '✍️',
+  '🧬',
+  '🔐',
+  '📱',
+  '🌐',
+  '💻',
+  '🗂️',
 ]
 
 type Props = {
@@ -86,7 +107,10 @@ export function AgentEditorDialog({
 
   if (!open) return null
 
-  function set<K extends keyof CreateAgentInput>(key: K, value: CreateAgentInput[K]) {
+  function set<K extends keyof CreateAgentInput>(
+    key: K,
+    value: CreateAgentInput[K],
+  ) {
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
@@ -101,7 +125,8 @@ export function AgentEditorDialog({
     await onSubmit({ ...form, name: form.name.trim(), tags })
   }
 
-  const selectedColor = COLOR_OPTIONS.find((c) => c.value === form.color) ?? COLOR_OPTIONS[0]
+  const selectedColor =
+    COLOR_OPTIONS.find((c) => c.value === form.color) ?? COLOR_OPTIONS[0]
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -127,7 +152,10 @@ export function AgentEditorDialog({
         </div>
 
         {/* Form */}
-        <form onSubmit={(e) => void handleSubmit(e)} className="p-6 space-y-5 overflow-y-auto">
+        <form
+          onSubmit={(e) => void handleSubmit(e)}
+          className="p-6 space-y-5 overflow-y-auto"
+        >
           {/* Identity row: emoji + name + color */}
           <div className="flex items-start gap-3">
             {/* Emoji picker */}
@@ -231,7 +259,9 @@ export function AgentEditorDialog({
           <div>
             <label className="mb-1.5 block text-xs font-medium text-[var(--theme-muted)]">
               System Prompt
-              <span className="ml-1.5 font-normal opacity-60">(defines behaviour)</span>
+              <span className="ml-1.5 font-normal opacity-60">
+                (defines behaviour)
+              </span>
             </label>
             <textarea
               value={form.systemPrompt}
@@ -246,7 +276,9 @@ export function AgentEditorDialog({
           <div>
             <label className="mb-1.5 block text-xs font-medium text-[var(--theme-muted)]">
               Model override
-              <span className="ml-1.5 font-normal opacity-60">(optional — uses session default if blank)</span>
+              <span className="ml-1.5 font-normal opacity-60">
+                (optional — uses session default if blank)
+              </span>
             </label>
             <input
               type="text"
@@ -261,7 +293,9 @@ export function AgentEditorDialog({
           <div>
             <label className="mb-1.5 block text-xs font-medium text-[var(--theme-muted)]">
               Tags
-              <span className="ml-1.5 font-normal opacity-60">(comma-separated)</span>
+              <span className="ml-1.5 font-normal opacity-60">
+                (comma-separated)
+              </span>
             </label>
             <input
               type="text"
@@ -286,7 +320,11 @@ export function AgentEditorDialog({
               disabled={isSubmitting || !form.name.trim()}
               className="rounded-lg bg-[var(--theme-accent)] px-4 py-2 text-sm font-medium text-white transition-opacity disabled:opacity-50"
             >
-              {isSubmitting ? 'Saving…' : isEditing ? 'Save Changes' : 'Create Agent'}
+              {isSubmitting
+                ? 'Saving…'
+                : isEditing
+                  ? 'Save Changes'
+                  : 'Create Agent'}
             </button>
           </div>
         </form>

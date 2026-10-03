@@ -2439,7 +2439,9 @@ export function ChatScreen({
             collapsed={fileExplorerCollapsed}
             onToggle={handleToggleFileExplorer}
             onInsertReference={handleInsertFileReference}
-            profileName={activeProfile !== 'default' ? activeProfile : undefined}
+            profileName={
+              activeProfile !== 'default' ? activeProfile : undefined
+            }
           />
         )}
 

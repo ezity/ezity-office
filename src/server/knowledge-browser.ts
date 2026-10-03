@@ -25,7 +25,12 @@ export type WikiLink = {
 }
 
 export type KnowledgeGraph = {
-  nodes: Array<{ id: string; title: string; type?: string; tags: Array<string> }>
+  nodes: Array<{
+    id: string
+    title: string
+    type?: string
+    tags: Array<string>
+  }>
   edges: Array<{ source: string; target: string }>
 }
 

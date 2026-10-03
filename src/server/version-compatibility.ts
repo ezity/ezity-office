@@ -3,7 +3,7 @@
  * Ensures Studio is compatible with the running Hermes gateway version.
  */
 
-import { HERMES_API, BEARER_TOKEN } from './gateway-capabilities'
+import { BEARER_TOKEN, HERMES_API } from './gateway-capabilities'
 
 export interface VersionInfo {
   version?: string
@@ -23,7 +23,9 @@ const CACHE_TTL_MS = 60_000 // Cache version for 1 minute
  * Tries multiple endpoints for compatibility with different versions.
  */
 async function fetchVersionInfo(): Promise<VersionInfo | null> {
-  const authHeaders = BEARER_TOKEN ? { Authorization: `Bearer ${BEARER_TOKEN}` } : {}
+  const authHeaders = BEARER_TOKEN
+    ? { Authorization: `Bearer ${BEARER_TOKEN}` }
+    : {}
 
   // Try different version endpoints for compatibility
   const endpoints = [
@@ -56,7 +58,8 @@ async function fetchVersionInfo(): Promise<VersionInfo | null> {
             return {
               version,
               commit: typeof obj.commit === 'string' ? obj.commit : undefined,
-              timestamp: typeof obj.timestamp === 'string' ? obj.timestamp : undefined,
+              timestamp:
+                typeof obj.timestamp === 'string' ? obj.timestamp : undefined,
             }
           }
         }
@@ -72,7 +75,9 @@ async function fetchVersionInfo(): Promise<VersionInfo | null> {
 /**
  * Parse semantic version string (e.g., "0.18.0") into numbers.
  */
-function parseVersion(versionStr: string): { major: number; minor: number; patch: number } | null {
+function parseVersion(
+  versionStr: string,
+): { major: number; minor: number; patch: number } | null {
   const match = versionStr.match(/^v?(\d+)\.(\d+)\.(\d+)/)
   if (!match) return null
   return {
@@ -100,9 +105,9 @@ function compareVersions(
  */
 export function checkCompatibility(versionStr: string): {
   compatible: boolean
-  warnings: string[]
+  warnings: Array<string>
 } {
-  const warnings: string[] = []
+  const warnings: Array<string> = []
   const parsed = parseVersion(versionStr)
 
   if (!parsed) {

@@ -16,7 +16,7 @@ const TEMPLATES_FILE = join(DATA_DIR, 'templates.json')
 
 // ─── Built-in templates (hardcoded, never persisted) ─────────────────────────
 
-const BUILT_IN_TEMPLATES: CrewTemplate[] = [
+const BUILT_IN_TEMPLATES: Array<CrewTemplate> = [
   {
     id: 'builtin-research-team',
     name: 'Research Team',
@@ -24,7 +24,8 @@ const BUILT_IN_TEMPLATES: CrewTemplate[] = [
       'Analyze topics in depth, synthesize findings, and produce structured reports.',
     icon: '🔬',
     category: 'research',
-    defaultGoal: 'Research the topic thoroughly and produce a structured report with key findings and recommendations.',
+    defaultGoal:
+      'Research the topic thoroughly and produce a structured report with key findings and recommendations.',
     defaultMembers: [
       { persona: 'luna', role: 'executor' },
       { persona: 'ada', role: 'reviewer' },
@@ -41,7 +42,8 @@ const BUILT_IN_TEMPLATES: CrewTemplate[] = [
       'Two analysts plus a coordinator for exhaustive investigation of a complex subject.',
     icon: '🧐',
     category: 'research',
-    defaultGoal: 'Conduct a comprehensive deep-dive investigation and deliver a detailed analysis document.',
+    defaultGoal:
+      'Conduct a comprehensive deep-dive investigation and deliver a detailed analysis document.',
     defaultMembers: [
       { persona: 'luna', role: 'executor' },
       { persona: 'roger', role: 'executor' },
@@ -58,7 +60,8 @@ const BUILT_IN_TEMPLATES: CrewTemplate[] = [
       'End-to-end feature delivery with frontend, backend, DevOps, and QA coverage.',
     icon: '🏗️',
     category: 'engineering',
-    defaultGoal: 'Design, build, test, and deploy the feature end-to-end across the full stack.',
+    defaultGoal:
+      'Design, build, test, and deploy the feature end-to-end across the full stack.',
     defaultMembers: [
       { persona: 'kai', role: 'coordinator' },
       { persona: 'roger', role: 'executor' },
@@ -77,7 +80,8 @@ const BUILT_IN_TEMPLATES: CrewTemplate[] = [
       'Thorough code review covering correctness, security, and maintainability.',
     icon: '🔍',
     category: 'engineering',
-    defaultGoal: 'Review the codebase for quality, security vulnerabilities, and best-practice adherence.',
+    defaultGoal:
+      'Review the codebase for quality, security vulnerabilities, and best-practice adherence.',
     defaultMembers: [
       { persona: 'ada', role: 'executor' },
       { persona: 'luna', role: 'reviewer' },
@@ -94,7 +98,8 @@ const BUILT_IN_TEMPLATES: CrewTemplate[] = [
       'Create compelling content: research, write, and polish for any channel.',
     icon: '✍️',
     category: 'creative',
-    defaultGoal: 'Research the subject, draft engaging content, and refine it for the target audience.',
+    defaultGoal:
+      'Research the subject, draft engaging content, and refine it for the target audience.',
     defaultMembers: [
       { persona: 'bill', role: 'coordinator' },
       { persona: 'luna', role: 'executor' },
@@ -111,7 +116,8 @@ const BUILT_IN_TEMPLATES: CrewTemplate[] = [
       'Infrastructure, deployment, and backend reliability across a system.',
     icon: '⚙️',
     category: 'operations',
-    defaultGoal: 'Audit, optimize, and stabilize the infrastructure and deployment pipeline.',
+    defaultGoal:
+      'Audit, optimize, and stabilize the infrastructure and deployment pipeline.',
     defaultMembers: [
       { persona: 'max', role: 'coordinator' },
       { persona: 'sally', role: 'executor' },
@@ -128,7 +134,8 @@ const BUILT_IN_TEMPLATES: CrewTemplate[] = [
       'Balanced cross-functional crew for delivering a focused sprint of work.',
     icon: '⚡',
     category: 'operations',
-    defaultGoal: 'Plan, execute, and review a focused sprint to deliver the defined scope on time.',
+    defaultGoal:
+      'Plan, execute, and review a focused sprint to deliver the defined scope on time.',
     defaultMembers: [
       { persona: 'kai', role: 'coordinator' },
       { persona: 'roger', role: 'executor' },
@@ -142,7 +149,8 @@ const BUILT_IN_TEMPLATES: CrewTemplate[] = [
   {
     id: 'conductor-research',
     name: 'Research Mission',
-    description: 'Deep research on a topic with parallel investigators and a synthesizer',
+    description:
+      'Deep research on a topic with parallel investigators and a synthesizer',
     icon: '🔬',
     category: 'conductor' as const,
     defaultGoal: 'Research and synthesize findings on...',
@@ -158,7 +166,8 @@ const BUILT_IN_TEMPLATES: CrewTemplate[] = [
   {
     id: 'conductor-build',
     name: 'Build Mission',
-    description: 'Plan, implement, and review a feature with specialized workers',
+    description:
+      'Plan, implement, and review a feature with specialized workers',
     icon: '🏗️',
     category: 'conductor' as const,
     defaultGoal: 'Build and deliver...',
@@ -241,7 +250,7 @@ loadFromDisk()
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 /** Returns all templates: built-ins first (declaration order), then user templates newest-first. */
-export function listTemplates(): CrewTemplate[] {
+export function listTemplates(): Array<CrewTemplate> {
   const userTemplates = Object.values(store.templates).sort(
     (a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0),
   )
@@ -260,8 +269,11 @@ export function createUserTemplate(input: {
   icon: string
   category: CrewTemplateCategory
   defaultGoal: string
-  defaultMembers: Array<{ persona: string; role: CrewTemplate['defaultMembers'][number]['role'] }>
-  tags: string[]
+  defaultMembers: Array<{
+    persona: string
+    role: CrewTemplate['defaultMembers'][number]['role']
+  }>
+  tags: Array<string>
   templateType?: CrewTemplate['templateType']
   conductorConfig?: CrewTemplate['conductorConfig']
 }): CrewTemplate {

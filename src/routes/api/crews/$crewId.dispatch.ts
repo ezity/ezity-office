@@ -52,7 +52,9 @@ export const Route = createFileRoute('/api/crews/$crewId/dispatch')({
         const targets =
           target === 'all'
             ? crew.members
-            : crew.members.filter((m) => m.id === target || m.sessionKey === target)
+            : crew.members.filter(
+                (m) => m.id === target || m.sessionKey === target,
+              )
 
         if (targets.length === 0) {
           return json(
@@ -72,7 +74,7 @@ export const Route = createFileRoute('/api/crews/$crewId/dispatch')({
         // Fire-and-forget — POST to send-stream for each target.
         // We don't await these because send-stream is a long-running SSE response.
         // The frontend subscribes to /api/chat-events and watches for run events.
-        const dispatched: string[] = []
+        const dispatched: Array<string> = []
         for (const member of targets) {
           dispatched.push(member.sessionKey)
           // Non-streaming fire-and-forget to kick off the agent run
@@ -87,7 +89,7 @@ export const Route = createFileRoute('/api/crews/$crewId/dispatch')({
               message: task,
               sessionKey: member.sessionKey,
               model: member.model ?? undefined,
-              stream: false,  // don't need the stream here — events flow via chat-event-bus
+              stream: false, // don't need the stream here — events flow via chat-event-bus
             }),
           }).catch(() => {
             // If send-stream fails, mark member as error

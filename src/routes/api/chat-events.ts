@@ -52,11 +52,7 @@ export const Route = createFileRoute('/api/chat-events')({
              * Emit an SSE event, optionally with an id: field for replay.
              * seq === undefined → id: line is omitted (heartbeats, connected).
              */
-            const sendEvent = (
-              event: string,
-              data: unknown,
-              seq?: number,
-            ) => {
+            const sendEvent = (event: string, data: unknown, seq?: number) => {
               if (streamClosed) return
               try {
                 let payload = ''

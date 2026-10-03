@@ -8,14 +8,14 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { randomUUID } from 'node:crypto'
+import { publishChatEvent } from './chat-event-bus'
 import type {
-  HermesTask,
   CreateTaskInput,
-  UpdateTaskInput,
+  HermesTask,
   TaskColumn,
   TaskSourceType,
+  UpdateTaskInput,
 } from '../types/task'
-import { publishChatEvent } from './chat-event-bus'
 
 const DATA_DIR = join(process.cwd(), '.runtime')
 const TASKS_FILE = join(DATA_DIR, 'tasks.json')
@@ -41,31 +41,42 @@ function loadFromDisk(): void {
         store = parsed
       }
     }
-  } catch { /* corrupt file — start fresh */ }
+  } catch {
+    /* corrupt file — start fresh */
+  }
 }
 
 function saveToDisk(): void {
   try {
     if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true })
     writeFileSync(TASKS_FILE, JSON.stringify(store, null, 2))
-  } catch { /* ignore write failure */ }
+  } catch {
+    /* ignore write failure */
+  }
 }
 
 let _saveTimer: ReturnType<typeof setTimeout> | null = null
 function scheduleSave(): void {
   if (_saveTimer) return
-  _saveTimer = setTimeout(() => { _saveTimer = null; saveToDisk() }, 1_000)
+  _saveTimer = setTimeout(() => {
+    _saveTimer = null
+    saveToDisk()
+  }, 1_000)
 }
 
 loadFromDisk()
 
-export function listTasks(filter?: TaskFilter): HermesTask[] {
+export function listTasks(filter?: TaskFilter): Array<HermesTask> {
   let tasks = Object.values(store.tasks)
   if (filter?.column) tasks = tasks.filter((t) => t.column === filter.column)
-  if (filter?.assignee) tasks = tasks.filter((t) => t.assignee === filter.assignee)
-  if (filter?.priority) tasks = tasks.filter((t) => t.priority === filter.priority)
-  if (filter?.sourceType) tasks = tasks.filter((t) => t.sourceType === filter.sourceType)
-  if (filter?.sourceId) tasks = tasks.filter((t) => t.sourceId === filter.sourceId)
+  if (filter?.assignee)
+    tasks = tasks.filter((t) => t.assignee === filter.assignee)
+  if (filter?.priority)
+    tasks = tasks.filter((t) => t.priority === filter.priority)
+  if (filter?.sourceType)
+    tasks = tasks.filter((t) => t.sourceType === filter.sourceType)
+  if (filter?.sourceId)
+    tasks = tasks.filter((t) => t.sourceId === filter.sourceId)
   return tasks.sort((a, b) => b.createdAt - a.createdAt)
 }
 
@@ -93,15 +104,24 @@ export function createTask(input: CreateTaskInput): HermesTask {
   }
   store.tasks[task.id] = task
   saveToDisk()
-  publishChatEvent('task.created', { sessionKey: 'all', taskId: task.id, title: task.title, sourceType: task.sourceType })
+  publishChatEvent('task.created', {
+    sessionKey: 'all',
+    taskId: task.id,
+    title: task.title,
+    sourceType: task.sourceType,
+  })
   return task
 }
 
-export function updateTask(taskId: string, updates: UpdateTaskInput): HermesTask | null {
+export function updateTask(
+  taskId: string,
+  updates: UpdateTaskInput,
+): HermesTask | null {
   const task = store.tasks[taskId]
   if (!task) return null
   if (updates.title !== undefined) task.title = updates.title.trim()
-  if (updates.description !== undefined) task.description = updates.description.trim()
+  if (updates.description !== undefined)
+    task.description = updates.description.trim()
   if (updates.column !== undefined) task.column = updates.column
   if (updates.priority !== undefined) task.priority = updates.priority
   if (updates.assignee !== undefined) task.assignee = updates.assignee
@@ -113,7 +133,10 @@ export function updateTask(taskId: string, updates: UpdateTaskInput): HermesTask
   return task
 }
 
-export function moveTask(taskId: string, column: TaskColumn): HermesTask | null {
+export function moveTask(
+  taskId: string,
+  column: TaskColumn,
+): HermesTask | null {
   const result = updateTask(taskId, { column })
   if (result) {
     publishChatEvent('task.moved', { sessionKey: 'all', taskId, column })

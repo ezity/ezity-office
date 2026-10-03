@@ -2,7 +2,7 @@ import { AgentCard } from './agent-card'
 import type { OperationAgent } from '@/types/operation'
 
 interface AgentGridProps {
-  agents: OperationAgent[]
+  agents: Array<OperationAgent>
 }
 
 export function AgentGrid({ agents }: AgentGridProps) {
@@ -16,7 +16,8 @@ export function AgentGrid({ agents }: AgentGridProps) {
         }}
       >
         <p className="text-sm max-w-xs">
-          No agents running. Start a Crew or Conductor mission to see agents here.
+          No agents running. Start a Crew or Conductor mission to see agents
+          here.
         </p>
       </div>
     )

@@ -19,7 +19,8 @@ export function ConductorScreen() {
 
   const screenPhase: ScreenPhase = useMemo(() => {
     if (conductor.phase === 'idle') return 'home'
-    if (conductor.phase === 'decomposing' || conductor.phase === 'running') return 'active'
+    if (conductor.phase === 'decomposing' || conductor.phase === 'running')
+      return 'active'
     return 'complete'
   }, [conductor.phase])
 
@@ -34,7 +35,9 @@ export function ConductorScreen() {
     setGoalDraft('')
   }
 
-  const updateSettings = (patch: Partial<typeof conductor.conductorSettings>) => {
+  const updateSettings = (
+    patch: Partial<typeof conductor.conductorSettings>,
+  ) => {
     conductor.setConductorSettings({ ...conductor.conductorSettings, ...patch })
   }
 
@@ -53,11 +56,12 @@ export function ConductorScreen() {
             onSettingsOpen={() => setSettingsOpen(true)}
           />
         )}
-        {screenPhase === 'active' && (
-          <ConductorActive conductor={conductor} />
-        )}
+        {screenPhase === 'active' && <ConductorActive conductor={conductor} />}
         {screenPhase === 'complete' && (
-          <ConductorComplete conductor={conductor} onNewMission={handleNewMission} />
+          <ConductorComplete
+            conductor={conductor}
+            onNewMission={handleNewMission}
+          />
         )}
       </div>
       <ConductorSettingsDrawer

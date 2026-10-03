@@ -8,19 +8,19 @@ import {
   ArrowLeft01Icon,
   BarChartIcon,
   Copy01Icon,
+  DashboardSpeed01Icon,
   Delete01Icon,
   MessageMultiple01Icon,
   PlayIcon,
   Share01Icon,
   UserMultiple02Icon,
-  DashboardSpeed01Icon,
 } from '@hugeicons/core-free-icons'
 import { DispatchDialog } from './components/dispatch-dialog'
 import { WorkflowBuilder } from './components/workflow-builder'
 import { CostPanel } from './components/cost-panel'
-import { Tabs, TabsList, TabsTab, TabsPanel } from '@/components/ui/tabs'
-import { AgentGrid } from '@/screens/operations/components/agent-grid'
 import type { Crew, CrewMember, CrewMemberStatus } from '@/lib/crews-api'
+import { Tabs, TabsList, TabsPanel, TabsTab } from '@/components/ui/tabs'
+import { AgentGrid } from '@/screens/operations/components/agent-grid'
 import { fetchOperationsOverview } from '@/lib/operations-api'
 import {
   cloneCrew,
@@ -71,7 +71,9 @@ function MemberCard({ member }: { member: CrewMember }) {
           <p className={cn('text-sm font-semibold', member.color)}>
             {member.displayName}
           </p>
-          <p className="text-xs text-[var(--theme-muted)]">{member.roleLabel}</p>
+          <p className="text-xs text-[var(--theme-muted)]">
+            {member.roleLabel}
+          </p>
         </div>
         <span
           className={cn(
@@ -87,7 +89,9 @@ function MemberCard({ member }: { member: CrewMember }) {
         <span className="rounded-full border border-[var(--theme-border)] px-2 py-0.5 text-[10px] text-[var(--theme-muted)]">
           {member.role}
         </span>
-        <span className={cn('text-[10px]', indicator.dot.replace('bg-', 'text-'))}>
+        <span
+          className={cn('text-[10px]', indicator.dot.replace('bg-', 'text-'))}
+        >
           {indicator.label}
         </span>
       </div>
@@ -117,7 +121,7 @@ function MemberCard({ member }: { member: CrewMember }) {
 
 // ─── Activity feed ────────────────────────────────────────────────────────────
 
-function ActivityFeed({ entries }: { entries: ActivityEntry[] }) {
+function ActivityFeed({ entries }: { entries: Array<ActivityEntry> }) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -173,9 +177,11 @@ export function CrewDetailScreen() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'workflow' | 'usage' | 'operations'>('overview')
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'workflow' | 'usage' | 'operations'
+  >('overview')
   const [dispatchOpen, setDispatchOpen] = useState(false)
-  const [activity, setActivity] = useState<ActivityEntry[]>([])
+  const [activity, setActivity] = useState<Array<ActivityEntry>>([])
   const [liveMembers, setLiveMembers] = useState<
     Record<string, CrewMemberStatus>
   >({})
@@ -216,7 +222,10 @@ export function CrewDetailScreen() {
       toast(`Cloned as "${cloned.name}"`)
       void navigate({ to: '/crews/$crewId', params: { crewId: cloned.id } })
     },
-    onError: (err) => toast(err instanceof Error ? err.message : 'Failed to clone crew', { type: 'error' }),
+    onError: (err) =>
+      toast(err instanceof Error ? err.message : 'Failed to clone crew', {
+        type: 'error',
+      }),
   })
 
   const dispatchMutation = useMutation({
@@ -224,7 +233,9 @@ export function CrewDetailScreen() {
       dispatchTask(crewId, task, target),
     onSuccess: ({ dispatched }) => {
       setDispatchOpen(false)
-      toast(`Task dispatched to ${dispatched.length} agent${dispatched.length !== 1 ? 's' : ''}`)
+      toast(
+        `Task dispatched to ${dispatched.length} agent${dispatched.length !== 1 ? 's' : ''}`,
+      )
       // Optimistically set targeted members to running
       setLiveMembers((prev) => {
         const next = { ...prev }
@@ -239,15 +250,12 @@ export function CrewDetailScreen() {
   })
 
   // ── SSE event listener ──────────────────────────────────────────────────────
-  const addActivity = useCallback(
-    (entry: Omit<ActivityEntry, 'id'>) => {
-      setActivity((prev) => {
-        if (prev.length > 200) prev = prev.slice(-150)
-        return [...prev, { ...entry, id: `${Date.now()}-${Math.random()}` }]
-      })
-    },
-    [],
-  )
+  const addActivity = useCallback((entry: Omit<ActivityEntry, 'id'>) => {
+    setActivity((prev) => {
+      if (prev.length > 200) prev = prev.slice(-150)
+      return [...prev, { ...entry, id: `${Date.now()}-${Math.random()}` }]
+    })
+  }, [])
 
   useEffect(() => {
     if (!crew) return
@@ -342,15 +350,18 @@ export function CrewDetailScreen() {
           typeof payload.sessionKey === 'string' ? payload.sessionKey : null
         if (!sk || !sessionKeys.has(sk)) return
         const member = memberBySession[sk]
-        const status =
-          payload.error || payload.errorMessage ? 'error' : 'done'
+        const status = payload.error || payload.errorMessage ? 'error' : 'done'
         setLiveMembers((prev) => ({ ...prev, [sk]: status }))
         void updateMemberStatus(crewId, sk, status)
         // Fetch token counts from Hermes and record them in the cost store
         if (member) {
           void fetchAndRecordUsage(
             crewId,
-            { sessionKey: sk, displayName: member.displayName, model: member.model },
+            {
+              sessionKey: sk,
+              displayName: member.displayName,
+              model: member.model,
+            },
             queryClient,
           )
         }
@@ -394,7 +405,7 @@ export function CrewDetailScreen() {
   }
 
   // Merge live status with persisted status
-  const displayMembers: CrewMember[] = crew.members.map((m) => ({
+  const displayMembers: Array<CrewMember> = crew.members.map((m) => ({
     ...m,
     status: liveMembers[m.sessionKey] ?? m.status,
   }))
@@ -458,10 +469,17 @@ export function CrewDetailScreen() {
 
       {/* Tab bar */}
       <div className="border-b border-[var(--theme-border)] px-6">
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as typeof activeTab)}
+        >
           <TabsList variant="underline">
             <TabsTab value="overview">
-              <HugeiconsIcon icon={UserMultiple02Icon} size={13} strokeWidth={1.7} />
+              <HugeiconsIcon
+                icon={UserMultiple02Icon}
+                size={13}
+                strokeWidth={1.7}
+              />
               Overview
             </TabsTab>
             <TabsTab value="workflow">
@@ -473,7 +491,11 @@ export function CrewDetailScreen() {
               Usage
             </TabsTab>
             <TabsTab value="operations">
-              <HugeiconsIcon icon={DashboardSpeed01Icon} size={13} strokeWidth={1.7} />
+              <HugeiconsIcon
+                icon={DashboardSpeed01Icon}
+                size={13}
+                strokeWidth={1.7}
+              />
               Operations
             </TabsTab>
           </TabsList>
@@ -554,9 +576,7 @@ export function CrewDetailScreen() {
           crew={crew}
           isSubmitting={dispatchMutation.isPending}
           onOpenChange={setDispatchOpen}
-          onSubmit={(task, target) =>
-            dispatchMutation.mutate({ task, target })
-          }
+          onSubmit={(task, target) => dispatchMutation.mutate({ task, target })}
         />
       )}
     </div>

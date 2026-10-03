@@ -8,8 +8,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { isAuthenticated } from '../../server/auth-middleware'
 import { requireJsonContentType } from '../../server/rate-limit'
 import {
-  HERMES_API,
   BEARER_TOKEN,
+  HERMES_API,
   ensureGatewayProbed,
 } from '../../server/gateway-capabilities'
 
@@ -38,7 +38,10 @@ function loadDispatchSkill(): string {
   const candidates = [
     resolve(repoRoot(), 'skills/workspace-dispatch/SKILL.md'),
     resolve(process.cwd(), 'skills/workspace-dispatch/SKILL.md'),
-    resolve(process.env.HOME ?? '~', '.hermes/skills/workspace-dispatch/SKILL.md'),
+    resolve(
+      process.env.HOME ?? '~',
+      '.hermes/skills/workspace-dispatch/SKILL.md',
+    ),
     resolve(
       process.env.HOME ?? '~',
       '.ocplatform/workspace/skills/workspace-dispatch/SKILL.md',
@@ -78,14 +81,17 @@ function buildOrchestratorPrompt(
 ): string {
   const outputBase = options.projectsDir || '/tmp'
   const outputPrefix =
-    outputBase === '/tmp' ? '/tmp/dispatch-<slug>' : `${outputBase}/dispatch-<slug>`
+    outputBase === '/tmp'
+      ? '/tmp/dispatch-<slug>'
+      : `${outputBase}/dispatch-<slug>`
 
   return [
     'You are a mission orchestrator. Execute this mission autonomously.',
     '',
     '## Dispatch Skill Instructions',
     '',
-    skill || '(workspace-dispatch skill not found locally; proceed using create_task to spawn workers)',
+    skill ||
+      '(workspace-dispatch skill not found locally; proceed using create_task to spawn workers)',
     '',
     '## Mission',
     '',
@@ -167,10 +173,13 @@ export const Route = createFileRoute('/api/conductor-spawn')({
     handlers: {
       POST: async ({ request }) => {
         if (!isAuthenticated(request)) {
-          return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), {
-            status: 401,
-            headers: { 'Content-Type': 'application/json' },
-          })
+          return new Response(
+            JSON.stringify({ ok: false, error: 'Unauthorized' }),
+            {
+              status: 401,
+              headers: { 'Content-Type': 'application/json' },
+            },
+          )
         }
         const csrfCheck = requireJsonContentType(request)
         if (csrfCheck) return csrfCheck

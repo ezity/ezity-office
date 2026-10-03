@@ -43,8 +43,14 @@ export const Route = createFileRoute('/api/sessions')({
         try {
           const response = await listSessions(50, 0)
           // Handle OpenAI-format response: { object: "list", data: [...] }
-          const sessionList = Array.isArray(response) ? response : (response?.data ?? [])
-          return json({ ok: true, sessions: sessionList.map(toSessionSummary), source: 'gateway' })
+          const sessionList = Array.isArray(response)
+            ? response
+            : (response?.data ?? [])
+          return json({
+            ok: true,
+            sessions: sessionList.map(toSessionSummary),
+            source: 'gateway',
+          })
         } catch (err) {
           return json(
             {

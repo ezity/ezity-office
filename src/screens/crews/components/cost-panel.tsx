@@ -2,17 +2,21 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { BarChartIcon, CoinsIcon, Delete01Icon } from '@hugeicons/core-free-icons'
-import { fetchCrewUsage, resetUsage } from '@/lib/cost-api'
+import {
+  BarChartIcon,
+  CoinsIcon,
+  Delete01Icon,
+} from '@hugeicons/core-free-icons'
 import type { CrewUsage } from '@/lib/cost-api'
 import type { CrewMember } from '@/lib/crews-api'
+import { fetchCrewUsage, resetUsage } from '@/lib/cost-api'
 import { AGENT_PERSONAS } from '@/lib/agent-personas'
 import { toast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils'
 
 interface CostPanelProps {
   crewId: string
-  members: CrewMember[]
+  members: Array<CrewMember>
 }
 
 function formatTokens(n: number): string {
@@ -62,7 +66,7 @@ function UsageTable({
   members,
 }: {
   usage: CrewUsage
-  members: CrewMember[]
+  members: Array<CrewMember>
 }) {
   const memberMap = Object.fromEntries(members.map((m) => [m.sessionKey, m]))
   const rows = Object.values(usage.members).sort(
@@ -97,8 +101,9 @@ function UsageTable({
       {rows.map((row) => {
         const member = memberMap[row.sessionKey]
         const persona = AGENT_PERSONAS.find(
-          (p) => p.name.toLowerCase() === member?.model?.toLowerCase() ||
-                 member?.displayName.toLowerCase().includes(p.name.toLowerCase()),
+          (p) =>
+            p.name.toLowerCase() === member?.model?.toLowerCase() ||
+            member?.displayName.toLowerCase().includes(p.name.toLowerCase()),
         )
         const noData = row.inputTokens === 0 && row.outputTokens === 0
         const modelLabel = row.model
@@ -195,8 +200,8 @@ export function CostPanel({ crewId, members }: CostPanelProps) {
             No usage data yet
           </p>
           <p className="mt-1 max-w-xs text-xs text-[var(--theme-muted)]">
-            Token counts are captured after each agent run completes.
-            Requires Hermes enhanced mode.
+            Token counts are captured after each agent run completes. Requires
+            Hermes enhanced mode.
           </p>
         </div>
       </div>
@@ -237,9 +242,7 @@ export function CostPanel({ crewId, members }: CostPanelProps) {
           label="Est. Total Cost"
           value={formatCost(usage.totalEstimatedCostUsd)}
           accent={
-            usage.totalEstimatedCostUsd > 0
-              ? 'var(--theme-accent)'
-              : undefined
+            usage.totalEstimatedCostUsd > 0 ? 'var(--theme-accent)' : undefined
           }
           icon={
             <HugeiconsIcon

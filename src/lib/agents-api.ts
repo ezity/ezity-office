@@ -1,12 +1,21 @@
 /**
  * Client-side API helpers for custom agent definitions.
  */
-import type { AgentDefinition, CreateAgentInput, UpdateAgentInput } from '@/types/agent'
+import type {
+  AgentDefinition,
+  CreateAgentInput,
+  UpdateAgentInput,
+} from '@/types/agent'
+
 export type { AgentDefinition, CreateAgentInput, UpdateAgentInput }
 
-export async function fetchAgents(): Promise<AgentDefinition[]> {
+export async function fetchAgents(): Promise<Array<AgentDefinition>> {
   const res = await fetch('/api/agents')
-  const data = (await res.json()) as { ok: boolean; agents?: AgentDefinition[]; error?: string }
+  const data = (await res.json()) as {
+    ok: boolean
+    agents?: Array<AgentDefinition>
+    error?: string
+  }
   if (!data.ok) throw new Error(data.error ?? 'Failed to fetch agents')
   return data.agents ?? []
 }
@@ -18,14 +27,21 @@ export async function fetchAgent(id: string): Promise<AgentDefinition | null> {
   return data.agent ?? null
 }
 
-export async function createAgent(input: CreateAgentInput): Promise<AgentDefinition> {
+export async function createAgent(
+  input: CreateAgentInput,
+): Promise<AgentDefinition> {
   const res = await fetch('/api/agents', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
   })
-  const data = (await res.json()) as { ok: boolean; agent?: AgentDefinition; error?: string }
-  if (!data.ok || !data.agent) throw new Error(data.error ?? 'Failed to create agent')
+  const data = (await res.json()) as {
+    ok: boolean
+    agent?: AgentDefinition
+    error?: string
+  }
+  if (!data.ok || !data.agent)
+    throw new Error(data.error ?? 'Failed to create agent')
   return data.agent
 }
 
@@ -38,8 +54,13 @@ export async function updateAgent(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updates),
   })
-  const data = (await res.json()) as { ok: boolean; agent?: AgentDefinition; error?: string }
-  if (!data.ok || !data.agent) throw new Error(data.error ?? 'Failed to update agent')
+  const data = (await res.json()) as {
+    ok: boolean
+    agent?: AgentDefinition
+    error?: string
+  }
+  if (!data.ok || !data.agent)
+    throw new Error(data.error ?? 'Failed to update agent')
   return data.agent
 }
 

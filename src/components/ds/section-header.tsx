@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils'
 import type { ReactNode } from 'react'
+import { cn } from '@/lib/utils'
 
 interface SectionHeaderProps {
   title: string
@@ -24,7 +24,9 @@ export function SectionHeader({
         </h2>
         {action && <div className="shrink-0">{action}</div>}
       </div>
-      {divider && <div className="mt-2 border-b border-[var(--theme-border)]" />}
+      {divider && (
+        <div className="mt-2 border-b border-[var(--theme-border)]" />
+      )}
       {subtitle && (
         <p className="mt-2 text-xs text-[var(--theme-muted)]">{subtitle}</p>
       )}

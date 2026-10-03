@@ -9,9 +9,7 @@ import {
   unregisterActiveSendRun,
 } from '../../server/send-run-tracker'
 import { getChatMode } from '../../server/gateway-capabilities'
-import {
-  openaiChat
-} from '../../server/openai-compat-api'
+import { openaiChat } from '../../server/openai-compat-api'
 import {
   SESSIONS_API_UNAVAILABLE_MESSAGE,
   createSession,
@@ -23,7 +21,10 @@ import {
   appendLocalMessage,
   ensureLocalSession,
 } from '../../server/local-session-store'
-import type {OpenAICompatContentPart, OpenAICompatMessage} from '../../server/openai-compat-api';
+import type {
+  OpenAICompatContentPart,
+  OpenAICompatMessage,
+} from '../../server/openai-compat-api'
 // Hermes agent runs can take 5+ minutes with complex tool chains
 const SEND_STREAM_RUN_TIMEOUT_MS = 600_000
 const SESSION_BOOTSTRAP_KEYS = new Set(['main', 'new'])
@@ -819,8 +820,7 @@ export const Route = createFileRoute('/api/send-stream')({
                         runId,
                       }
                       sendEvent('approval', translated)
-                      skipPublish ||
-                        publishChatEvent('approval', translated)
+                      skipPublish || publishChatEvent('approval', translated)
                       return
                     }
 

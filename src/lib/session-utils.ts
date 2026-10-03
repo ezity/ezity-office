@@ -29,9 +29,7 @@ export function normalise(raw: Record<string, unknown>): RichSession {
     totalTokens:
       (raw.totalTokens as number) ||
       (raw.tokenCount as number) ||
-      (usage
-        ? (usage.promptTokens ?? 0) + (usage.completionTokens ?? 0)
-        : 0),
+      (usage ? (usage.promptTokens ?? 0) + (usage.completionTokens ?? 0) : 0),
     cost: (raw.cost as number) || 0,
     messageCount:
       (raw.messageCount as number) || (raw.message_count as number) || 0,
@@ -84,9 +82,9 @@ export function fmtDate(ts?: number): string {
  */
 export function sessionTitle(s: SessionMeta): string {
   return (
-    (s as Record<string, unknown>).derivedTitle as string ||
+    ((s as Record<string, unknown>).derivedTitle as string) ||
     s.title ||
-    (s as Record<string, unknown>).label as string ||
+    ((s as Record<string, unknown>).label as string) ||
     s.friendlyId ||
     s.key
   )

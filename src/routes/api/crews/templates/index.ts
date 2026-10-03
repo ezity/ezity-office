@@ -7,19 +7,24 @@ import { json } from '@tanstack/react-start'
 import { isAuthenticated } from '../../../../server/auth-middleware'
 import { requireJsonContentType } from '../../../../server/rate-limit'
 import {
-  listTemplates,
   createUserTemplate,
+  listTemplates,
 } from '../../../../server/template-store'
 import type { CrewTemplateCategory } from '../../../../types/template'
 
-const VALID_CATEGORIES: CrewTemplateCategory[] = [
+const VALID_CATEGORIES: Array<CrewTemplateCategory> = [
   'research',
   'engineering',
   'creative',
   'operations',
 ]
 
-const VALID_ROLES = ['coordinator', 'executor', 'reviewer', 'specialist'] as const
+const VALID_ROLES = [
+  'coordinator',
+  'executor',
+  'reviewer',
+  'specialist',
+] as const
 
 export const Route = createFileRoute('/api/crews/templates/')({
   server: {
@@ -43,58 +48,70 @@ export const Route = createFileRoute('/api/crews/templates/')({
           unknown
         >
 
-        const name =
-          typeof body.name === 'string' ? body.name.trim() : ''
+        const name = typeof body.name === 'string' ? body.name.trim() : ''
         if (!name) {
-          return json(
-            { ok: false, error: 'name is required' },
-            { status: 400 },
-          )
+          return json({ ok: false, error: 'name is required' }, { status: 400 })
         }
 
         const category = body.category as string
         if (!VALID_CATEGORIES.includes(category as CrewTemplateCategory)) {
-          return json(
-            { ok: false, error: 'Invalid category' },
-            { status: 400 },
-          )
+          return json({ ok: false, error: 'Invalid category' }, { status: 400 })
         }
 
-        if (!Array.isArray(body.defaultMembers) || body.defaultMembers.length === 0) {
+        if (
+          !Array.isArray(body.defaultMembers) ||
+          body.defaultMembers.length === 0
+        ) {
           return json(
             { ok: false, error: 'defaultMembers must be a non-empty array' },
             { status: 400 },
           )
         }
 
-        const defaultMembers: Array<{ persona: string; role: typeof VALID_ROLES[number] }> = []
-        for (const m of body.defaultMembers as unknown[]) {
+        const defaultMembers: Array<{
+          persona: string
+          role: (typeof VALID_ROLES)[number]
+        }> = []
+        for (const m of body.defaultMembers as Array<unknown>) {
           if (
             typeof m !== 'object' ||
             m === null ||
             typeof (m as Record<string, unknown>).persona !== 'string' ||
-            !VALID_ROLES.includes((m as Record<string, unknown>).role as typeof VALID_ROLES[number])
+            !VALID_ROLES.includes(
+              (m as Record<string, unknown>)
+                .role as (typeof VALID_ROLES)[number],
+            )
           ) {
             return json(
-              { ok: false, error: 'Each member must have persona (string) and valid role' },
+              {
+                ok: false,
+                error: 'Each member must have persona (string) and valid role',
+              },
               { status: 400 },
             )
           }
           defaultMembers.push({
-            persona: ((m as Record<string, unknown>).persona as string).toLowerCase(),
-            role: (m as Record<string, unknown>).role as typeof VALID_ROLES[number],
+            persona: (
+              (m as Record<string, unknown>).persona as string
+            ).toLowerCase(),
+            role: (m as Record<string, unknown>)
+              .role as (typeof VALID_ROLES)[number],
           })
         }
 
         const template = createUserTemplate({
           name,
-          description: typeof body.description === 'string' ? body.description.trim() : '',
+          description:
+            typeof body.description === 'string' ? body.description.trim() : '',
           icon: typeof body.icon === 'string' ? body.icon : '🤖',
           category: category as CrewTemplateCategory,
-          defaultGoal: typeof body.defaultGoal === 'string' ? body.defaultGoal.trim() : '',
+          defaultGoal:
+            typeof body.defaultGoal === 'string' ? body.defaultGoal.trim() : '',
           defaultMembers,
           tags: Array.isArray(body.tags)
-            ? (body.tags as unknown[]).filter((t): t is string => typeof t === 'string')
+            ? (body.tags as Array<unknown>).filter(
+                (t): t is string => typeof t === 'string',
+              )
             : [],
         })
 

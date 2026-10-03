@@ -114,13 +114,13 @@ From the Jobs tab you can:
 
 ### What this unlocks
 
-| Use case | How |
-|---|---|
-| Daily briefing | Schedule a "summarise my emails and calendar" prompt every morning at 7am, delivered to Telegram |
-| Repo health check | Run a code analysis prompt every night; get a Slack message only if issues found |
-| Price / data monitor | Poll an API every 15 minutes; alert on thresholds |
-| Automated reports | Weekly Markdown report generated into your workspace files |
-| Maintenance tasks | Prune old memory entries, rotate logs, sync data — on a schedule, unattended |
+| Use case             | How                                                                                              |
+| -------------------- | ------------------------------------------------------------------------------------------------ |
+| Daily briefing       | Schedule a "summarise my emails and calendar" prompt every morning at 7am, delivered to Telegram |
+| Repo health check    | Run a code analysis prompt every night; get a Slack message only if issues found                 |
+| Price / data monitor | Poll an API every 15 minutes; alert on thresholds                                                |
+| Automated reports    | Weekly Markdown report generated into your workspace files                                       |
+| Maintenance tasks    | Prune old memory entries, rotate logs, sync data — on a schedule, unattended                     |
 
 The gateway already runs the jobs. Hermes Studio is the control plane that makes them manageable without a terminal.
 
@@ -159,6 +159,7 @@ Hermes Studio is a fork of [hermes-workspace](https://github.com/outsourc-e/herm
 Every crew gets a **Usage** tab on its detail screen. After each agent run completes, Hermes Studio fetches the accumulated token counts from the Hermes session API and records them per agent.
 
 The tab shows:
+
 - **KPI strip** — total tokens, input/output split, estimated total cost
 - **Per-agent breakdown** — input tokens, output tokens, estimated cost per member; shows model badge and dashes for portable mode sessions
 - **Reset control** — clear all usage data for a crew at any time
@@ -175,15 +176,15 @@ Launching a new crew from scratch every time gets repetitive. Templates let you 
 
 **Built-in templates (7 total, 4 categories):**
 
-| Category | Template | Composition |
-|---|---|---|
-| Research | Research Team | Luna (analyst), Ada (reviewer), Kai (coordinator) |
-| Research | Deep Dive | Luna + Roger (analysts), Kai (coordinator) |
+| Category    | Template         | Composition                                                                  |
+| ----------- | ---------------- | ---------------------------------------------------------------------------- |
+| Research    | Research Team    | Luna (analyst), Ada (reviewer), Kai (coordinator)                            |
+| Research    | Deep Dive        | Luna + Roger (analysts), Kai (coordinator)                                   |
 | Engineering | Full-Stack Squad | Kai (coordinator), Roger (frontend), Sally (backend), Max (DevOps), Ada (QA) |
-| Engineering | Code Review Crew | Ada (executor), Luna (reviewer), Nova (security) |
-| Creative | Content Studio | Bill (coordinator), Luna (writer), Roger (reviewer) |
-| Operations | Ops Team | Max (coordinator), Sally + Kai (executors) |
-| Operations | Sprint Team | Kai (coordinator), Roger + Sally (executors), Ada (reviewer) |
+| Engineering | Code Review Crew | Ada (executor), Luna (reviewer), Nova (security)                             |
+| Creative    | Content Studio   | Bill (coordinator), Luna (writer), Roger (reviewer)                          |
+| Operations  | Ops Team         | Max (coordinator), Sally + Kai (executors)                                   |
+| Operations  | Sprint Team      | Kai (coordinator), Roger + Sally (executors), Ada (reviewer)                 |
 
 Clicking **Templates** in the Crews header opens a filterable gallery. Selecting a template closes the gallery and pre-fills the New Crew dialog with the template's name, goal, and member roster — edit anything before confirming.
 
@@ -197,31 +198,31 @@ User-created templates are saved to `.runtime/templates.json` and persist across
 
 ### Original features
 
-|                 Cron Job                |                 Files                  |
-| :----------------------------------: | :------------------------------------: |
-| <img width="764" height="972" alt="image" src="https://github.com/user-attachments/assets/f13f35fd-0538-4515-9902-1cbe9fb99d71" />| ![Files](./docs/screenshots/files.png) |
+|                                                              Cron Job                                                              |                 Files                  |
+| :--------------------------------------------------------------------------------------------------------------------------------: | :------------------------------------: |
+| <img width="764" height="972" alt="image" src="https://github.com/user-attachments/assets/f13f35fd-0538-4515-9902-1cbe9fb99d71" /> | ![Files](./docs/screenshots/files.png) |
 
 |                   Terminal                   |                  Memory                  |
 | :------------------------------------------: | :--------------------------------------: |
 | ![Terminal](./docs/screenshots/terminal.png) | ![Memory](./docs/screenshots/memory.png) |
 
-|                  Skills                  |                   Settings                   |
-| :--------------------------------------: | :------------------------------------------: |
+|                  Skills                  |                                                               Settings                                                               |
+| :--------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------: |
 | ![Skills](./docs/screenshots/skills.png) | <img width="1048" height="1216" alt="image" src="https://github.com/user-attachments/assets/f62d3378-ad68-4516-81ff-eceb952d2e7d" /> |
 
 ### New in Hermes Studio
 
-| Feature | Description |
-| :------ | :---------- |
-| **Multi-Agent Crews** | Create named crews of specialised agents, dispatch tasks to all or specific members, watch live per-agent activity feeds |
-| **Visual Workflow Builder** | SVG node graph for agent pipelines — add tasks, wire edges between them, auto-layout via topological sort, cycle detection |
-| **Interactive Knowledge Graph** | Force-directed SVG graph of your memory's wiki-link relationships — zoom, pan, drag nodes, hover to highlight neighbours |
-| **Usage Analytics** | 14-day token/cost charts, tool frequency breakdown, session volume heatmap |
-| **Session History Archive** | Browse, filter, and replay every past session with token and cost metadata |
-| **Cron Job Manager** | Schedule recurring agent tasks with cron expressions, live status, and run history |
-| **Systemd Auto-start** | One-click service install/uninstall with status panel directly in Settings |
+| Feature                         | Description                                                                                                                |
+| :------------------------------ | :------------------------------------------------------------------------------------------------------------------------- |
+| **Multi-Agent Crews**           | Create named crews of specialised agents, dispatch tasks to all or specific members, watch live per-agent activity feeds   |
+| **Visual Workflow Builder**     | SVG node graph for agent pipelines — add tasks, wire edges between them, auto-layout via topological sort, cycle detection |
+| **Interactive Knowledge Graph** | Force-directed SVG graph of your memory's wiki-link relationships — zoom, pan, drag nodes, hover to highlight neighbours   |
+| **Usage Analytics**             | 14-day token/cost charts, tool frequency breakdown, session volume heatmap                                                 |
+| **Session History Archive**     | Browse, filter, and replay every past session with token and cost metadata                                                 |
+| **Cron Job Manager**            | Schedule recurring agent tasks with cron expressions, live status, and run history                                         |
+| **Systemd Auto-start**          | One-click service install/uninstall with status panel directly in Settings                                                 |
 
-*📷 Screenshots for each of the above are being added this week.*
+_📷 Screenshots for each of the above are being added this week._
 
 ---
 
@@ -743,21 +744,22 @@ bash scripts/uninstall.sh
 ```
 
 This will:
+
 1. Stop and disable the systemd service (if installed)
 2. Kill any running `server-entry.js` process
 3. Ask for confirmation, then delete the project folder (including `.runtime/` data)
 
 **Data locations removed with the project folder:**
 
-| File | Contents |
-|------|----------|
-| `.runtime/events.db` | Analytics SQLite database |
-| `.runtime/costs.json` | Token cost history |
-| `.runtime/crews.json` | Saved agent crews |
-| `.runtime/workflows.json` | Crew workflows |
-| `.runtime/agent-definitions.json` | Custom agent definitions |
-| `.runtime/local-sessions.json` | Session metadata |
-| `.runtime/templates.json` | Message templates |
+| File                              | Contents                  |
+| --------------------------------- | ------------------------- |
+| `.runtime/events.db`              | Analytics SQLite database |
+| `.runtime/costs.json`             | Token cost history        |
+| `.runtime/crews.json`             | Saved agent crews         |
+| `.runtime/workflows.json`         | Crew workflows            |
+| `.runtime/agent-definitions.json` | Custom agent definitions  |
+| `.runtime/local-sessions.json`    | Session metadata          |
+| `.runtime/templates.json`         | Message templates         |
 
 **Manual steps after the script:**
 
@@ -771,25 +773,25 @@ This will:
 
 ## 🗺️ Roadmap
 
-| Feature                              | Status            |
-| ------------------------------------ | ----------------- |
-| Chat + SSE Streaming                 | ✅ Shipped        |
-| Files + Terminal                     | ✅ Shipped        |
-| Memory Browser                       | ✅ Shipped        |
-| Skills Browser                       | ✅ Shipped        |
-| Mobile PWA + Tailscale               | ✅ Shipped        |
-| 8-Theme System                       | ✅ Shipped        |
-| Execution Approvals UI               | ✅ Shipped v1.1.0 |
-| Skill Install / Toggle UI            | ✅ Shipped v1.2.0 |
-| Cron Job Manager UI                  | ✅ Shipped v1.3.0 |
-| Permissions & Toolsets Settings      | ✅ Shipped v1.4.0 |
-| Session Persistence (Redis)          | ✅ Shipped v1.5.0 |
-| Multi-Agent Orchestration (Crews)    | ✅ Shipped v1.6.0 |
-| Profile-Scoped Workspaces            | ✅ Shipped v1.6.0 |
-| Interactive Knowledge Graph          | ✅ Shipped v1.6.0 |
-| Crew/Agent Metrics Dashboard         | ✅ Shipped v1.7.0 |
-| Visual Workflow Builder (DAG editor) | ✅ Shipped v1.8.0 |
-| Crew Templates                       | ✅ Shipped v1.9.0 |
+| Feature                              | Status             |
+| ------------------------------------ | ------------------ |
+| Chat + SSE Streaming                 | ✅ Shipped         |
+| Files + Terminal                     | ✅ Shipped         |
+| Memory Browser                       | ✅ Shipped         |
+| Skills Browser                       | ✅ Shipped         |
+| Mobile PWA + Tailscale               | ✅ Shipped         |
+| 8-Theme System                       | ✅ Shipped         |
+| Execution Approvals UI               | ✅ Shipped v1.1.0  |
+| Skill Install / Toggle UI            | ✅ Shipped v1.2.0  |
+| Cron Job Manager UI                  | ✅ Shipped v1.3.0  |
+| Permissions & Toolsets Settings      | ✅ Shipped v1.4.0  |
+| Session Persistence (Redis)          | ✅ Shipped v1.5.0  |
+| Multi-Agent Orchestration (Crews)    | ✅ Shipped v1.6.0  |
+| Profile-Scoped Workspaces            | ✅ Shipped v1.6.0  |
+| Interactive Knowledge Graph          | ✅ Shipped v1.6.0  |
+| Crew/Agent Metrics Dashboard         | ✅ Shipped v1.7.0  |
+| Visual Workflow Builder (DAG editor) | ✅ Shipped v1.8.0  |
+| Crew Templates                       | ✅ Shipped v1.9.0  |
 | Cost Tracking per Crew               | ✅ Shipped v1.10.0 |
 | MCP Client Protocol                  | ✅ Shipped v1.11.0 |
 | Agent Library (custom agents)        | ✅ Shipped v1.12.0 |
@@ -797,7 +799,7 @@ This will:
 | Test Suite + CI Badges               | ✅ Shipped v1.15.0 |
 | Clone Crew                           | ✅ Shipped v1.14.0 |
 | Setup Wizard                         | ✅ Shipped v1.16.0 |
-| Hermes v0.8.0 + v0.9.0 compat       | ✅ Shipped v1.17.0 |
+| Hermes v0.8.0 + v0.9.0 compat        | ✅ Shipped v1.17.0 |
 | Design System v1.0                   | ✅ Shipped v1.16.0 |
 | Command Palette (Ctrl+K)             | ✅ Shipped v1.18.0 |
 | System Health Panel                  | ✅ Shipped v1.18.0 |

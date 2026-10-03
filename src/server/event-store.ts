@@ -64,8 +64,10 @@ function getDb(): SqliteDb | null {
     // Dynamic require via createRequire so the native addon works in both
     // CJS and ESM contexts. better-sqlite3 is listed in vite.config
     // ssr.external so the bundler leaves this call alone in production builds.
-    const Database = _require('better-sqlite3') as typeof import('better-sqlite3')
-    const db = new Database(DB_PATH) as SqliteDb
+    const Database = _require(
+      'better-sqlite3',
+    ) as typeof import('better-sqlite3')
+    const db = new Database(DB_PATH)
 
     db.pragma('journal_mode = WAL')
     db.pragma('synchronous = NORMAL')
@@ -125,7 +127,13 @@ export function appendEvent(
         `INSERT INTO events (session_key, run_id, event_type, payload, ts)
          VALUES (?, ?, ?, ?, ?)`,
       )
-      .run(sessionKey, runId ?? null, eventType, JSON.stringify(payload), Date.now())
+      .run(
+        sessionKey,
+        runId ?? null,
+        eventType,
+        JSON.stringify(payload),
+        Date.now(),
+      )
 
     const seq = Number(result.lastInsertRowid)
 
@@ -158,7 +166,7 @@ export function getEventsSince(
   sessionKey: string,
   lastSeq: number,
   limit = 500,
-): StoredEvent[] {
+): Array<StoredEvent> {
   const db = getDb()
   if (!db) return []
 
@@ -171,7 +179,7 @@ export function getEventsSince(
          ORDER BY seq ASC
          LIMIT ?`,
       )
-      .all(sessionKey, lastSeq, limit) as EventRow[]
+      .all(sessionKey, lastSeq, limit) as Array<EventRow>
 
     return rows.map((row) => ({
       seq: row.seq,
@@ -188,7 +196,7 @@ export function getEventsSince(
 
 export interface AuditQuery {
   sessionKey?: string
-  eventTypes?: string[]
+  eventTypes?: Array<string>
   since?: number
   until?: number
   limit?: number
@@ -196,9 +204,9 @@ export interface AuditQuery {
 }
 
 export interface AuditResult {
-  events: StoredEvent[]
+  events: Array<StoredEvent>
   total: number
-  sessions: string[]
+  sessions: Array<string>
 }
 
 /**
@@ -219,8 +227,8 @@ export function queryAuditEvents(query: AuditQuery = {}): AuditResult {
   } = query
 
   try {
-    const conditions: string[] = []
-    const params: (string | number)[] = []
+    const conditions: Array<string> = []
+    const params: Array<string | number> = []
 
     if (sessionKey) {
       conditions.push('session_key = ?')
@@ -239,7 +247,8 @@ export function queryAuditEvents(query: AuditQuery = {}): AuditResult {
       params.push(until)
     }
 
-    const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
+    const where =
+      conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
 
     const totalRow = db
       .prepare(`SELECT COUNT(*) AS c FROM events ${where}`)
@@ -252,10 +261,12 @@ export function queryAuditEvents(query: AuditQuery = {}): AuditResult {
          ORDER BY seq DESC
          LIMIT ? OFFSET ?`,
       )
-      .all(...params, limit, offset) as EventRow[]
+      .all(...params, limit, offset) as Array<EventRow>
 
     const sessionRows = db
-      .prepare('SELECT DISTINCT session_key FROM events ORDER BY session_key ASC')
+      .prepare(
+        'SELECT DISTINCT session_key FROM events ORDER BY session_key ASC',
+      )
       .all() as Array<{ session_key: string }>
 
     return {
@@ -315,9 +326,7 @@ export function getAnalytics(): AnalyticsResult {
       .get() as { total: number }
 
     const { sessions } = db
-      .prepare(
-        'SELECT COUNT(DISTINCT session_key) AS sessions FROM events',
-      )
+      .prepare('SELECT COUNT(DISTINCT session_key) AS sessions FROM events')
       .get() as { sessions: number }
 
     // ── Per-type counts ──────────────────────────────────────────────────────
@@ -362,11 +371,11 @@ export function getAnalytics(): AnalyticsResult {
          ORDER BY d ASC`,
       )
       .all(since14) as Array<{
-        d: string
-        tool: number
-        user_message: number
-        approval: number
-      }>
+      d: string
+      tool: number
+      user_message: number
+      approval: number
+    }>
 
     // Pre-fill all 14 days so gaps show as zero
     const dailyMap = new Map<
@@ -374,8 +383,9 @@ export function getAnalytics(): AnalyticsResult {
       { tool: number; user_message: number; approval: number }
     >()
     for (let i = 13; i >= 0; i--) {
-      const d = new Date(Date.now() - i * 86_400_000)
-        .toLocaleDateString('en-CA') // YYYY-MM-DD
+      const d = new Date(Date.now() - i * 86_400_000).toLocaleDateString(
+        'en-CA',
+      ) // YYYY-MM-DD
       dailyMap.set(d, { tool: 0, user_message: 0, approval: 0 })
     }
     for (const row of dayRows) {
@@ -422,9 +432,7 @@ export function getLatestSeq(sessionKey: string): number {
 
   try {
     const row = db
-      .prepare(
-        'SELECT MAX(seq) AS seq FROM events WHERE session_key = ?',
-      )
+      .prepare('SELECT MAX(seq) AS seq FROM events WHERE session_key = ?')
       .get(sessionKey) as { seq: number | null }
     return row.seq ?? 0
   } catch {

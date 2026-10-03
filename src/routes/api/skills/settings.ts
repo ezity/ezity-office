@@ -49,7 +49,8 @@ export const Route = createFileRoute('/api/skills/settings')({
         }
         const stored = readSkillsSettings()
         // Prefer env var, fall back to stored file value
-        const activeKey = process.env.SKILLSMP_API_KEY || stored.skillsmpApiKey || ''
+        const activeKey =
+          process.env.SKILLSMP_API_KEY || stored.skillsmpApiKey || ''
         return json({
           ok: true,
           skillsmpApiKeySet: Boolean(activeKey),
@@ -90,7 +91,9 @@ export const Route = createFileRoute('/api/skills/settings')({
             {
               ok: false,
               error:
-                error instanceof Error ? error.message : 'Failed to save settings',
+                error instanceof Error
+                  ? error.message
+                  : 'Failed to save settings',
             },
             { status: 500 },
           )

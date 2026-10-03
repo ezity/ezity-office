@@ -15,6 +15,7 @@ Hermes Studio has a well-designed CSS variable theming system (9 complete themes
 ## Goal
 
 Every screen uses:
+
 - The 6 canonical design-system components from `src/components/ds/`
 - `var(--theme-*)` CSS variables exclusively for all color values
 - Hugeicons for all iconography (no decorative emoji)
@@ -43,6 +44,7 @@ All 6 components are exported from `src/components/ds/index.ts` (barrel export).
 The base surface primitive. Replaces every ad-hoc `bg-[var(--theme-card)] border-[var(--theme-border)]` div.
 
 **Props:**
+
 ```ts
 variant?: 'default' | 'panel' | 'subtle'  // default: 'default'
 header?: ReactNode                          // optional header slot
@@ -52,6 +54,7 @@ children: ReactNode
 ```
 
 **Variants:**
+
 - `default` — `var(--theme-card)` background, `var(--theme-border)` border
 - `panel` — `var(--theme-panel)` background, `var(--theme-border)` border
 - `subtle` — `var(--theme-accent-subtle)` background, `var(--theme-accent-border)` border
@@ -65,6 +68,7 @@ children: ReactNode
 The canonical settings page building block. Label + description on left, control on right.
 
 **Props:**
+
 ```ts
 label: string
 description?: string
@@ -73,6 +77,7 @@ children: ReactNode  // the control: toggle, select, input, button, etc.
 ```
 
 **Layout:**
+
 ```
 ┌──────────────────────────────────────────────────────┐
 │ Label                          [control slot]        │
@@ -89,6 +94,7 @@ children: ReactNode  // the control: toggle, select, input, button, etc.
 Screen and section titles with consistent sizing, weight, and optional action.
 
 **Props:**
+
 ```ts
 title: string
 subtitle?: string
@@ -97,6 +103,7 @@ divider?: boolean    // renders bottom border — default: true
 ```
 
 **Layout:**
+
 ```
 Title text                        [optional action]
 ──────────────────────────────────────────────────
@@ -112,6 +119,7 @@ subtitle text (muted, smaller)
 Replaces all emoji status indicators. Renders a hugeicon + label in the correct semantic color.
 
 **Props:**
+
 ```ts
 status: 'running' | 'success' | 'error' | 'warning' | 'idle' | 'pending'
 label?: string       // defaults to capitalised status name
@@ -137,6 +145,7 @@ size?: 'sm' | 'md'  // default: 'sm'
 The canonical list row. Icon + label + optional meta, with consistent hover state.
 
 **Props:**
+
 ```ts
 icon?: ReactNode         // hugeicon component
 label: string
@@ -147,6 +156,7 @@ active?: boolean         // highlights with accent-subtle bg
 ```
 
 **Layout:**
+
 ```
 [icon]  Primary label                    [meta]
         secondary description (muted)
@@ -161,6 +171,7 @@ active?: boolean         // highlights with accent-subtle bg
 Consistent zero-data display. Every screen that can be empty uses exactly this.
 
 **Props:**
+
 ```ts
 icon: ReactNode      // hugeicon component, rendered large
 title: string
@@ -169,6 +180,7 @@ action?: ReactNode   // optional button
 ```
 
 **Layout:**
+
 ```
             [icon — large, muted]
             Title text
@@ -184,34 +196,35 @@ action?: ReactNode   // optional button
 
 The complete replacement table. No other substitutions are permitted.
 
-| Broken class | Canonical replacement |
-|---|---|
-| `bg-white` | `bg-[var(--theme-card)]` |
-| `bg-primary-50` | `bg-[var(--theme-bg)]` |
-| `bg-primary-100` | `bg-[var(--theme-panel)]` |
-| `border-primary-200` | `border-[var(--theme-border)]` |
-| `border-primary-300` | `border-[var(--theme-border)]` |
-| `text-primary-900` | `text-[var(--theme-text)]` |
-| `text-black` | `text-[var(--theme-text)]` |
-| `text-neutral-400` | `text-[var(--theme-muted)]` |
-| `bg-accent-500` | `bg-[var(--theme-accent)]` |
-| `hover:bg-primary-100` | `hover:bg-[var(--theme-card2)]` |
+| Broken class                | Canonical replacement             |
+| --------------------------- | --------------------------------- |
+| `bg-white`                  | `bg-[var(--theme-card)]`          |
+| `bg-primary-50`             | `bg-[var(--theme-bg)]`            |
+| `bg-primary-100`            | `bg-[var(--theme-panel)]`         |
+| `border-primary-200`        | `border-[var(--theme-border)]`    |
+| `border-primary-300`        | `border-[var(--theme-border)]`    |
+| `text-primary-900`          | `text-[var(--theme-text)]`        |
+| `text-black`                | `text-[var(--theme-text)]`        |
+| `text-neutral-400`          | `text-[var(--theme-muted)]`       |
+| `bg-accent-500`             | `bg-[var(--theme-accent)]`        |
+| `hover:bg-primary-100`      | `hover:bg-[var(--theme-card2)]`   |
 | `bg-white/5`, `bg-white/10` | `bg-[var(--theme-accent-subtle)]` |
-| `border-neutral-200` | `border-[var(--theme-border)]` |
+| `border-neutral-200`        | `border-[var(--theme-border)]`    |
+
 ### New variable to add
 
 Add `--theme-hover` as an alias for `--theme-card2` in all 9 theme blocks in `styles.css`. This token is already referenced in `jobs-screen.tsx` but was never defined, causing a silent no-op hover. Once added, `hover:bg-[var(--theme-hover)]` is the correct and preferred token for row hover states in new code — do not replace existing usages with `--theme-card2`.
 
 ### Semantic tokens (use these, don't invent alternatives)
 
-| Token | Use for |
-|---|---|
-| `--theme-success` | Done / installed / connected |
-| `--theme-warning` | Pending / degraded / retrying |
-| `--theme-danger` | Failed / error / destructive |
-| `--theme-active` | Running / selected / live |
-| `--theme-muted` | Secondary text, descriptions, placeholders |
-| `--theme-accent` | Primary action color, interactive highlights |
+| Token                   | Use for                                                 |
+| ----------------------- | ------------------------------------------------------- |
+| `--theme-success`       | Done / installed / connected                            |
+| `--theme-warning`       | Pending / degraded / retrying                           |
+| `--theme-danger`        | Failed / error / destructive                            |
+| `--theme-active`        | Running / selected / live                               |
+| `--theme-muted`         | Secondary text, descriptions, placeholders              |
+| `--theme-accent`        | Primary action color, interactive highlights            |
 | `--theme-accent-subtle` | Subtle accent backgrounds, hover states on accent items |
 
 ---
@@ -237,21 +250,21 @@ No screen files are touched in Phase 1.
 
 ### Phase 2 — Critical screens (theme-breaking in dark mode)
 
-| Order | File(s) | Key changes |
-|---|---|---|
-| 1 | `src/routes/settings/index.tsx` | All `primary-*` → CSS vars; rows → `<SettingsRow>`; headers → `<SectionHeader>`; sections → `<Card>` |
-| 2 | `src/screens/settings/providers-screen.tsx`, `components/provider-wizard.tsx` | Same pattern; `bg-white` inputs fixed; `text-black` removed |
-| 3 | `src/screens/chat/components/chat-composer.tsx`, `chat-header.tsx` | `bg-white`, `border-neutral-200`, `bg-white/5` → CSS vars |
-| 4 | `src/screens/memory/memory-browser-screen.tsx`, `knowledge-browser-screen.tsx` | 55+ replacements; lists → `<ListItem>`; empty states → `<EmptyState>` |
+| Order | File(s)                                                                        | Key changes                                                                                          |
+| ----- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| 1     | `src/routes/settings/index.tsx`                                                | All `primary-*` → CSS vars; rows → `<SettingsRow>`; headers → `<SectionHeader>`; sections → `<Card>` |
+| 2     | `src/screens/settings/providers-screen.tsx`, `components/provider-wizard.tsx`  | Same pattern; `bg-white` inputs fixed; `text-black` removed                                          |
+| 3     | `src/screens/chat/components/chat-composer.tsx`, `chat-header.tsx`             | `bg-white`, `border-neutral-200`, `bg-white/5` → CSS vars                                            |
+| 4     | `src/screens/memory/memory-browser-screen.tsx`, `knowledge-browser-screen.tsx` | 55+ replacements; lists → `<ListItem>`; empty states → `<EmptyState>`                                |
 
 ### Phase 3 — Consistency pass
 
-| Order | File(s) | Key changes |
-|---|---|---|
-| 5 | `src/screens/profiles/profiles-screen.tsx` | `border-white`, `border-primary-*` removed |
-| 6 | `src/screens/skills/skills-screen.tsx`, `workspace-skills-screen.tsx` | Remaining palette → CSS vars; cards → `<Card>`; empty states → `<EmptyState>` |
-| 7 | `src/screens/jobs/jobs-screen.tsx` | `--theme-hover` fix; emoji → `<StatusBadge>` + `<ListItem>` |
-| 8 | Audit, crews, agents, files screens | Grep for `bg-white`, `primary-*`, `text-black`, `border-neutral`; fix any hits; replace any ad-hoc "nothing here" divs with `<EmptyState>` |
+| Order | File(s)                                                               | Key changes                                                                                                                                |
+| ----- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 5     | `src/screens/profiles/profiles-screen.tsx`                            | `border-white`, `border-primary-*` removed                                                                                                 |
+| 6     | `src/screens/skills/skills-screen.tsx`, `workspace-skills-screen.tsx` | Remaining palette → CSS vars; cards → `<Card>`; empty states → `<EmptyState>`                                                              |
+| 7     | `src/screens/jobs/jobs-screen.tsx`                                    | `--theme-hover` fix; emoji → `<StatusBadge>` + `<ListItem>`                                                                                |
+| 8     | Audit, crews, agents, files screens                                   | Grep for `bg-white`, `primary-*`, `text-black`, `border-neutral`; fix any hits; replace any ad-hoc "nothing here" divs with `<EmptyState>` |
 
 ---
 
@@ -268,27 +281,27 @@ Any new screen should be able to pass a review by asking: "Does this look like i
 
 ## Files Changed Summary
 
-| File | Phase | Type of change |
-|---|---|---|
-| `src/styles.css` | 1 | Add `--theme-hover` to all 9 themes |
-| `src/components/ds/index.ts` | 1 | New barrel export |
-| `src/components/ds/card.tsx` | 1 | New component |
-| `src/components/ds/settings-row.tsx` | 1 | New component |
-| `src/components/ds/section-header.tsx` | 1 | New component |
-| `src/components/ds/status-badge.tsx` | 1 | New component |
-| `src/components/ds/list-item.tsx` | 1 | New component |
-| `src/components/ds/empty-state.tsx` | 1 | New component |
-| `src/routes/settings/index.tsx` | 2 | CSS + component migration |
-| `src/screens/settings/providers-screen.tsx` | 2 | CSS + component migration |
-| `src/screens/settings/components/provider-wizard.tsx` | 2 | CSS fix |
-| `src/screens/chat/components/chat-composer.tsx` | 2 | CSS fix |
-| `src/screens/chat/components/chat-header.tsx` | 2 | CSS fix |
-| `src/screens/memory/memory-browser-screen.tsx` | 2 | CSS + component migration |
-| `src/screens/memory/knowledge-browser-screen.tsx` | 2 | CSS + component migration |
-| `src/screens/profiles/profiles-screen.tsx` | 3 | CSS fix |
-| `src/screens/skills/skills-screen.tsx` | 3 | CSS + component migration |
-| `src/screens/skills/workspace-skills-screen.tsx` | 3 | CSS + component migration |
-| `src/screens/jobs/jobs-screen.tsx` | 3 | CSS fix + StatusBadge migration |
-| `src/screens/audit/audit-trail-screen.tsx` | 3 | Spot-check |
-| `src/screens/crews/crews-screen.tsx` | 3 | Spot-check |
-| `src/screens/files/files-screen.tsx` | 3 | CSS fix |
+| File                                                  | Phase | Type of change                      |
+| ----------------------------------------------------- | ----- | ----------------------------------- |
+| `src/styles.css`                                      | 1     | Add `--theme-hover` to all 9 themes |
+| `src/components/ds/index.ts`                          | 1     | New barrel export                   |
+| `src/components/ds/card.tsx`                          | 1     | New component                       |
+| `src/components/ds/settings-row.tsx`                  | 1     | New component                       |
+| `src/components/ds/section-header.tsx`                | 1     | New component                       |
+| `src/components/ds/status-badge.tsx`                  | 1     | New component                       |
+| `src/components/ds/list-item.tsx`                     | 1     | New component                       |
+| `src/components/ds/empty-state.tsx`                   | 1     | New component                       |
+| `src/routes/settings/index.tsx`                       | 2     | CSS + component migration           |
+| `src/screens/settings/providers-screen.tsx`           | 2     | CSS + component migration           |
+| `src/screens/settings/components/provider-wizard.tsx` | 2     | CSS fix                             |
+| `src/screens/chat/components/chat-composer.tsx`       | 2     | CSS fix                             |
+| `src/screens/chat/components/chat-header.tsx`         | 2     | CSS fix                             |
+| `src/screens/memory/memory-browser-screen.tsx`        | 2     | CSS + component migration           |
+| `src/screens/memory/knowledge-browser-screen.tsx`     | 2     | CSS + component migration           |
+| `src/screens/profiles/profiles-screen.tsx`            | 3     | CSS fix                             |
+| `src/screens/skills/skills-screen.tsx`                | 3     | CSS + component migration           |
+| `src/screens/skills/workspace-skills-screen.tsx`      | 3     | CSS + component migration           |
+| `src/screens/jobs/jobs-screen.tsx`                    | 3     | CSS fix + StatusBadge migration     |
+| `src/screens/audit/audit-trail-screen.tsx`            | 3     | Spot-check                          |
+| `src/screens/crews/crews-screen.tsx`                  | 3     | Spot-check                          |
+| `src/screens/files/files-screen.tsx`                  | 3     | CSS fix                             |

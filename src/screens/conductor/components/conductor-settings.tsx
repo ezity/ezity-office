@@ -15,7 +15,10 @@ type AvailableModel = {
   name?: string
 }
 
-function getModelDisplayName(model: AvailableModel | undefined, modelId: string | null | undefined): string {
+function getModelDisplayName(
+  model: AvailableModel | undefined,
+  modelId: string | null | undefined,
+): string {
   if (!modelId) return 'Default (auto)'
   return model?.name?.trim() || model?.id?.trim() || modelId
 }
@@ -30,8 +33,8 @@ function getProviderLabel(provider: string | null | undefined): string {
     .join(' ')
 }
 
-function groupModelsByProvider(models: AvailableModel[]) {
-  const groups = new Map<string, AvailableModel[]>()
+function groupModelsByProvider(models: Array<AvailableModel>) {
+  const groups = new Map<string, Array<AvailableModel>>()
   for (const model of models) {
     const provider = getProviderLabel(model.provider)
     const existing = groups.get(provider)
@@ -46,7 +49,9 @@ function groupModelsByProvider(models: AvailableModel[]) {
     .map(([provider, providerModels]) => ({
       provider,
       models: [...providerModels].sort((a, b) =>
-        getModelDisplayName(a, a.id).localeCompare(getModelDisplayName(b, b.id)),
+        getModelDisplayName(a, a.id).localeCompare(
+          getModelDisplayName(b, b.id),
+        ),
       ),
     }))
 }
@@ -61,7 +66,7 @@ function ModelSelectorDropdown({
   label: string
   value: string
   onChange: (nextValue: string) => void
-  models: AvailableModel[]
+  models: Array<AvailableModel>
   disabled?: boolean
 }) {
   const [open, setOpen] = useState(false)
@@ -81,7 +86,12 @@ function ModelSelectorDropdown({
 
   return (
     <div className="space-y-2">
-      <span className="text-sm font-medium" style={{ color: 'var(--theme-text)' }}>{label}</span>
+      <span
+        className="text-sm font-medium"
+        style={{ color: 'var(--theme-text)' }}
+      >
+        {label}
+      </span>
       <div className="relative" ref={containerRef}>
         <button
           type="button"
@@ -90,33 +100,83 @@ function ModelSelectorDropdown({
             'inline-flex min-h-[3rem] w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left text-sm shadow-sm transition-colors',
             disabled ? 'cursor-not-allowed opacity-60' : '',
           )}
-          style={{ borderColor: 'var(--theme-border)', background: 'var(--theme-bg)', color: 'var(--theme-text)' }}
+          style={{
+            borderColor: 'var(--theme-border)',
+            background: 'var(--theme-bg)',
+            color: 'var(--theme-text)',
+          }}
           disabled={disabled}
         >
-          <span className="inline-flex min-w-0 items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium" style={{ borderColor: 'var(--theme-border)', background: 'var(--theme-card2)', color: 'var(--theme-text)' }}>
-            <span className={cn('size-2 rounded-full', value ? 'bg-emerald-500' : 'bg-neutral-400')} />
-            <span className="truncate">{getModelDisplayName(selectedModel, value)}</span>
+          <span
+            className="inline-flex min-w-0 items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium"
+            style={{
+              borderColor: 'var(--theme-border)',
+              background: 'var(--theme-card2)',
+              color: 'var(--theme-text)',
+            }}
+          >
+            <span
+              className={cn(
+                'size-2 rounded-full',
+                value ? 'bg-emerald-500' : 'bg-neutral-400',
+              )}
+            />
+            <span className="truncate">
+              {getModelDisplayName(selectedModel, value)}
+            </span>
           </span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={cn('shrink-0 transition-transform', open && 'rotate-180')} style={{ color: 'var(--theme-muted)' }}>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            className={cn(
+              'shrink-0 transition-transform',
+              open && 'rotate-180',
+            )}
+            style={{ color: 'var(--theme-muted)' }}
+          >
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
 
         {open ? (
-          <div className="absolute left-0 top-[calc(100%+0.5rem)] z-[80] w-full overflow-hidden rounded-2xl border shadow-lg" style={{ borderColor: 'var(--theme-border2)', background: 'var(--theme-card)' }}>
+          <div
+            className="absolute left-0 top-[calc(100%+0.5rem)] z-[80] w-full overflow-hidden rounded-2xl border shadow-lg"
+            style={{
+              borderColor: 'var(--theme-border2)',
+              background: 'var(--theme-card)',
+            }}
+          >
             <div className="max-h-80 overflow-y-auto p-2">
               <button
                 type="button"
-                onClick={() => { onChange(''); setOpen(false) }}
-                className={cn('flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors', !value ? 'bg-emerald-500/10' : '')}
+                onClick={() => {
+                  onChange('')
+                  setOpen(false)
+                }}
+                className={cn(
+                  'flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors',
+                  !value ? 'bg-emerald-500/10' : '',
+                )}
                 style={{ color: 'var(--theme-text)' }}
               >
-                <span className={cn('size-2 rounded-full', !value ? 'bg-emerald-500' : 'bg-neutral-400')} />
+                <span
+                  className={cn(
+                    'size-2 rounded-full',
+                    !value ? 'bg-emerald-500' : 'bg-neutral-400',
+                  )}
+                />
                 <span className="min-w-0 flex-1 truncate">Default (auto)</span>
               </button>
               {groupedModels.map((group) => (
                 <div key={group.provider} className="mt-2 first:mt-3">
-                  <div className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--theme-muted)' }}>
+                  <div
+                    className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.16em]"
+                    style={{ color: 'var(--theme-muted)' }}
+                  >
                     {group.provider}
                   </div>
                   {group.models.map((model) => {
@@ -126,13 +186,33 @@ function ModelSelectorDropdown({
                       <button
                         key={`${group.provider}-${modelId}`}
                         type="button"
-                        onClick={() => { onChange(modelId); setOpen(false) }}
-                        className={cn('flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors', active ? 'bg-emerald-500/10' : '')}
+                        onClick={() => {
+                          onChange(modelId)
+                          setOpen(false)
+                        }}
+                        className={cn(
+                          'flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors',
+                          active ? 'bg-emerald-500/10' : '',
+                        )}
                         style={{ color: 'var(--theme-text)' }}
                       >
-                        <span className={cn('size-2 rounded-full', active ? 'bg-emerald-500' : 'bg-neutral-400')} />
-                        <span className="min-w-0 flex-1 truncate">{getModelDisplayName(model, modelId)}</span>
-                        <span className="rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-[0.12em]" style={{ borderColor: 'var(--theme-border)', background: 'var(--theme-card2)', color: 'var(--theme-muted)' }}>
+                        <span
+                          className={cn(
+                            'size-2 rounded-full',
+                            active ? 'bg-emerald-500' : 'bg-neutral-400',
+                          )}
+                        />
+                        <span className="min-w-0 flex-1 truncate">
+                          {getModelDisplayName(model, modelId)}
+                        </span>
+                        <span
+                          className="rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-[0.12em]"
+                          style={{
+                            borderColor: 'var(--theme-border)',
+                            background: 'var(--theme-card2)',
+                            color: 'var(--theme-muted)',
+                          }}
+                        >
                           {group.provider}
                         </span>
                       </button>
@@ -163,7 +243,10 @@ export function ConductorSettingsDrawer({
     queryKey: ['conductor', 'models'],
     queryFn: async () => {
       const res = await fetch('/api/models')
-      const data = (await res.json()) as { ok?: boolean; models?: AvailableModel[] }
+      const data = (await res.json()) as {
+        ok?: boolean
+        models?: Array<AvailableModel>
+      }
       return data.models ?? []
     },
     enabled: open,
@@ -176,10 +259,28 @@ export function ConductorSettingsDrawer({
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative z-10 flex w-full max-w-md flex-col overflow-y-auto border-l p-6" style={{ borderColor: 'var(--theme-border)', background: 'var(--theme-bg)' }}>
+      <div
+        className="relative z-10 flex w-full max-w-md flex-col overflow-y-auto border-l p-6"
+        style={{
+          borderColor: 'var(--theme-border)',
+          background: 'var(--theme-bg)',
+        }}
+      >
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold" style={{ color: 'var(--theme-text)' }}>Conductor Settings</h2>
-          <button type="button" onClick={onClose} className="rounded-lg p-2 transition-colors" style={{ color: 'var(--theme-muted)' }}>✕</button>
+          <h2
+            className="text-lg font-semibold"
+            style={{ color: 'var(--theme-text)' }}
+          >
+            Conductor Settings
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-2 transition-colors"
+            style={{ color: 'var(--theme-muted)' }}
+          >
+            ✕
+          </button>
         </div>
 
         <div className="mt-6 space-y-6">
@@ -198,37 +299,67 @@ export function ConductorSettingsDrawer({
           />
 
           <div className="space-y-2">
-            <span className="text-sm font-medium" style={{ color: 'var(--theme-text)' }}>Projects Directory</span>
+            <span
+              className="text-sm font-medium"
+              style={{ color: 'var(--theme-text)' }}
+            >
+              Projects Directory
+            </span>
             <input
               type="text"
               value={settings.projectsDir}
               onChange={(e) => onUpdate({ projectsDir: e.target.value })}
               placeholder="/tmp"
               className="w-full rounded-2xl border px-4 py-3 text-sm"
-              style={{ borderColor: 'var(--theme-border)', background: 'var(--theme-bg)', color: 'var(--theme-text)' }}
+              style={{
+                borderColor: 'var(--theme-border)',
+                background: 'var(--theme-bg)',
+                color: 'var(--theme-text)',
+              }}
             />
-            <p className="text-xs" style={{ color: 'var(--theme-muted)' }}>Where workers write output. Empty = /tmp.</p>
+            <p className="text-xs" style={{ color: 'var(--theme-muted)' }}>
+              Where workers write output. Empty = /tmp.
+            </p>
           </div>
 
           <div className="space-y-2">
-            <span className="text-sm font-medium" style={{ color: 'var(--theme-text)' }}>Max Parallel Workers</span>
+            <span
+              className="text-sm font-medium"
+              style={{ color: 'var(--theme-text)' }}
+            >
+              Max Parallel Workers
+            </span>
             <div className="flex items-center gap-4">
               <input
                 type="range"
                 min={1}
                 max={5}
                 value={settings.maxParallel}
-                onChange={(e) => onUpdate({ maxParallel: Number(e.target.value) })}
+                onChange={(e) =>
+                  onUpdate({ maxParallel: Number(e.target.value) })
+                }
                 className="flex-1"
               />
-              <span className="w-8 text-center text-sm font-semibold" style={{ color: 'var(--theme-text)' }}>{settings.maxParallel}</span>
+              <span
+                className="w-8 text-center text-sm font-semibold"
+                style={{ color: 'var(--theme-text)' }}
+              >
+                {settings.maxParallel}
+              </span>
             </div>
           </div>
 
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-sm font-medium" style={{ color: 'var(--theme-text)' }}>Supervised Mode</span>
-              <p className="text-xs" style={{ color: 'var(--theme-muted)' }}>Require approval before each task.</p>
+              <span
+                className="text-sm font-medium"
+                style={{ color: 'var(--theme-text)' }}
+              >
+                Supervised Mode
+              </span>
+              <p className="text-xs" style={{ color: 'var(--theme-muted)' }}>
+                Require approval before each task.
+              </p>
             </div>
             <button
               type="button"
@@ -238,10 +369,12 @@ export function ConductorSettingsDrawer({
                 settings.supervised ? 'bg-emerald-500' : 'bg-neutral-600',
               )}
             >
-              <span className={cn(
-                'absolute top-0.5 left-0.5 size-5 rounded-full bg-white transition-transform',
-                settings.supervised && 'translate-x-5',
-              )} />
+              <span
+                className={cn(
+                  'absolute top-0.5 left-0.5 size-5 rounded-full bg-white transition-transform',
+                  settings.supervised && 'translate-x-5',
+                )}
+              />
             </button>
           </div>
         </div>

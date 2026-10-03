@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
+import type { SessionUsage as ChartSessionUsage } from '@/lib/chart-utils'
 import {
   DialogClose,
   DialogDescription,
@@ -18,12 +19,11 @@ import {
 import { Button } from '@/components/ui/button'
 import { formatModelName } from '@/lib/format-model-name'
 import {
+  CHART_DAYS,
   buildDayBuckets,
   formatTokens,
   progressColor,
-  CHART_DAYS,
 } from '@/lib/chart-utils'
-import type { SessionUsage as ChartSessionUsage } from '@/lib/chart-utils'
 
 type ModelUsage = {
   model: string
@@ -108,7 +108,6 @@ function formatResetTime(iso?: string): string {
   if (hours > 0) return `resets in ${hours}h ${mins}m`
   return `resets in ${mins}m`
 }
-
 
 function formatLineValue(line: UsageLine): string {
   if (line.value) return line.value
@@ -276,7 +275,10 @@ function TokenTrendChart({ sessions }: { sessions: Array<SessionUsage> }) {
         </div>
       </div>
       <ResponsiveContainer width="100%" height={140}>
-        <AreaChart data={data} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
+        <AreaChart
+          data={data}
+          margin={{ top: 4, right: 4, left: -28, bottom: 0 }}
+        >
           <defs>
             <linearGradient id="g-input" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#6366f1" stopOpacity={0.35} />
@@ -315,9 +317,7 @@ function TokenTrendChart({ sessions }: { sessions: Array<SessionUsage> }) {
               fontSize: 11,
             }}
             formatter={(value: number, name: string) => [
-              value >= 1000
-                ? `${(value / 1000).toFixed(1)}k`
-                : String(value),
+              value >= 1000 ? `${(value / 1000).toFixed(1)}k` : String(value),
               name === 'input' ? 'Input tokens' : 'Output tokens',
             ]}
           />

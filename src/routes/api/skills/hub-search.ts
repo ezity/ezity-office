@@ -25,12 +25,17 @@ export type HubSkill = {
 
 function getSkillsmpKey(): string {
   // Env var takes precedence; fall back to user-configured key in settings file
-  return process.env.SKILLSMP_API_KEY || readSkillsSettings().skillsmpApiKey || ''
+  return (
+    process.env.SKILLSMP_API_KEY || readSkillsSettings().skillsmpApiKey || ''
+  )
 }
 
 function skillsmpHeaders(): HeadersInit {
   const key = getSkillsmpKey()
-  if (!key) throw new Error('SKILLSMP_API_KEY not configured. Add your key in Settings → Integrations.')
+  if (!key)
+    throw new Error(
+      'SKILLSMP_API_KEY not configured. Add your key in Settings → Integrations.',
+    )
   return {
     Authorization: `Bearer ${key}`,
     'Content-Type': 'application/json',
@@ -92,7 +97,7 @@ async function searchSkillsmp(
   query: string,
   limit: number,
   installedIds: Set<string>,
-): Promise<HubSkill[]> {
+): Promise<Array<HubSkill>> {
   const params = new URLSearchParams({
     q: query,
     limit: String(limit),
@@ -112,7 +117,7 @@ async function searchSkillsmp(
 
   const body = asRecord(await res.json())
   const data = asRecord(body.data)
-  const skills = Array.isArray(data.skills) ? (data.skills as unknown[]) : []
+  const skills = Array.isArray(data.skills) ? (data.skills as Array<unknown>) : []
 
   return skills
     .map((s) => asRecord(s))
@@ -131,9 +136,9 @@ async function fetchInstalledIds(): Promise<Set<string>> {
     if (!res.ok) return new Set()
     const data = asRecord(await res.json())
     const items = Array.isArray(data.skills)
-      ? (data.skills as unknown[])
+      ? (data.skills as Array<unknown>)
       : Array.isArray(data)
-        ? (data as unknown[])
+        ? (data as Array<unknown>)
         : []
     return new Set(
       items
@@ -190,8 +195,7 @@ export const Route = createFileRoute('/api/skills/hub-search')({
           return json(
             {
               ok: false,
-              error:
-                error instanceof Error ? error.message : 'Search failed',
+              error: error instanceof Error ? error.message : 'Search failed',
               results: [],
               source: 'error',
             },

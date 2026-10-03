@@ -1,11 +1,11 @@
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { StatusBadge } from '@/components/ds/status-badge'
-import { Button } from '@/components/ui/button'
 import { AgentGrid } from './components/agent-grid'
 import { AgentOutputs } from './components/agent-outputs'
-import { fetchOperationsOverview } from '@/lib/operations-api'
 import type { OperationAgentStatus } from '@/types/operation'
+import { StatusBadge } from '@/components/ds/status-badge'
+import { Button } from '@/components/ui/button'
+import { fetchOperationsOverview } from '@/lib/operations-api'
 
 type ViewMode = 'grid' | 'outputs'
 type StatusFilter = 'all' | OperationAgentStatus
@@ -51,11 +51,19 @@ export function OperationsScreen() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           {/* Title + stats */}
           <div className="flex flex-col gap-1">
-            <h1 className="text-lg font-semibold" style={{ color: 'var(--theme-text)' }}>
+            <h1
+              className="text-lg font-semibold"
+              style={{ color: 'var(--theme-text)' }}
+            >
               Operations
             </h1>
-            <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--theme-muted)' }}>
-              <span>{agents.length} agent{agents.length !== 1 ? 's' : ''}</span>
+            <div
+              className="flex items-center gap-3 text-xs"
+              style={{ color: 'var(--theme-muted)' }}
+            >
+              <span>
+                {agents.length} agent{agents.length !== 1 ? 's' : ''}
+              </span>
               <span>·</span>
               <StatusBadge
                 status="running"

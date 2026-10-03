@@ -43,7 +43,8 @@ function serversToConfigDict(
     const entry: Record<string, unknown> = {}
     if (s.transport === 'http') {
       if (s.url) entry.url = s.url
-      if (s.headers && Object.keys(s.headers).length > 0) entry.headers = s.headers
+      if (s.headers && Object.keys(s.headers).length > 0)
+        entry.headers = s.headers
     } else {
       if (s.command) entry.command = s.command
       if (s.args && s.args.length > 0) entry.args = s.args
@@ -187,9 +188,10 @@ export const Route = createFileRoute('/api/mcp/servers')({
         const csrfCheck = requireJsonContentType(request)
         if (csrfCheck) return csrfCheck
 
-        const body = (await request
-          .json()
-          .catch(() => ({}))) as Record<string, unknown>
+        const body = (await request.json().catch(() => ({}))) as Record<
+          string,
+          unknown
+        >
 
         if (!Array.isArray(body.servers)) {
           return Response.json(
@@ -199,7 +201,7 @@ export const Route = createFileRoute('/api/mcp/servers')({
         }
 
         const servers: Array<McpServerRecord> = []
-        for (const item of body.servers as unknown[]) {
+        for (const item of body.servers as Array<unknown>) {
           if (!item || typeof item !== 'object' || Array.isArray(item)) continue
           const s = item as Record<string, unknown>
           if (typeof s.name !== 'string' || !s.name.trim()) continue
@@ -216,22 +218,16 @@ export const Route = createFileRoute('/api/mcp/servers')({
                 : undefined,
             args:
               transport === 'stdio' && Array.isArray(s.args)
-                ? (s.args as unknown[]).map(String)
+                ? (s.args as Array<unknown>).map(String)
                 : undefined,
-            env:
-              transport === 'stdio'
-                ? toStringRecord(s.env)
-                : undefined,
+            env: transport === 'stdio' ? toStringRecord(s.env) : undefined,
             url:
               transport === 'http' && typeof s.url === 'string'
                 ? s.url
                 : undefined,
             headers:
-              transport === 'http'
-                ? toStringRecord(s.headers)
-                : undefined,
-            timeout:
-              typeof s.timeout === 'number' ? s.timeout : undefined,
+              transport === 'http' ? toStringRecord(s.headers) : undefined,
+            timeout: typeof s.timeout === 'number' ? s.timeout : undefined,
             connectTimeout:
               typeof s.connectTimeout === 'number'
                 ? s.connectTimeout

@@ -14,13 +14,13 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import type { MemoryEntry as Entry } from '@/lib/memory-parser'
 import {
-  parseEntries,
-  buildMemoryContent,
   appendCorrection,
+  buildMemoryContent,
+  parseEntries,
   removeEntry,
 } from '@/lib/memory-parser'
-import type { MemoryEntry as Entry } from '@/lib/memory-parser'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -61,7 +61,8 @@ function EntryCard({
   onDelete: () => void
 }) {
   const [expanded, setExpanded] = useState(false)
-  const preview = entry.body.length > 180 ? entry.body.slice(0, 180) + '…' : entry.body
+  const preview =
+    entry.body.length > 180 ? entry.body.slice(0, 180) + '…' : entry.body
 
   return (
     <div
@@ -209,7 +210,9 @@ export function PatternsCorrectionScreen() {
 
   const filteredPatterns = useMemo(() => {
     const q = search.trim().toLowerCase()
-    return q ? patterns.filter((e) => e.body.toLowerCase().includes(q)) : patterns
+    return q
+      ? patterns.filter((e) => e.body.toLowerCase().includes(q))
+      : patterns
   }, [patterns, search])
 
   const filteredCorrections = useMemo(() => {
@@ -288,14 +291,22 @@ export function PatternsCorrectionScreen() {
     >
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.25rem' }}>
+        <h1
+          style={{
+            fontSize: '1.25rem',
+            fontWeight: 700,
+            marginBottom: '0.25rem',
+          }}
+        >
           Patterns &amp; Corrections
         </h1>
         <p style={{ fontSize: '0.8rem', color: 'var(--theme-text-muted)' }}>
           Learnings from{' '}
-          <code style={{ fontFamily: 'monospace' }}>~/.hermes/memories/MEMORY.md</code>{' '}
-          — parsed by{' '}
-          <code style={{ fontFamily: 'monospace' }}>§</code> delimiter
+          <code style={{ fontFamily: 'monospace' }}>
+            ~/.hermes/memories/MEMORY.md
+          </code>{' '}
+          — parsed by <code style={{ fontFamily: 'monospace' }}>§</code>{' '}
+          delimiter
         </p>
       </div>
 
@@ -485,7 +496,13 @@ export function PatternsCorrectionScreen() {
                   : 'No pattern entries found in MEMORY.md.'}
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.6rem',
+              }}
+            >
               {displayed.map((entry) => (
                 <EntryCard
                   key={entry.index}
@@ -504,7 +521,8 @@ export function PatternsCorrectionScreen() {
               marginTop: 'auto',
             }}
           >
-            {entries.length} total entries · {patterns.length} patterns · {corrections.length} corrections
+            {entries.length} total entries · {patterns.length} patterns ·{' '}
+            {corrections.length} corrections
           </div>
         </>
       )}

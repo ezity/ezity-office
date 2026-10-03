@@ -1,31 +1,31 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
+  AiUserIcon,
+  Analytics01Icon,
   ArrowDown01Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
+  BookOpen01Icon,
   BrainIcon,
   Chat01Icon,
+  CheckListIcon,
   Clock01Icon,
   ComputerTerminal01Icon,
+  ConsoleIcon,
   DashboardSquare01Icon,
   File01Icon,
+  Flag01Icon,
+  HelpCircleIcon,
   MessageMultiple01Icon,
   Moon02Icon,
   PencilEdit02Icon,
   PuzzleIcon,
+  Radar01Icon,
   Search01Icon,
   Settings01Icon,
+  TimelineIcon,
   UserGroupIcon,
   UserMultiple02Icon,
-  AiUserIcon,
-  Analytics01Icon,
-  ConsoleIcon,
-  TimelineIcon,
-  Flag01Icon,
-  Radar01Icon,
-  CheckListIcon,
-  HelpCircleIcon,
-  BookOpen01Icon,
 } from '@hugeicons/core-free-icons'
 import { AnimatePresence, motion } from 'motion/react'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
@@ -199,7 +199,7 @@ function NavItem({
             <TooltipTrigger
               render={
                 <Link
-                  to={item.to!}
+                  to={item.to}
                   search={item.search}
                   hash={item.hash}
                   onClick={handleSelect}
@@ -217,7 +217,7 @@ function NavItem({
     }
     return (
       <Link
-        to={item.to!}
+        to={item.to}
         search={item.search}
         hash={item.hash}
         onClick={handleSelect}
@@ -729,7 +729,7 @@ function ChatSidebarComponent({
     return () => window.clearInterval(id)
   }, [])
 
-// ── Nav definitions ─────────────────────────────────────────────────
+  // ── Nav definitions ─────────────────────────────────────────────────
 
   // Search button definition (placed above Studio section)
   const searchItem: NavItemDef = {

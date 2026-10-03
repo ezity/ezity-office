@@ -76,10 +76,12 @@ async function installFromGithubUrl(
     { headers: githubHeaders(), signal: AbortSignal.timeout(12_000) },
   )
   if (!treeRes.ok) {
-    throw new Error(`GitHub tree API returned ${treeRes.status} for ${owner}/${repo}`)
+    throw new Error(
+      `GitHub tree API returned ${treeRes.status} for ${owner}/${repo}`,
+    )
   }
   const treeData = asRecord(await treeRes.json())
-  const tree = Array.isArray(treeData.tree) ? (treeData.tree as unknown[]) : []
+  const tree = Array.isArray(treeData.tree) ? (treeData.tree as Array<unknown>) : []
 
   // Find all blob files under the skill directory
   const prefix = dirPath.endsWith('/') ? dirPath : `${dirPath}/`
@@ -87,8 +89,7 @@ async function installFromGithubUrl(
     .map((e) => asRecord(e))
     .filter(
       (e) =>
-        readString(e.type) === 'blob' &&
-        readString(e.path).startsWith(prefix),
+        readString(e.type) === 'blob' && readString(e.path).startsWith(prefix),
     )
 
   // Also include the SKILL.md at the root of the dir (no trailing slash match)
@@ -121,11 +122,15 @@ async function installFromGithubUrl(
       const relativePath = filePath.startsWith(prefix)
         ? filePath.slice(prefix.length)
         : path.basename(filePath)
-      const localFilePath = path.join(localInstallPath, ...relativePath.split('/'))
+      const localFilePath = path.join(
+        localInstallPath,
+        ...relativePath.split('/'),
+      )
 
       const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${filePath}`
       const res = await fetch(rawUrl, { signal: AbortSignal.timeout(10_000) })
-      if (!res.ok) throw new Error(`Failed to download ${filePath}: ${res.status}`)
+      if (!res.ok)
+        throw new Error(`Failed to download ${filePath}: ${res.status}`)
 
       const content = await res.text()
       fs.mkdirSync(path.dirname(localFilePath), { recursive: true })
@@ -166,7 +171,10 @@ export const Route = createFileRoute('/api/skills/install')({
           }
           const skillId = (body.skillId || '').trim()
           if (!skillId) {
-            return json({ ok: false, error: 'skillId required' }, { status: 400 })
+            return json(
+              { ok: false, error: 'skillId required' },
+              { status: 400 },
+            )
           }
 
           const source = (body.source || '').trim()
@@ -177,7 +185,10 @@ export const Route = createFileRoute('/api/skills/install')({
             const githubUrl = (body.githubUrl || '').trim()
             if (!githubUrl) {
               return json(
-                { ok: false, error: 'githubUrl required for marketplace skills' },
+                {
+                  ok: false,
+                  error: 'githubUrl required for marketplace skills',
+                },
                 { status: 400 },
               )
             }
@@ -191,11 +202,19 @@ export const Route = createFileRoute('/api/skills/install')({
               !localInstallPath.startsWith(skillsBase + path.sep) &&
               localInstallPath !== skillsBase
             ) {
-              return json({ ok: false, error: 'Invalid skillId' }, { status: 400 })
+              return json(
+                { ok: false, error: 'Invalid skillId' },
+                { status: 400 },
+              )
             }
 
             await installFromGithubUrl(githubUrl, localInstallPath)
-            return json({ ok: true, installed: true, skillId, method: 'github' })
+            return json({
+              ok: true,
+              installed: true,
+              skillId,
+              method: 'github',
+            })
           }
 
           // ── Strategy 2: Hermes gateway native install ─────────────────────
@@ -209,7 +228,12 @@ export const Route = createFileRoute('/api/skills/install')({
                 signal: AbortSignal.timeout(30_000),
               })
               if (res.ok) {
-                return json({ ok: true, installed: true, skillId, method: 'gateway' })
+                return json({
+                  ok: true,
+                  installed: true,
+                  skillId,
+                  method: 'gateway',
+                })
               }
             } catch {
               // fall through
@@ -229,7 +253,12 @@ export const Route = createFileRoute('/api/skills/install')({
                 maxBuffer: 1024 * 1024 * 4,
               },
             )
-            return json({ ok: true, installed: true, skillId, method: 'clawhub' })
+            return json({
+              ok: true,
+              installed: true,
+              skillId,
+              method: 'clawhub',
+            })
           }
 
           return json(
@@ -241,7 +270,9 @@ export const Route = createFileRoute('/api/skills/install')({
             {
               ok: false,
               error:
-                error instanceof Error ? error.message : 'Failed to install skill',
+                error instanceof Error
+                  ? error.message
+                  : 'Failed to install skill',
             },
             { status: 500 },
           )

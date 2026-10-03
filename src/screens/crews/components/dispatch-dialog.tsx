@@ -99,7 +99,11 @@ export function DispatchDialog({
                 All agents ({crew.members.length})
               </option>
               {crew.members.map((m) => (
-                <option key={m.id} value={m.id} className="bg-[var(--theme-bg)]">
+                <option
+                  key={m.id}
+                  value={m.id}
+                  className="bg-[var(--theme-bg)]"
+                >
                   {m.displayName} — {m.roleLabel}
                 </option>
               ))}

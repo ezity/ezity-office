@@ -2,10 +2,15 @@
  * Client-side API helpers for task management.
  */
 
-import type { HermesTask, CreateTaskInput, UpdateTaskInput, TaskColumn } from '@/types/task'
+import type {
+  CreateTaskInput,
+  HermesTask,
+  TaskColumn,
+  UpdateTaskInput,
+} from '@/types/task'
 import type { TaskFilter } from '@/server/task-store'
 
-export async function fetchTasks(filter?: TaskFilter): Promise<HermesTask[]> {
+export async function fetchTasks(filter?: TaskFilter): Promise<Array<HermesTask>> {
   const params = new URLSearchParams()
   if (filter?.column) params.set('column', filter.column)
   if (filter?.assignee) params.set('assignee', filter.assignee)
@@ -14,7 +19,7 @@ export async function fetchTasks(filter?: TaskFilter): Promise<HermesTask[]> {
   if (filter?.sourceId) params.set('sourceId', filter.sourceId)
   const qs = params.toString()
   const res = await fetch(`/api/tasks${qs ? `?${qs}` : ''}`)
-  const data = (await res.json()) as { ok: boolean; tasks?: HermesTask[] }
+  const data = (await res.json()) as { ok: boolean; tasks?: Array<HermesTask> }
   return data.tasks ?? []
 }
 
@@ -31,30 +36,51 @@ export async function createTask(input: CreateTaskInput): Promise<HermesTask> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
   })
-  const data = (await res.json()) as { ok: boolean; task?: HermesTask; error?: string }
-  if (!data.ok || !data.task) throw new Error(data.error ?? 'Failed to create task')
+  const data = (await res.json()) as {
+    ok: boolean
+    task?: HermesTask
+    error?: string
+  }
+  if (!data.ok || !data.task)
+    throw new Error(data.error ?? 'Failed to create task')
   return data.task
 }
 
-export async function updateTask(taskId: string, updates: UpdateTaskInput): Promise<HermesTask> {
+export async function updateTask(
+  taskId: string,
+  updates: UpdateTaskInput,
+): Promise<HermesTask> {
   const res = await fetch(`/api/tasks/${taskId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updates),
   })
-  const data = (await res.json()) as { ok: boolean; task?: HermesTask; error?: string }
-  if (!data.ok || !data.task) throw new Error(data.error ?? 'Failed to update task')
+  const data = (await res.json()) as {
+    ok: boolean
+    task?: HermesTask
+    error?: string
+  }
+  if (!data.ok || !data.task)
+    throw new Error(data.error ?? 'Failed to update task')
   return data.task
 }
 
-export async function moveTask(taskId: string, column: TaskColumn): Promise<HermesTask> {
+export async function moveTask(
+  taskId: string,
+  column: TaskColumn,
+): Promise<HermesTask> {
   const res = await fetch(`/api/tasks/${taskId}/move`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ column }),
   })
-  const data = (await res.json()) as { ok: boolean; task?: HermesTask; error?: string }
-  if (!data.ok || !data.task) throw new Error(data.error ?? 'Failed to move task')
+  const data = (await res.json()) as {
+    ok: boolean
+    task?: HermesTask
+    error?: string
+  }
+  if (!data.ok || !data.task)
+    throw new Error(data.error ?? 'Failed to move task')
   return data.task
 }
 

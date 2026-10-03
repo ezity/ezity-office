@@ -569,7 +569,9 @@ function ChatHeaderComponent({
                     variant="ghost"
                     className={cn(
                       'hover:bg-[var(--theme-hover)] dark:hover:bg-primary-800',
-                      clearConfirm ? 'text-red-500' : 'text-[var(--theme-muted)]',
+                      clearConfirm
+                        ? 'text-red-500'
+                        : 'text-[var(--theme-muted)]',
                     )}
                     aria-label={
                       clearConfirm ? 'Confirm clear' : 'Clear session'

@@ -44,6 +44,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **24 new tests** — Task store (11), mission store (10), operations aggregator (3); total test count: 199 across 17 files
 
 ### Changed
+
 - `package.json` version bumped to 1.19.0
 - Test suite badge updated (199 tests)
 
@@ -52,12 +53,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [1.18.1] — 2026-04-17
 
 ### Added
+
 - **Expanded test suite** — 5 new test files covering `memory-parser`, `session-utils`, `chart-utils`, `getAnalytics()`, and `auth-middleware`; total tests: 175 (up from 59)
 - **Test badge** — live `tests: N passed` badge in README sourced from `badges/tests.json`, auto-updated by CI on every push to main
 - **Commits badge** — live commit count badge via shields.io (`commits-since/v0.0.0`)
 - **Pure utility libraries** — extracted `src/lib/memory-parser.ts`, `src/lib/session-utils.ts`, `src/lib/chart-utils.ts` from component files; components now import from these
 
 ### Changed
+
 - CI workflow: unit-tests job now outputs `test-results.json` and commits an updated `badges/tests.json` on pushes to main
 
 ---
@@ -80,6 +83,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [1.17.1] — 2026-04-17
 
 ### Fixed
+
 - **WeChat Corp ID secret scanner alert** — placeholder `wx1234567890abcdef` in the WeCom settings entry matched GitHub's Tencent WeChat API App ID pattern; replaced with generic `your-corp-id`
 - **CI rewritten for pnpm** — project uses pnpm (not npm); `npm install` was failing on `workspace:` protocol in transitive deps; CI now uses `pnpm/action-setup@v4`, `pnpm install --frozen-lockfile`, and `pnpm exec playwright`; `pnpm-lock.yaml` committed and lockfile caching enabled
 - **`@playwright/test` missing from package.json** — test files imported from `@playwright/test` but it was not declared; added to devDependencies; TypeScript errors in `playwright.config.ts` and `tests/e2e/smoke.spec.ts` now resolved
@@ -98,6 +102,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 and v0.9.0.
 
 **Hermes v0.9.0 (2026-04)**
+
 - **Fast Mode toggle** — lightning bolt button in the chat composer toolbar activates `/fast` priority queue (OpenAI/Anthropic); visual active state, tooltip, aria-pressed; wired to the existing `effectiveFastMode` send logic
 - **`/fast`, `/compress`, `/debug` slash commands** — added to the slash-command autocomplete menu with descriptions
 - **API Server Key setting** — new password field in Settings → Connection for `API_SERVER_KEY` required by non-loopback Hermes instances; stored in Zustand settings and passed through auth layer
@@ -106,6 +111,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 - **Provider usage route** — new `GET /api/provider-usage` Studio route fetches Hermes `/api/usage` (which now captures rate-limit headers: requests remaining/limit/reset, tokens remaining/limit/reset) and maps it into the usage meter's `ProviderUsageEntry` format including `resetsAt` progress bars
 
 **Hermes v0.8.0 (2026-03)**
+
 - **Logs viewer** — new `/logs` screen with `ConsoleIcon` nav entry; fetches `GET /api/hermes-proxy/api/logs?level=INFO|WARNING&tail=500`; All/Errors filter tabs; search with clear button; color-coded lines (ERROR=red, WARNING=amber, DEBUG=muted, INFO=text); auto-scrolls to bottom on load; `EmptyState` for no data and error states
 - **Cron delivery failure badge** — job cards now show a red badge (`X delivery failures`) when `delivery_failures > 0` (v0.8.0 tracks failed Telegram/Discord/Slack/Signal delivery attempts)
 - **Pre-run script field** — collapsible "Pre-run script" section in Create Job dialog; monospace textarea, hidden when empty, `pre_run_script` included in job creation payload
@@ -115,6 +121,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.15.1] — 2026-04-13
 
 ### Fixed
+
 - **Settings icon crash (React error #130)** — `CheckmarkCircle02Icon` from `@hugeicons/core-free-icons` is an icon data object, not a React component. It was rendered directly as JSX (`<CheckmarkCircle02Icon />`) inside the skill-key-confirmed banner on the Settings page, causing React error #130. Wrapped with `<HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />` — the correct pattern for all hugeicons.
 
 ---
@@ -122,6 +129,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.15.0] — 2026-04-13
 
 ### Added
+
 - **Test Suite** (Task #19) — full CI-grade test coverage with visible status badges
   - **Unit tests (vitest):** `vitest.config.ts` with standalone node environment and `@` alias; 6 tests for `cn()` utility; 9 tests for `crew-store` with temp-dir isolation via `vi.spyOn(process, 'cwd')`; 8 tests for `event-store` covering sequence numbers, `getEventsSince`, `queryAuditEvents` filters — all 23 pass
   - **E2E tests (Playwright):** `playwright.config.ts` with `webServer` auto-start; `tests/e2e/smoke.spec.ts` — 6 smoke tests (homepage, `/api/auth-check`, `/api/ping`, chat/crews/audit pages render without error boundary)
@@ -133,6 +141,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.14.0] — 2026-04-13
 
 ### Added
+
 - **Clone Crew** (Task #21) — duplicate any crew with one click
   - `POST /api/crews/:crewId/clone` — reads source crew, mints fresh sessions for all members in parallel, creates new crew named `"Copy of <original>"`
   - `CrewCard` gains a `Copy01Icon` clone button (appears on hover); `cloneMutation` added to `CrewsScreen` with success toast
@@ -144,6 +153,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.13.0] — 2026-04-13
 
 ### Added
+
 - **Audit Trail** (Task #18) — cross-session timeline of all agent/tool actions at `/audit`
   - `queryAuditEvents()` in `event-store.ts` — cross-session SQLite query with filters: session key, event types, date range, pagination; returns distinct session key list for picker
   - `GET /api/audit/` — defaults to `tool`, `user_message`, `approval` events; supports `sessionKey`, `types`, `since`, `until`, `limit`, `offset`; max 500 results
@@ -155,6 +165,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.12.0] — 2026-04-12
 
 ### Added
+
 - **Agent Library** (Task #12 extended) — create and manage custom agents with system prompts
   - `AgentDefinition` type: `id`, `name`, `emoji`, `color`, `roleLabel`, `systemPrompt`, `model`, `tags`, `isBuiltIn`
   - `agent-definitions-store.ts` — file-backed CRUD persisting to `.runtime/agent-definitions.json`; built-in agents derived at runtime from `AGENT_PERSONAS` (never written to disk)
@@ -169,6 +180,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.11.0] — 2026-04-12
 
 ### Added
+
 - **Complete MCP Server Management** (Task #17) — direct config write to `~/.hermes/config.yaml`
   - `PUT /api/mcp/servers` — converts `McpServerRecord[]` → `mcp_servers` YAML dict and writes to config; auto-triggers reload endpoint after save
   - Settings MCP screen: "Save to Config" button replaces copy-YAML instruction; `isDirty` banner shows save/reload state; YAML section demoted to "Manual fallback"
@@ -178,12 +190,14 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.10.0] — 2026-04-12
 
 ### Added
+
 - **Cost & Token Tracking** (Task #16) — usage per crew with estimated API cost
   - `cost-store.ts` — file-backed cumulative totals in `.runtime/costs.json`; built-in price table for Anthropic, OpenAI, and Google models with fuzzy matching; `recordMemberUsage()` upserts and re-derives crew-level sums
   - `GET/POST/DELETE /api/crews/:crewId/usage`; `fetchAndRecordUsage()` chains context-usage fetch → record → cache invalidation after each run
   - `cost-panel.tsx` — **Usage** tab: KPI strip (total tokens, input/output split, estimated cost), per-agent table with model badges, reset button; portable-mode gracefully shows dashes
 
 ### Fixed
+
 - `GET /api/context-usage` — `inputTokens` and `outputTokens` were computed but not returned; added to all three return paths
 
 ---
@@ -191,6 +205,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.9.0] — 2026-04-12
 
 ### Added
+
 - **Crew & Agent Templates Gallery** (Task #15) — pre-built crew configurations to jump-start any crew
   - `template-store.ts` — 7 hardcoded built-in templates + user templates in `.runtime/templates.json`
   - `GET /api/crews/templates`, `POST /api/crews/templates`, `DELETE /api/crews/templates/:id` (403 on built-in delete)
@@ -202,6 +217,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.8.0] — 2026-04-12
 
 ### Added
+
 - **Visual Workflow Builder** (Task #14) — DAG-structured task pipeline editor on every crew's Workflow tab
   - Pure SVG canvas with pan (pointer capture), zoom (0.2×–4×), node drag, connect mode, auto-layout (Kahn's BFS topological layers)
   - Nodes: label, prompt, assignee, status tint; edges: cubic bezier with arrowhead, click-to-delete
@@ -215,6 +231,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.7.0] — 2026-04-12
 
 ### Added
+
 - **Hermes v0.8.0 Compatibility** — audited and closed 4 compatibility gaps after gateway update
   - Config schema migration (v13→v16): `stt.model` → provider-specific, `display.interim_assistant_messages`, `display.tool_progress_overrides` → `display.platforms`
   - "Status messages" toggle in Display settings (`display.interim_assistant_messages`)
@@ -229,6 +246,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.6.0] — 2026-04-12
 
 ### Added
+
 - **Force-Directed Knowledge Graph** — replaced static circular layout with a physics-based interactive canvas
   - D3-force simulation: link force (distance 120), charge repulsion (−300), center gravity; nodes draggable with fixed position on release
   - Node radius scales with link count (5–16 px); edge labels rendered at midpoint; click-to-select highlights connected subgraph; zoom & pan via `transform`
@@ -239,6 +257,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.5.0] — 2026-04-10
 
 ### Added
+
 - **Session Persistence** (Task 8) — chat history survives server restarts in portable mode
   - `local-session-store.ts` now fully wired: all four `/api/sessions` verbs (GET/POST/PATCH/DELETE) and `/api/history` route use the local store when the Hermes gateway is unavailable
   - `send-stream.ts` saves user and assistant messages to the local store on every exchange in portable mode
@@ -254,6 +273,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.4.0] — 2026-04-10
 
 ### Added
+
 - **Permissions & Toolsets Settings** (Task 7) — new "Permissions & Toolsets" section in Settings
   - **Approvals** — configure `approvals.mode` (manual/auto/off) and `approvals.timeout` from the UI; no config.yaml editing required
   - **Toolsets** — view active toolsets as removable tags; add custom toolsets with an inline input + Enter/Add button; changes saved to `~/.hermes/config.yaml`
@@ -268,6 +288,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.3.0] — 2026-04-10
 
 ### Added
+
 - **Cron Job Manager UI** (Task 6) — full scheduled task management from the browser
   - `GET /api/hermes-jobs` and `GET /api/hermes-jobs/$jobId` proxy routes forward to Hermes gateway `/api/jobs`
   - `POST /api/hermes-jobs` creates new jobs; `PATCH` updates; `DELETE` deletes
@@ -287,6 +308,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.2.0] — 2026-04-09
 
 ### Added
+
 - **Skill Installation UI** (Task 5) — fully functional install/uninstall/toggle from the browser
   - `POST /api/skills` now implements the `toggle` action via a local prefs file (`~/.hermes/skills/.studio-prefs.json`); `enabled` state survives server restarts without gateway support
   - `GET /api/skills` merges local prefs to reflect accurate `enabled` state per skill
@@ -297,6 +319,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
   - Success toasts on install and uninstall completion
 
 ### Fixed
+
 - **Security: path traversal in `POST /api/skills/uninstall`** — `skillId` is now validated to ensure the resolved path stays within `~/.hermes/skills/`
 - Branding: "Hermes Workspace Marketplace" → "Hermes Studio Marketplace" in skills browser header
 - Branding: "Hermes Workspace" → "Hermes Studio" in security badge
@@ -306,6 +329,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.1.0] — 2026-04-09
 
 ### Added
+
 - **Execution Approvals UI** — full approve/deny/always-allow flow for dangerous-command requests
   - `approvals-store.ts` rewritten: real in-memory Map with sessionStorage persistence, dedup, `addApproval`, `respondToApproval`, `getPendingApprovals`, `clearResolvedApprovals`
   - `send-stream.ts` now forwards `approval.required`, `tool.approval`, `exec.approval` gateway SSE events to the client as an `approval` event
@@ -320,6 +344,7 @@ Full UI surface for all features introduced in NousResearch/hermes-agent v0.8.0 
 ## [1.0.0] — 2026-04-10
 
 ### Added
+
 - Initial release of Hermes Studio, forked from hermes-workspace v1.0.0
 - React 19 + TypeScript + Tailwind CSS 4 + TanStack Router
 - Real-time SSE streaming chat with tool call rendering

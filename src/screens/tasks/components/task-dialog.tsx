@@ -1,15 +1,20 @@
 import { useEffect, useState } from 'react'
+import type {
+  CreateTaskInput,
+  HermesTask,
+  TaskColumn,
+  TaskPriority,
+} from '@/types/task'
 import {
-  DialogRoot,
-  DialogContent,
-  DialogTitle,
   DialogClose,
+  DialogContent,
+  DialogRoot,
+  DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import type { HermesTask, CreateTaskInput, TaskColumn, TaskPriority } from '@/types/task'
 import { TASK_COLUMNS, TASK_COLUMN_LABELS } from '@/types/task'
 
-const PRIORITY_OPTIONS: TaskPriority[] = ['high', 'medium', 'low']
+const PRIORITY_OPTIONS: Array<TaskPriority> = ['high', 'medium', 'low']
 
 const inputStyle: React.CSSProperties = {
   background: 'var(--theme-input)',
@@ -83,7 +88,12 @@ export function TaskDialog({ open, onClose, onSave, task }: TaskDialogProps) {
   }
 
   return (
-    <DialogRoot open={open} onOpenChange={(o) => { if (!o) onClose() }}>
+    <DialogRoot
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) onClose()
+      }}
+    >
       <DialogContent className="w-[min(480px,92vw)]">
         {/* Header */}
         <div
@@ -130,7 +140,14 @@ export function TaskDialog({ open, onClose, onSave, task }: TaskDialogProps) {
                 onChange={(e) => setPriority(e.target.value as TaskPriority)}
               >
                 {PRIORITY_OPTIONS.map((p) => (
-                  <option key={p} value={p} style={{ background: 'var(--theme-input)', color: 'var(--theme-text)' }}>
+                  <option
+                    key={p}
+                    value={p}
+                    style={{
+                      background: 'var(--theme-input)',
+                      color: 'var(--theme-text)',
+                    }}
+                  >
                     {p.charAt(0).toUpperCase() + p.slice(1)}
                   </option>
                 ))}
@@ -144,7 +161,14 @@ export function TaskDialog({ open, onClose, onSave, task }: TaskDialogProps) {
                 onChange={(e) => setColumn(e.target.value as TaskColumn)}
               >
                 {TASK_COLUMNS.map((c) => (
-                  <option key={c} value={c} style={{ background: 'var(--theme-input)', color: 'var(--theme-text)' }}>
+                  <option
+                    key={c}
+                    value={c}
+                    style={{
+                      background: 'var(--theme-input)',
+                      color: 'var(--theme-text)',
+                    }}
+                  >
                     {TASK_COLUMN_LABELS[c]}
                   </option>
                 ))}

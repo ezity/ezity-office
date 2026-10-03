@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 let tmpDir: string
 
@@ -55,7 +55,10 @@ describe('event-store', () => {
     const { appendEvent, queryAuditEvents } = await getStore()
     appendEvent('sess-3', undefined, 'tool', { name: 'bash' })
     appendEvent('sess-3', undefined, 'user_message', { text: 'hi' })
-    appendEvent('sess-3', undefined, 'approval', { tool: 'bash', status: 'approved' })
+    appendEvent('sess-3', undefined, 'approval', {
+      tool: 'bash',
+      status: 'approved',
+    })
 
     const result = queryAuditEvents()
     expect(result.events.length).toBeGreaterThanOrEqual(3)
@@ -77,7 +80,9 @@ describe('event-store', () => {
     appendEvent('sess-C', undefined, 'user_message', { text: 'hi' })
 
     const result = queryAuditEvents({ eventTypes: ['user_message'] })
-    expect(result.events.every((e) => e.eventType === 'user_message')).toBe(true)
+    expect(result.events.every((e) => e.eventType === 'user_message')).toBe(
+      true,
+    )
   })
 
   it('queryAuditEvents() returns session list', async () => {

@@ -54,12 +54,15 @@ export const Route = createFileRoute('/api/crews/$crewId/usage')({
 
         const displayName =
           typeof body.displayName === 'string' ? body.displayName : sessionKey
-        const model =
-          typeof body.model === 'string' ? body.model : null
+        const model = typeof body.model === 'string' ? body.model : null
         const inputTokens =
-          typeof body.inputTokens === 'number' ? Math.max(0, body.inputTokens) : 0
+          typeof body.inputTokens === 'number'
+            ? Math.max(0, body.inputTokens)
+            : 0
         const outputTokens =
-          typeof body.outputTokens === 'number' ? Math.max(0, body.outputTokens) : 0
+          typeof body.outputTokens === 'number'
+            ? Math.max(0, body.outputTokens)
+            : 0
 
         const usage = recordMemberUsage(
           params.crewId,

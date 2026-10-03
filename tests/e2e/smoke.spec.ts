@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 test.describe('Hermes Studio smoke tests', () => {
   test('homepage loads and shows app shell', async ({ page }) => {
@@ -18,7 +18,9 @@ test.describe('Hermes Studio smoke tests', () => {
     expect(ct).toContain('application/json')
   })
 
-  test('/api/ping responds (gateway may be offline in CI)', async ({ request }) => {
+  test('/api/ping responds (gateway may be offline in CI)', async ({
+    request,
+  }) => {
     const res = await request.get('/api/ping')
     // 200 = gateway connected, 503 = gateway offline — both are valid server responses
     expect([200, 503]).toContain(res.status())

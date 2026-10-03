@@ -576,8 +576,7 @@ export function McpSettingsScreen() {
                     MCP Servers
                   </h1>
                   <p className="mt-1 text-sm text-primary-600">
-                    Add, edit, and remove MCP servers. Save writes directly
-                    to{' '}
+                    Add, edit, and remove MCP servers. Save writes directly to{' '}
                     <code className="rounded bg-primary-200/60 px-1.5 py-0.5 font-mono text-xs text-ink">
                       ~/.hermes/config.yaml
                     </code>{' '}

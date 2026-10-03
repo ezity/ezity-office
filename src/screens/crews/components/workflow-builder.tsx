@@ -12,8 +12,8 @@ import {
   Share01Icon,
 } from '@hugeicons/core-free-icons'
 import type { Crew, CrewMember } from '@/lib/crews-api'
+import type { Workflow, WorkflowEdge, WorkflowTask } from '@/lib/workflow-api'
 import { dispatchTask } from '@/lib/crews-api'
-import type { Workflow, WorkflowTask, WorkflowEdge } from '@/lib/workflow-api'
 import { clearWorkflow, fetchWorkflow, saveWorkflow } from '@/lib/workflow-api'
 import { toast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils'
@@ -31,10 +31,13 @@ type WorkflowTaskStatus = 'idle' | 'running' | 'done' | 'error'
 
 // ─── Layout & graph algorithms ────────────────────────────────────────────────
 
-function buildAdj(tasks: WorkflowTask[], edges: WorkflowEdge[]) {
-  const adj = new Map<string, string[]>()
+function buildAdj(tasks: Array<WorkflowTask>, edges: Array<WorkflowEdge>) {
+  const adj = new Map<string, Array<string>>()
   const indeg = new Map<string, number>()
-  for (const t of tasks) { adj.set(t.id, []); indeg.set(t.id, 0) }
+  for (const t of tasks) {
+    adj.set(t.id, [])
+    indeg.set(t.id, 0)
+  }
   for (const e of edges) {
     adj.get(e.from)?.push(e.to)
     indeg.set(e.to, (indeg.get(e.to) ?? 0) + 1)
@@ -43,16 +46,18 @@ function buildAdj(tasks: WorkflowTask[], edges: WorkflowEdge[]) {
 }
 
 /** Kahn BFS topological sort → array of parallel layers */
-function topoLayers(tasks: WorkflowTask[], edges: WorkflowEdge[]): string[][] {
+function topoLayers(tasks: Array<WorkflowTask>, edges: Array<WorkflowEdge>): Array<Array<string>> {
   if (tasks.length === 0) return []
   const { adj, indeg } = buildAdj(tasks, edges)
-  const layers: string[][] = []
-  let frontier = tasks.filter(t => (indeg.get(t.id) ?? 0) === 0).map(t => t.id)
+  const layers: Array<Array<string>> = []
+  let frontier = tasks
+    .filter((t) => (indeg.get(t.id) ?? 0) === 0)
+    .map((t) => t.id)
   const placed = new Set<string>()
   while (frontier.length > 0) {
     layers.push(frontier)
-    frontier.forEach(id => placed.add(id))
-    const next: string[] = []
+    frontier.forEach((id) => placed.add(id))
+    const next: Array<string> = []
     for (const id of frontier) {
       for (const succ of adj.get(id) ?? []) {
         const newDeg = (indeg.get(succ) ?? 1) - 1
@@ -63,15 +68,15 @@ function topoLayers(tasks: WorkflowTask[], edges: WorkflowEdge[]): string[][] {
     frontier = next
   }
   // Any nodes not placed (isolated or cycle remnants) go in a final layer
-  const unplaced = tasks.filter(t => !placed.has(t.id)).map(t => t.id)
+  const unplaced = tasks.filter((t) => !placed.has(t.id)).map((t) => t.id)
   if (unplaced.length > 0) layers.push(unplaced)
   return layers
 }
 
 /** DFS cycle check — used client-side before adding an edge */
 function wouldCreateCycle(
-  tasks: WorkflowTask[],
-  edges: WorkflowEdge[],
+  tasks: Array<WorkflowTask>,
+  edges: Array<WorkflowEdge>,
   newFrom: string,
   newTo: string,
 ): boolean {
@@ -98,8 +103,8 @@ function wouldCreateCycle(
 
 /** Hierarchical left-to-right layout */
 function computeAutoLayout(
-  tasks: WorkflowTask[],
-  edges: WorkflowEdge[],
+  tasks: Array<WorkflowTask>,
+  edges: Array<WorkflowEdge>,
 ): Record<string, { x: number; y: number }> {
   const layers = topoLayers(tasks, edges)
   const COL_W = 220
@@ -133,17 +138,17 @@ function nextGridPos(count: number): { x: number; y: number } {
 // ─── Node status visual palette ───────────────────────────────────────────────
 
 const STATUS_FILL: Record<WorkflowTaskStatus, string> = {
-  idle:    'transparent',
+  idle: 'transparent',
   running: 'rgba(34,197,94,0.12)',
-  done:    'rgba(99,102,241,0.12)',
-  error:   'rgba(239,68,68,0.12)',
+  done: 'rgba(99,102,241,0.12)',
+  error: 'rgba(239,68,68,0.12)',
 }
 
 const STATUS_STROKE: Record<WorkflowTaskStatus, string> = {
-  idle:    'var(--theme-border)',
+  idle: 'var(--theme-border)',
   running: 'rgba(34,197,94,0.7)',
-  done:    'rgba(99,102,241,0.7)',
-  error:   'rgba(239,68,68,0.7)',
+  done: 'rgba(99,102,241,0.7)',
+  error: 'rgba(239,68,68,0.7)',
 }
 
 // ─── Add / Edit task dialog ───────────────────────────────────────────────────
@@ -151,18 +156,32 @@ const STATUS_STROKE: Record<WorkflowTaskStatus, string> = {
 interface TaskDialogProps {
   title: string
   initial?: Partial<WorkflowTask>
-  members: CrewMember[]
-  onSubmit: (vals: { label: string; prompt: string; assigneeId: string | null }) => void
+  members: Array<CrewMember>
+  onSubmit: (vals: {
+    label: string
+    prompt: string
+    assigneeId: string | null
+  }) => void
   onClose: () => void
 }
 
-function TaskDialog({ title, initial, members, onSubmit, onClose }: TaskDialogProps) {
+function TaskDialog({
+  title,
+  initial,
+  members,
+  onSubmit,
+  onClose,
+}: TaskDialogProps) {
   const [label, setLabel] = useState(initial?.label ?? '')
   const [prompt, setPrompt] = useState(initial?.prompt ?? '')
-  const [assigneeId, setAssigneeId] = useState<string | null>(initial?.assigneeId ?? null)
+  const [assigneeId, setAssigneeId] = useState<string | null>(
+    initial?.assigneeId ?? null,
+  )
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [onClose])
@@ -177,24 +196,35 @@ function TaskDialog({ title, initial, members, onSubmit, onClose }: TaskDialogPr
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ background: 'rgba(0,0,0,0.45)' }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
     >
       <div
         className="w-full max-w-md rounded-2xl p-6 shadow-xl"
-        style={{ background: 'var(--theme-panel, var(--theme-bg))', border: '1px solid var(--theme-border)' }}
+        style={{
+          background: 'var(--theme-panel, var(--theme-bg))',
+          border: '1px solid var(--theme-border)',
+        }}
       >
-        <h2 className="mb-4 text-sm font-semibold" style={{ color: 'var(--theme-text)' }}>
+        <h2
+          className="mb-4 text-sm font-semibold"
+          style={{ color: 'var(--theme-text)' }}
+        >
           {title}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--theme-muted)' }}>
+            <label
+              className="mb-1 block text-xs font-medium"
+              style={{ color: 'var(--theme-muted)' }}
+            >
               Task label *
             </label>
             <input
               autoFocus
               value={label}
-              onChange={e => setLabel(e.target.value)}
+              onChange={(e) => setLabel(e.target.value)}
               placeholder="e.g. Research competitors"
               className="w-full rounded-lg px-3 py-2 text-sm outline-none"
               style={{
@@ -205,12 +235,15 @@ function TaskDialog({ title, initial, members, onSubmit, onClose }: TaskDialogPr
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--theme-muted)' }}>
+            <label
+              className="mb-1 block text-xs font-medium"
+              style={{ color: 'var(--theme-muted)' }}
+            >
               Prompt sent to agent
             </label>
             <textarea
               value={prompt}
-              onChange={e => setPrompt(e.target.value)}
+              onChange={(e) => setPrompt(e.target.value)}
               placeholder="Describe what the agent should do…"
               rows={4}
               className="w-full resize-none rounded-lg px-3 py-2 text-sm outline-none"
@@ -222,12 +255,15 @@ function TaskDialog({ title, initial, members, onSubmit, onClose }: TaskDialogPr
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--theme-muted)' }}>
+            <label
+              className="mb-1 block text-xs font-medium"
+              style={{ color: 'var(--theme-muted)' }}
+            >
               Assign to
             </label>
             <select
               value={assigneeId ?? ''}
-              onChange={e => setAssigneeId(e.target.value || null)}
+              onChange={(e) => setAssigneeId(e.target.value || null)}
               className="w-full rounded-lg px-3 py-2 text-sm outline-none"
               style={{
                 background: 'var(--theme-card)',
@@ -236,8 +272,10 @@ function TaskDialog({ title, initial, members, onSubmit, onClose }: TaskDialogPr
               }}
             >
               <option value="">All agents</option>
-              {members.map(m => (
-                <option key={m.id} value={m.id}>{m.displayName} — {m.roleLabel}</option>
+              {members.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.displayName} — {m.roleLabel}
+                </option>
               ))}
             </select>
           </div>
@@ -274,15 +312,19 @@ function TaskDialog({ title, initial, members, onSubmit, onClose }: TaskDialogPr
 interface WorkflowBuilderProps {
   crewId: string
   crew: Crew
-  displayMembers: CrewMember[]
+  displayMembers: Array<CrewMember>
 }
 
-export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilderProps) {
+export function WorkflowBuilder({
+  crewId,
+  crew,
+  displayMembers,
+}: WorkflowBuilderProps) {
   const queryClient = useQueryClient()
 
   // ── Canvas state ─────────────────────────────────────────────────────────
-  const [tasks, setTasks] = useState<WorkflowTask[]>([])
-  const [edges, setEdges] = useState<WorkflowEdge[]>([])
+  const [tasks, setTasks] = useState<Array<WorkflowTask>>([])
+  const [edges, setEdges] = useState<Array<WorkflowEdge>>([])
   const [dirty, setDirty] = useState(false)
 
   // Interaction
@@ -295,14 +337,16 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
   const [tf, setTf] = useState({ tx: 0, ty: 0, k: 1 })
 
   // Run state
-  const [runState, setRunState] = useState<Record<string, WorkflowTaskStatus>>({})
+  const [runState, setRunState] = useState<Record<string, WorkflowTaskStatus>>(
+    {},
+  )
   const [isRunning, setIsRunning] = useState(false)
   const [runError, setRunError] = useState<string | null>(null)
 
   // Pending dispatches: sessionKey → taskId (so SSE can resolve completions)
   const pendingRef = useRef<Map<string, string>>(new Map())
   // Current layers for sequential execution
-  const layersRef = useRef<string[][]>([])
+  const layersRef = useRef<Array<Array<string>>>([])
   const currentLayerRef = useRef<number>(0)
   const runStateRef = useRef<Record<string, WorkflowTaskStatus>>({})
 
@@ -311,8 +355,10 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
   const drag = useRef<{
     kind: 'node' | 'pan' | null
     taskId: string | null
-    startCx: number; startCy: number
-    origX: number; origY: number
+    startCx: number
+    startCy: number
+    origX: number
+    origY: number
   }>({ kind: null, taskId: null, startCx: 0, startCy: 0, origX: 0, origY: 0 })
 
   // ── Data fetching ─────────────────────────────────────────────────────────
@@ -342,13 +388,18 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
       setDirty(false)
       toast('Workflow saved')
     },
-    onError: (err) => toast(err instanceof Error ? err.message : 'Save failed', { type: 'error' }),
+    onError: (err) =>
+      toast(err instanceof Error ? err.message : 'Save failed', {
+        type: 'error',
+      }),
   })
 
   const clearMutation = useMutation({
     mutationFn: () => clearWorkflow(crewId),
     onSuccess: () => {
-      setTasks([]); setEdges([]); setDirty(false)
+      setTasks([])
+      setEdges([])
+      setDirty(false)
       queryClient.setQueryData(['workflow', crewId], null)
       toast('Workflow cleared')
     },
@@ -375,12 +426,12 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
       const nodeEl = target.closest('[data-tid]')
       const toId = nodeEl?.getAttribute('data-tid')
       if (toId && toId !== connectFromId) {
-        if (edges.some(ed => ed.from === connectFromId && ed.to === toId)) {
+        if (edges.some((ed) => ed.from === connectFromId && ed.to === toId)) {
           toast('Connection already exists', { type: 'error' })
         } else if (wouldCreateCycle(tasks, edges, connectFromId, toId)) {
           toast('That would create a cycle', { type: 'error' })
         } else {
-          setEdges(prev => [...prev, { from: connectFromId, to: toId }])
+          setEdges((prev) => [...prev, { from: connectFromId, to: toId }])
           setDirty(true)
         }
       }
@@ -392,7 +443,7 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
     const taskId = nodeEl?.getAttribute('data-tid') ?? null
 
     if (taskId) {
-      const task = tasks.find(t => t.id === taskId)
+      const task = tasks.find((t) => t.id === taskId)
       if (!task) return
       setSelectedTaskId(taskId)
       drag.current = {
@@ -425,8 +476,8 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
       e.clientY - d.startCy,
     )
     if (d.kind === 'node' && d.taskId) {
-      setTasks(prev =>
-        prev.map(t =>
+      setTasks((prev) =>
+        prev.map((t) =>
           t.id === d.taskId
             ? {
                 ...t,
@@ -437,7 +488,7 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
         ),
       )
     } else if (d.kind === 'pan') {
-      setTf(p => ({ ...p, tx: d.origX + dx, ty: d.origY + dy }))
+      setTf((p) => ({ ...p, tx: d.origX + dx, ty: d.origY + dy }))
     }
   }
 
@@ -454,7 +505,7 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
     function onWheel(e: WheelEvent) {
       e.preventDefault()
       const factor = e.deltaY < 0 ? 1.12 : 0.89
-      setTf(p => ({ ...p, k: Math.max(0.2, Math.min(4, p.k * factor)) }))
+      setTf((p) => ({ ...p, k: Math.max(0.2, Math.min(4, p.k * factor)) }))
     }
     svg.addEventListener('wheel', onWheel, { passive: false })
     return () => svg.removeEventListener('wheel', onWheel)
@@ -470,52 +521,62 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
   }, [])
 
   // ── Task mutations ────────────────────────────────────────────────────────
-  function addTask(vals: { label: string; prompt: string; assigneeId: string | null }) {
+  function addTask(vals: {
+    label: string
+    prompt: string
+    assigneeId: string | null
+  }) {
     const pos = nextGridPos(tasks.length)
     const newTask: WorkflowTask = { id: crypto.randomUUID(), ...vals, ...pos }
-    setTasks(prev => [...prev, newTask])
+    setTasks((prev) => [...prev, newTask])
     setDirty(true)
     setAddingTask(false)
   }
 
-  function updateTask(id: string, vals: { label: string; prompt: string; assigneeId: string | null }) {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, ...vals } : t))
+  function updateTask(
+    id: string,
+    vals: { label: string; prompt: string; assigneeId: string | null },
+  ) {
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...vals } : t)))
     setDirty(true)
     setEditingTask(null)
   }
 
   function deleteTask(id: string) {
-    setTasks(prev => prev.filter(t => t.id !== id))
-    setEdges(prev => prev.filter(e => e.from !== id && e.to !== id))
+    setTasks((prev) => prev.filter((t) => t.id !== id))
+    setEdges((prev) => prev.filter((e) => e.from !== id && e.to !== id))
     setSelectedTaskId(null)
     setDirty(true)
   }
 
   function deleteEdge(from: string, to: string) {
-    setEdges(prev => prev.filter(e => !(e.from === from && e.to === to)))
+    setEdges((prev) => prev.filter((e) => !(e.from === from && e.to === to)))
     setDirty(true)
   }
 
   function autoLayout() {
     const positions = computeAutoLayout(tasks, edges)
-    setTasks(prev => prev.map(t => ({ ...t, ...(positions[t.id] ?? {}) })))
+    setTasks((prev) => prev.map((t) => ({ ...t, ...(positions[t.id] ?? {}) })))
     setDirty(true)
   }
 
   // ── Run workflow ──────────────────────────────────────────────────────────
-  async function dispatchLayer(layer: string[], status: Record<string, WorkflowTaskStatus>) {
+  async function dispatchLayer(
+    layer: Array<string>,
+    status: Record<string, WorkflowTaskStatus>,
+  ) {
     const nextStatus = { ...status }
     for (const taskId of layer) {
-      const task = tasks.find(t => t.id === taskId)
+      const task = tasks.find((t) => t.id === taskId)
       if (!task) continue
       const target = task.assigneeId ?? 'all'
       const member = task.assigneeId
-        ? displayMembers.find(m => m.id === task.assigneeId)
+        ? displayMembers.find((m) => m.id === task.assigneeId)
         : null
       // Map each dispatched sessionKey to its taskId
-      const sessionKeys: string[] = member
+      const sessionKeys: Array<string> = member
         ? [member.sessionKey]
-        : displayMembers.map(m => m.sessionKey)
+        : displayMembers.map((m) => m.sessionKey)
       for (const sk of sessionKeys) {
         pendingRef.current.set(sk, taskId)
       }
@@ -527,7 +588,10 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
   }
 
   async function startWorkflow() {
-    if (tasks.length === 0) { toast('Add tasks first', { type: 'error' }); return }
+    if (tasks.length === 0) {
+      toast('Add tasks first', { type: 'error' })
+      return
+    }
     const layers = topoLayers(tasks, edges)
     if (layers.length === 0) return
     setRunError(null)
@@ -535,7 +599,9 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
     layersRef.current = layers
     currentLayerRef.current = 0
     pendingRef.current = new Map()
-    const initialState = Object.fromEntries(tasks.map(t => [t.id, 'idle' as WorkflowTaskStatus]))
+    const initialState = Object.fromEntries(
+      tasks.map((t) => [t.id, 'idle' as WorkflowTaskStatus]),
+    )
     setRunState(initialState)
     runStateRef.current = initialState
     await dispatchLayer(layers[0], initialState)
@@ -544,13 +610,14 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
   // ── SSE listener for run completion events ────────────────────────────────
   useEffect(() => {
     if (!isRunning) return
-    const sessionKeys = new Set(displayMembers.map(m => m.sessionKey))
+    const sessionKeys = new Set(displayMembers.map((m) => m.sessionKey))
     const es = new EventSource('/api/chat-events')
 
     function handleRunEnd(e: MessageEvent) {
       try {
         const payload = JSON.parse(e.data as string) as Record<string, unknown>
-        const sk = typeof payload.sessionKey === 'string' ? payload.sessionKey : null
+        const sk =
+          typeof payload.sessionKey === 'string' ? payload.sessionKey : null
         if (!sk || !sessionKeys.has(sk)) return
 
         const taskId = pendingRef.current.get(sk)
@@ -558,12 +625,15 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
         pendingRef.current.delete(sk)
 
         const isError = Boolean(payload.error || payload.errorMessage)
-        const nextStatus = { ...runStateRef.current, [taskId]: isError ? 'error' : 'done' as WorkflowTaskStatus }
+        const nextStatus = {
+          ...runStateRef.current,
+          [taskId]: isError ? 'error' : ('done' as WorkflowTaskStatus),
+        }
         setRunState(nextStatus)
         runStateRef.current = nextStatus
 
         if (isError) {
-          const task = tasks.find(t => t.id === taskId)
+          const task = tasks.find((t) => t.id === taskId)
           setRunError(`Task "${task?.label ?? taskId}" failed`)
           setIsRunning(false)
           es.close()
@@ -572,7 +642,7 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
 
         // Check if current layer is fully done
         const currentLayer = layersRef.current[currentLayerRef.current] ?? []
-        const layerDone = currentLayer.every(id => {
+        const layerDone = currentLayer.every((id) => {
           const s = nextStatus[id]
           return s === 'done' || s === 'error'
         })
@@ -599,24 +669,27 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
     es.addEventListener('done', handleRunEnd)
 
     return () => es.close()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRunning, displayMembers, crewId])
 
   // ── Derived values ────────────────────────────────────────────────────────
-  const selectedTask = tasks.find(t => t.id === selectedTaskId) ?? null
+  const selectedTask = tasks.find((t) => t.id === selectedTaskId) ?? null
 
   const memberById = useMemo(
-    () => Object.fromEntries(displayMembers.map(m => [m.id, m])),
+    () => Object.fromEntries(displayMembers.map((m) => [m.id, m])),
     [displayMembers],
   )
 
   const zoomBy = (f: number) =>
-    setTf(p => ({ ...p, k: Math.max(0.2, Math.min(4, p.k * f)) }))
+    setTf((p) => ({ ...p, k: Math.max(0.2, Math.min(4, p.k * f)) }))
 
   // ── Empty state ───────────────────────────────────────────────────────────
   if (workflowQuery.isLoading) {
     return (
-      <div className="flex h-full items-center justify-center text-sm" style={{ color: 'var(--theme-muted)' }}>
+      <div
+        className="flex h-full items-center justify-center text-sm"
+        style={{ color: 'var(--theme-muted)' }}
+      >
         Loading workflow…
       </div>
     )
@@ -624,12 +697,17 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="flex h-full flex-col overflow-hidden" style={{ background: 'var(--theme-bg)' }}>
-
+    <div
+      className="flex h-full flex-col overflow-hidden"
+      style={{ background: 'var(--theme-bg)' }}
+    >
       {/* ── Toolbar ─────────────────────────────────────────────────────── */}
       <div
         className="flex shrink-0 items-center gap-2 border-b px-4 py-2"
-        style={{ borderColor: 'var(--theme-border)', background: 'var(--theme-card)' }}
+        style={{
+          borderColor: 'var(--theme-border)',
+          background: 'var(--theme-card)',
+        }}
       >
         <button
           onClick={() => setAddingTask(true)}
@@ -651,30 +729,49 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
           )}
           style={
             connectFromId === null
-              ? { border: '1px solid var(--theme-border)', color: 'var(--theme-muted)', background: 'var(--theme-card)' }
+              ? {
+                  border: '1px solid var(--theme-border)',
+                  color: 'var(--theme-muted)',
+                  background: 'var(--theme-card)',
+                }
               : undefined
           }
         >
           <HugeiconsIcon icon={ConnectIcon} size={13} />
-          {connectFromId !== null ? (connectFromId ? 'Click target…' : 'Click source…') : 'Connect'}
+          {connectFromId !== null
+            ? connectFromId
+              ? 'Click target…'
+              : 'Click source…'
+            : 'Connect'}
         </button>
 
         <button
           onClick={autoLayout}
           className="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors"
-          style={{ border: '1px solid var(--theme-border)', color: 'var(--theme-muted)', background: 'var(--theme-card)' }}
+          style={{
+            border: '1px solid var(--theme-border)',
+            color: 'var(--theme-muted)',
+            background: 'var(--theme-card)',
+          }}
         >
           <HugeiconsIcon icon={Share01Icon} size={13} />
           Auto Layout
         </button>
 
-        <div className="mx-1 h-4 w-px" style={{ background: 'var(--theme-border)' }} />
+        <div
+          className="mx-1 h-4 w-px"
+          style={{ background: 'var(--theme-border)' }}
+        />
 
         <button
           onClick={() => saveMutation.mutate()}
           disabled={!dirty || saveMutation.isPending}
           className="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors disabled:opacity-40"
-          style={{ border: '1px solid var(--theme-border)', color: 'var(--theme-text)', background: 'var(--theme-card)' }}
+          style={{
+            border: '1px solid var(--theme-border)',
+            color: 'var(--theme-text)',
+            background: 'var(--theme-card)',
+          }}
         >
           {saveMutation.isPending ? 'Saving…' : dirty ? 'Save' : 'Saved'}
         </button>
@@ -697,7 +794,10 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
 
         {tasks.length > 0 && (
           <button
-            onClick={() => { if (window.confirm('Clear the entire workflow?')) clearMutation.mutate() }}
+            onClick={() => {
+              if (window.confirm('Clear the entire workflow?'))
+                clearMutation.mutate()
+            }}
             className="ml-auto rounded-lg p-1.5 transition-colors"
             style={{ color: 'var(--theme-muted)' }}
             title="Clear workflow"
@@ -707,7 +807,12 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
         )}
 
         {/* Zoom controls */}
-        <div className={cn('flex items-center gap-0.5', tasks.length > 0 ? '' : 'ml-auto')}>
+        <div
+          className={cn(
+            'flex items-center gap-0.5',
+            tasks.length > 0 ? '' : 'ml-auto',
+          )}
+        >
           {[
             { label: '+', action: () => zoomBy(1.25) },
             { label: '−', action: () => zoomBy(0.8) },
@@ -735,11 +840,23 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
           <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
             <div
               className="flex h-12 w-12 items-center justify-center rounded-xl border"
-              style={{ border: '1px solid var(--theme-border)', background: 'var(--theme-card)' }}
+              style={{
+                border: '1px solid var(--theme-border)',
+                background: 'var(--theme-card)',
+              }}
             >
-              <HugeiconsIcon icon={Share01Icon} size={22} style={{ color: 'var(--theme-muted)' }} />
+              <HugeiconsIcon
+                icon={Share01Icon}
+                size={22}
+                style={{ color: 'var(--theme-muted)' }}
+              />
             </div>
-            <p className="text-sm font-medium" style={{ color: 'var(--theme-text)' }}>No tasks yet</p>
+            <p
+              className="text-sm font-medium"
+              style={{ color: 'var(--theme-text)' }}
+            >
+              No tasks yet
+            </p>
             <p className="text-xs" style={{ color: 'var(--theme-muted)' }}>
               Add tasks and draw dependencies to build your workflow.
             </p>
@@ -788,9 +905,9 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
 
             <g transform={`translate(${tf.tx} ${tf.ty}) scale(${tf.k})`}>
               {/* ── Edges ─────────────────────────────────────────────── */}
-              {edges.map(edge => {
-                const src = tasks.find(t => t.id === edge.from)
-                const tgt = tasks.find(t => t.id === edge.to)
+              {edges.map((edge) => {
+                const src = tasks.find((t) => t.id === edge.from)
+                const tgt = tasks.find((t) => t.id === edge.to)
                 if (!src || !tgt) return null
                 const sx = src.x + NODE_W
                 const sy = src.y + NODE_H / 2
@@ -799,7 +916,8 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
                 const dx = Math.max(80, Math.abs(tx - sx) * 0.5)
                 const d = `M ${sx} ${sy} C ${sx + dx} ${sy}, ${tx - dx} ${ty}, ${tx} ${ty}`
                 const srcStatus = runState[edge.from]
-                const isActiveEdge = srcStatus === 'running' || srcStatus === 'done'
+                const isActiveEdge =
+                  srcStatus === 'running' || srcStatus === 'done'
                 return (
                   <g key={`${edge.from}-${edge.to}`}>
                     {/* Wide invisible hit area for click-to-delete */}
@@ -813,10 +931,18 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
                     />
                     <path
                       d={d}
-                      stroke={isActiveEdge ? 'rgba(34,197,94,0.55)' : 'rgba(148,163,184,0.4)'}
+                      stroke={
+                        isActiveEdge
+                          ? 'rgba(34,197,94,0.55)'
+                          : 'rgba(148,163,184,0.4)'
+                      }
                       strokeWidth={isActiveEdge ? 2 : 1.5}
                       fill="none"
-                      markerEnd={isActiveEdge ? 'url(#wf-arrow-running)' : 'url(#wf-arrow)'}
+                      markerEnd={
+                        isActiveEdge
+                          ? 'url(#wf-arrow-running)'
+                          : 'url(#wf-arrow)'
+                      }
                       style={{ pointerEvents: 'none' }}
                     />
                   </g>
@@ -824,14 +950,21 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
               })}
 
               {/* ── Task nodes ──────────────────────────────────────── */}
-              {tasks.map(task => {
-                const assignee = task.assigneeId ? memberById[task.assigneeId] : null
+              {tasks.map((task) => {
+                const assignee = task.assigneeId
+                  ? memberById[task.assigneeId]
+                  : null
                 const status: WorkflowTaskStatus = runState[task.id] ?? 'idle'
                 const isSelected = task.id === selectedTaskId
                 const isConnectFrom = task.id === connectFromId
-                const label = task.label.length > 22 ? task.label.slice(0, 20) + '…' : task.label
+                const label =
+                  task.label.length > 22
+                    ? task.label.slice(0, 20) + '…'
+                    : task.label
                 const assigneeName = assignee
-                  ? (assignee.displayName.length > 20 ? assignee.displayName.slice(0, 18) + '…' : assignee.displayName)
+                  ? assignee.displayName.length > 20
+                    ? assignee.displayName.slice(0, 18) + '…'
+                    : assignee.displayName
                   : 'All agents'
 
                 return (
@@ -839,7 +972,9 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
                     key={task.id}
                     data-tid={task.id}
                     transform={`translate(${task.x} ${task.y})`}
-                    style={{ cursor: connectFromId !== null ? 'pointer' : 'grab' }}
+                    style={{
+                      cursor: connectFromId !== null ? 'pointer' : 'grab',
+                    }}
                     onDoubleClick={(e) => {
                       e.stopPropagation()
                       setEditingTask(task)
@@ -848,11 +983,17 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
                     {/* Selection ring */}
                     {(isSelected || isConnectFrom) && (
                       <rect
-                        x={-3} y={-3}
-                        width={NODE_W + 6} height={NODE_H + 6}
+                        x={-3}
+                        y={-3}
+                        width={NODE_W + 6}
+                        height={NODE_H + 6}
                         rx={NODE_RX + 2}
                         fill="none"
-                        stroke={isConnectFrom ? 'rgba(99,102,241,0.8)' : 'var(--theme-accent)'}
+                        stroke={
+                          isConnectFrom
+                            ? 'rgba(99,102,241,0.8)'
+                            : 'var(--theme-accent)'
+                        }
                         strokeWidth={2}
                         style={{ pointerEvents: 'none' }}
                       />
@@ -861,7 +1002,9 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
                     {/* Status tint */}
                     {status !== 'idle' && (
                       <rect
-                        width={NODE_W} height={NODE_H} rx={NODE_RX}
+                        width={NODE_W}
+                        height={NODE_H}
+                        rx={NODE_RX}
                         fill={STATUS_FILL[status]}
                         style={{ pointerEvents: 'none' }}
                       />
@@ -869,7 +1012,9 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
 
                     {/* Main card */}
                     <rect
-                      width={NODE_W} height={NODE_H} rx={NODE_RX}
+                      width={NODE_W}
+                      height={NODE_H}
+                      rx={NODE_RX}
                       fill="var(--theme-card)"
                       stroke={STATUS_STROKE[status]}
                       strokeWidth={status !== 'idle' ? 2 : 1.5}
@@ -877,7 +1022,8 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
 
                     {/* Task label */}
                     <text
-                      x={12} y={24}
+                      x={12}
+                      y={24}
                       fontSize={12}
                       fontWeight={600}
                       fill="var(--theme-text)"
@@ -888,7 +1034,8 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
 
                     {/* Assignee */}
                     <text
-                      x={12} y={42}
+                      x={12}
+                      y={42}
                       fontSize={10}
                       fill="var(--theme-muted)"
                       style={{ pointerEvents: 'none', fontFamily: 'inherit' }}
@@ -899,22 +1046,31 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
                     {/* Status badge */}
                     {status !== 'idle' && (
                       <text
-                        x={12} y={58}
+                        x={12}
+                        y={58}
                         fontSize={9}
                         fill={
-                          status === 'running' ? 'rgba(34,197,94,0.9)'
-                          : status === 'done' ? 'rgba(99,102,241,0.9)'
-                          : 'rgba(239,68,68,0.9)'
+                          status === 'running'
+                            ? 'rgba(34,197,94,0.9)'
+                            : status === 'done'
+                              ? 'rgba(99,102,241,0.9)'
+                              : 'rgba(239,68,68,0.9)'
                         }
                         style={{ pointerEvents: 'none', fontFamily: 'inherit' }}
                       >
-                        {status === 'running' ? '● Running' : status === 'done' ? '✓ Done' : '✕ Error'}
+                        {status === 'running'
+                          ? '● Running'
+                          : status === 'done'
+                            ? '✓ Done'
+                            : '✕ Error'}
                       </text>
                     )}
 
                     {/* Input port (left) */}
                     <circle
-                      cx={0} cy={NODE_H / 2} r={PORT_R}
+                      cx={0}
+                      cy={NODE_H / 2}
+                      r={PORT_R}
                       fill="var(--theme-card)"
                       stroke="var(--theme-border)"
                       strokeWidth={1.5}
@@ -923,7 +1079,9 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
 
                     {/* Output port (right) */}
                     <circle
-                      cx={NODE_W} cy={NODE_H / 2} r={PORT_R}
+                      cx={NODE_W}
+                      cy={NODE_H / 2}
+                      r={PORT_R}
                       fill="var(--theme-card)"
                       stroke="var(--theme-border)"
                       strokeWidth={1.5}
@@ -933,7 +1091,9 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
                     {/* Connect-mode click hint */}
                     {connectFromId !== null && (
                       <rect
-                        width={NODE_W} height={NODE_H} rx={NODE_RX}
+                        width={NODE_W}
+                        height={NODE_H}
+                        rx={NODE_RX}
                         fill="rgba(99,102,241,0.07)"
                         stroke="rgba(99,102,241,0.4)"
                         strokeWidth={1}
@@ -959,7 +1119,7 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
             }}
           >
             {connectFromId
-              ? `From "${tasks.find(t => t.id === connectFromId)?.label ?? '…'}" — click the target task. Press Esc to cancel.`
+              ? `From "${tasks.find((t) => t.id === connectFromId)?.label ?? '…'}" — click the target task. Press Esc to cancel.`
               : 'Click the source task. Press Esc to cancel.'}
           </div>
         )}
@@ -968,10 +1128,21 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
         {selectedTask && !editingTask && (
           <div
             className="absolute right-0 top-0 flex h-full w-64 flex-col border-l"
-            style={{ background: 'var(--theme-card)', borderColor: 'var(--theme-border)' }}
+            style={{
+              background: 'var(--theme-card)',
+              borderColor: 'var(--theme-border)',
+            }}
           >
-            <div className="flex items-center justify-between border-b px-3 py-2" style={{ borderColor: 'var(--theme-border)' }}>
-              <span className="text-xs font-semibold" style={{ color: 'var(--theme-text)' }}>Task</span>
+            <div
+              className="flex items-center justify-between border-b px-3 py-2"
+              style={{ borderColor: 'var(--theme-border)' }}
+            >
+              <span
+                className="text-xs font-semibold"
+                style={{ color: 'var(--theme-text)' }}
+              >
+                Task
+              </span>
               <button
                 onClick={() => setSelectedTaskId(null)}
                 className="rounded p-0.5 text-[10px]"
@@ -982,68 +1153,129 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
             </div>
             <div className="flex-1 overflow-y-auto space-y-3 p-3">
               <div>
-                <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide" style={{ color: 'var(--theme-muted)' }}>Label</p>
-                <p className="text-sm font-semibold" style={{ color: 'var(--theme-text)' }}>{selectedTask.label}</p>
+                <p
+                  className="mb-0.5 text-[10px] font-medium uppercase tracking-wide"
+                  style={{ color: 'var(--theme-muted)' }}
+                >
+                  Label
+                </p>
+                <p
+                  className="text-sm font-semibold"
+                  style={{ color: 'var(--theme-text)' }}
+                >
+                  {selectedTask.label}
+                </p>
               </div>
               {selectedTask.prompt && (
                 <div>
-                  <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide" style={{ color: 'var(--theme-muted)' }}>Prompt</p>
-                  <p className="text-xs whitespace-pre-wrap break-words" style={{ color: 'var(--theme-text)' }}>{selectedTask.prompt}</p>
+                  <p
+                    className="mb-0.5 text-[10px] font-medium uppercase tracking-wide"
+                    style={{ color: 'var(--theme-muted)' }}
+                  >
+                    Prompt
+                  </p>
+                  <p
+                    className="text-xs whitespace-pre-wrap break-words"
+                    style={{ color: 'var(--theme-text)' }}
+                  >
+                    {selectedTask.prompt}
+                  </p>
                 </div>
               )}
               <div>
-                <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide" style={{ color: 'var(--theme-muted)' }}>Assigned to</p>
+                <p
+                  className="mb-0.5 text-[10px] font-medium uppercase tracking-wide"
+                  style={{ color: 'var(--theme-muted)' }}
+                >
+                  Assigned to
+                </p>
                 <p className="text-xs" style={{ color: 'var(--theme-text)' }}>
-                  {selectedTask.assigneeId ? memberById[selectedTask.assigneeId]?.displayName ?? 'Unknown' : 'All agents'}
+                  {selectedTask.assigneeId
+                    ? (memberById[selectedTask.assigneeId]?.displayName ??
+                      'Unknown')
+                    : 'All agents'}
                 </p>
               </div>
               {/* Dependency info */}
-              {edges.filter(e => e.to === selectedTask.id).length > 0 && (
+              {edges.filter((e) => e.to === selectedTask.id).length > 0 && (
                 <div>
-                  <p className="mb-1 text-[10px] font-medium uppercase tracking-wide" style={{ color: 'var(--theme-muted)' }}>Depends on</p>
+                  <p
+                    className="mb-1 text-[10px] font-medium uppercase tracking-wide"
+                    style={{ color: 'var(--theme-muted)' }}
+                  >
+                    Depends on
+                  </p>
                   <div className="flex flex-wrap gap-1">
-                    {edges.filter(e => e.to === selectedTask.id).map(e => {
-                      const src = tasks.find(t => t.id === e.from)
-                      return (
-                        <span
-                          key={e.from}
-                          className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px]"
-                          style={{ background: 'var(--theme-hover, var(--theme-card2, var(--theme-bg)))', color: 'var(--theme-text)', border: '1px solid var(--theme-border)' }}
-                        >
-                          {src?.label ?? e.from}
-                          <button
-                            onClick={() => deleteEdge(e.from, selectedTask.id)}
-                            className="ml-0.5"
-                            style={{ color: 'var(--theme-danger)' }}
-                            title="Remove dependency"
+                    {edges
+                      .filter((e) => e.to === selectedTask.id)
+                      .map((e) => {
+                        const src = tasks.find((t) => t.id === e.from)
+                        return (
+                          <span
+                            key={e.from}
+                            className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px]"
+                            style={{
+                              background:
+                                'var(--theme-hover, var(--theme-card2, var(--theme-bg)))',
+                              color: 'var(--theme-text)',
+                              border: '1px solid var(--theme-border)',
+                            }}
                           >
-                            ×
-                          </button>
-                        </span>
-                      )
-                    })}
+                            {src?.label ?? e.from}
+                            <button
+                              onClick={() =>
+                                deleteEdge(e.from, selectedTask.id)
+                              }
+                              className="ml-0.5"
+                              style={{ color: 'var(--theme-danger)' }}
+                              title="Remove dependency"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        )
+                      })}
                   </div>
                 </div>
               )}
               {/* Run status */}
-              {runState[selectedTask.id] && runState[selectedTask.id] !== 'idle' && (
-                <div>
-                  <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide" style={{ color: 'var(--theme-muted)' }}>Status</p>
-                  <p className="text-xs font-medium capitalize" style={{
-                    color: runState[selectedTask.id] === 'running' ? 'var(--theme-success)'
-                      : runState[selectedTask.id] === 'done' ? 'var(--theme-accent)'
-                      : 'var(--theme-danger)'
-                  }}>
-                    {runState[selectedTask.id]}
-                  </p>
-                </div>
-              )}
+              {runState[selectedTask.id] &&
+                runState[selectedTask.id] !== 'idle' && (
+                  <div>
+                    <p
+                      className="mb-0.5 text-[10px] font-medium uppercase tracking-wide"
+                      style={{ color: 'var(--theme-muted)' }}
+                    >
+                      Status
+                    </p>
+                    <p
+                      className="text-xs font-medium capitalize"
+                      style={{
+                        color:
+                          runState[selectedTask.id] === 'running'
+                            ? 'var(--theme-success)'
+                            : runState[selectedTask.id] === 'done'
+                              ? 'var(--theme-accent)'
+                              : 'var(--theme-danger)',
+                      }}
+                    >
+                      {runState[selectedTask.id]}
+                    </p>
+                  </div>
+                )}
             </div>
-            <div className="flex flex-col gap-2 border-t p-3" style={{ borderColor: 'var(--theme-border)' }}>
+            <div
+              className="flex flex-col gap-2 border-t p-3"
+              style={{ borderColor: 'var(--theme-border)' }}
+            >
               <button
                 onClick={() => setEditingTask(selectedTask)}
                 className="w-full rounded-lg border py-1.5 text-xs font-medium transition-colors"
-                style={{ border: '1px solid var(--theme-border)', color: 'var(--theme-text)', background: 'var(--theme-card)' }}
+                style={{
+                  border: '1px solid var(--theme-border)',
+                  color: 'var(--theme-text)',
+                  background: 'var(--theme-card)',
+                }}
               >
                 Edit Task
               </button>
@@ -1054,17 +1286,33 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
                   }
                 }}
                 className="w-full rounded-lg border py-1.5 text-xs font-medium transition-colors"
-                style={{ border: '1px solid var(--theme-border)', color: 'var(--theme-muted)', background: 'var(--theme-card)' }}
+                style={{
+                  border: '1px solid var(--theme-border)',
+                  color: 'var(--theme-muted)',
+                  background: 'var(--theme-card)',
+                }}
               >
-                <HugeiconsIcon icon={ConnectIcon} size={12} className="mr-1 inline" />
+                <HugeiconsIcon
+                  icon={ConnectIcon}
+                  size={12}
+                  className="mr-1 inline"
+                />
                 Connect from here
               </button>
               <button
                 onClick={() => deleteTask(selectedTask.id)}
                 className="w-full rounded-lg py-1.5 text-xs font-medium transition-colors"
-                style={{ background: 'rgba(239,68,68,0.1)', color: 'var(--theme-danger)', border: '1px solid rgba(239,68,68,0.2)' }}
+                style={{
+                  background: 'rgba(239,68,68,0.1)',
+                  color: 'var(--theme-danger)',
+                  border: '1px solid rgba(239,68,68,0.2)',
+                }}
               >
-                <HugeiconsIcon icon={Delete01Icon} size={12} className="mr-1 inline" />
+                <HugeiconsIcon
+                  icon={Delete01Icon}
+                  size={12}
+                  className="mr-1 inline"
+                />
                 Delete Task
               </button>
             </div>
@@ -1075,22 +1323,51 @@ export function WorkflowBuilder({ crewId, crew, displayMembers }: WorkflowBuilde
         {tasks.length > 0 && (
           <div
             className="pointer-events-none absolute bottom-3 left-3 flex flex-col gap-1 rounded-lg px-2 py-1.5 text-[10px]"
-            style={{ background: 'var(--theme-card)', border: '1px solid var(--theme-border)', color: 'var(--theme-muted)' }}
+            style={{
+              background: 'var(--theme-card)',
+              border: '1px solid var(--theme-border)',
+              color: 'var(--theme-muted)',
+            }}
           >
             <div className="flex items-center gap-1.5">
-              <span className="inline-block h-2 w-2 rounded-sm" style={{ background: STATUS_FILL.running, border: '1px solid rgba(34,197,94,0.7)' }} />
+              <span
+                className="inline-block h-2 w-2 rounded-sm"
+                style={{
+                  background: STATUS_FILL.running,
+                  border: '1px solid rgba(34,197,94,0.7)',
+                }}
+              />
               Running
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="inline-block h-2 w-2 rounded-sm" style={{ background: STATUS_FILL.done, border: '1px solid rgba(99,102,241,0.7)' }} />
+              <span
+                className="inline-block h-2 w-2 rounded-sm"
+                style={{
+                  background: STATUS_FILL.done,
+                  border: '1px solid rgba(99,102,241,0.7)',
+                }}
+              />
               Done
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="inline-block h-2 w-2 rounded-sm" style={{ background: STATUS_FILL.error, border: '1px solid rgba(239,68,68,0.7)' }} />
+              <span
+                className="inline-block h-2 w-2 rounded-sm"
+                style={{
+                  background: STATUS_FILL.error,
+                  border: '1px solid rgba(239,68,68,0.7)',
+                }}
+              />
               Error
             </div>
-            <div className="mt-0.5 border-t pt-0.5" style={{ borderColor: 'var(--theme-border)', color: 'var(--theme-muted)' }}>
-              {tasks.length} task{tasks.length !== 1 ? 's' : ''} · {edges.length} dep{edges.length !== 1 ? 's' : ''}
+            <div
+              className="mt-0.5 border-t pt-0.5"
+              style={{
+                borderColor: 'var(--theme-border)',
+                color: 'var(--theme-muted)',
+              }}
+            >
+              {tasks.length} task{tasks.length !== 1 ? 's' : ''} ·{' '}
+              {edges.length} dep{edges.length !== 1 ? 's' : ''}
             </div>
           </div>
         )}
