@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="54" viewBox="0 0 48 54">
+  <!-- Star Base -->
+  <line x1="24" y1="46" x2="14" y2="50" stroke="#334155" stroke-width="2"/>
+  <line x1="24" y1="46" x2="34" y2="50" stroke="#334155" stroke-width="2"/>
+  <line x1="24" y1="46" x2="24" y2="52" stroke="#1e293b" stroke-width="2"/>
+  <circle cx="24" cy="46" r="3" fill="#0f172a"/>
+  <!-- Pneumatic Post -->
+  <line x1="24" y1="36" x2="24" y2="46" stroke="#64748b" stroke-width="3"/>
+  <!-- Seat Cushion -->
+  <polygon points="12,30 24,24 36,30 24,36" fill="#1e293b" stroke="#0f172a" stroke-width="1"/>
+  <!-- Mesh Backrest -->
+  <polygon points="14,14 24,9 34,14 24,19" fill="#334155" stroke="#1e293b" stroke-width="1"/>
+  <polygon points="14,14 24,19 24,29 14,24" fill="#1e293b"/>
+  <polygon points="24,19 34,14 34,24 24,29" fill="#0f172a"/>
+</svg>

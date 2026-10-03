@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="64" viewBox="0 0 80 64">
+  <!-- Desk Top (Amber / Teak) -->
+  <polygon points="10,32 40,17 70,32 40,47" fill="#d97706" stroke="#92400e" stroke-width="1"/>
+  <polygon points="10,32 40,47 40,50 10,35" fill="#b45309"/>
+  <polygon points="40,47 70,32 70,35 40,50" fill="#92400e"/>
+  <!-- Legs -->
+  <line x1="12" y1="35" x2="12" y2="54" stroke="#451a03" stroke-width="3"/>
+  <line x1="68" y1="35" x2="68" y2="54" stroke="#451a03" stroke-width="3"/>
+  <!-- In/Out Document Trays (Stacked Amber Trays) -->
+  <polygon points="20,28 32,22 36,24 24,30" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>
+  <polygon points="20,25 32,19 36,21 24,27" fill="#fef08a" stroke="#d97706" stroke-width="1"/>
+  <!-- Review Stamp & Ink Pad -->
+  <circle cx="50" cy="27" r="3" fill="#ef4444"/>
+  <rect x="56" y="27" width="6" height="4" fill="#1e293b"/>
+</svg>

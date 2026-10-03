@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="64" viewBox="0 0 48 64">
+  <!-- Terracotta Pot -->
+  <polygon points="16,42 24,38 32,42 24,46" fill="#ea580c"/>
+  <polygon points="16,42 24,46 22,58 18,58" fill="#c2410c"/>
+  <polygon points="24,46 32,42 30,58 22,58" fill="#9a3412"/>
+  <!-- Monstera Leaves -->
+  <circle cx="24" cy="26" r="12" fill="#15803d"/>
+  <circle cx="16" cy="20" r="9" fill="#16a34a"/>
+  <circle cx="32" cy="22" r="10" fill="#22c55e"/>
+  <circle cx="24" cy="14" r="8" fill="#4ade80"/>
+</svg>

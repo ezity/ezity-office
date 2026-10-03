@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- Isometric Wall facing South-West -->
+  <polygon points="0,16 32,0 32,48 0,64" fill="#ede4d0" stroke="#d5c7ab" stroke-width="1"/>
+  <polygon points="32,0 64,16 64,64 32,48" fill="#e2d6be" stroke="#cbbca0" stroke-width="1"/>
+  <polygon points="0,16 32,0 64,16 32,32" fill="#f8f4ea" stroke="#d5c7ab" stroke-width="1"/>
+  <!-- Baseboard trim -->
+  <polygon points="0,60 32,44 32,48 0,64" fill="#a48c68"/>
+  <polygon points="32,44 64,60 64,64 32,48" fill="#8c7554"/>
+</svg>

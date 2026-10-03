@@ -5,6 +5,7 @@
 import type { OfficeSceneState, OfficeZoneId } from '@/types/office-scene'
 
 export type OfficeLayoutTemplate = 'ezity_hq' | 'grid' | 'roundtable' | 'warroom'
+export type OfficeRendererType = 'svg' | 'pixi'
 
 export interface OfficeInteractionHandlers {
   onAgentClick?: (agentId: string, sessionKey?: string) => void
@@ -26,6 +27,8 @@ export interface OfficeRendererProps extends OfficeInteractionHandlers {
   selectedZoneId?: OfficeZoneId
   layoutTemplate?: OfficeLayoutTemplate
   onLayoutChange?: (layout: OfficeLayoutTemplate) => void
+  officeRenderer?: OfficeRendererType
+  onRendererChange?: (renderer: OfficeRendererType) => void
   hideHeader?: boolean
   companyName?: string
 }

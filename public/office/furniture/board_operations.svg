@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="74" viewBox="0 0 80 74">
+  <!-- Stand Legs -->
+  <line x1="20" y1="46" x2="16" y2="70" stroke="#78716c" stroke-width="3"/>
+  <line x1="60" y1="46" x2="64" y2="70" stroke="#78716c" stroke-width="3"/>
+  <!-- Board Frame -->
+  <polygon points="10,24 40,9 70,24 40,39" fill="#ca8a04"/>
+  <polygon points="10,24 40,39 40,59 10,44" fill="#d97706" stroke="#92400e" stroke-width="1"/>
+  <polygon points="40,39 70,24 70,44 40,59" fill="#b45309" stroke="#78350f" stroke-width="1"/>
+  <!-- Cork Facing -->
+  <polygon points="13,27 38,39 38,55 13,43" fill="#fde68a"/>
+  <!-- Pushpin Sticky Notes -->
+  <polygon points="16,33 22,30 22,36 16,39" fill="#f43f5e"/>
+  <polygon points="26,38 32,35 32,41 26,44" fill="#38bdf8"/>
+  <polygon points="18,41 24,38 24,44 18,47" fill="#fbbf24"/>
+  <polygon points="28,45 34,42 34,48 28,51" fill="#4ade80"/>
+</svg>

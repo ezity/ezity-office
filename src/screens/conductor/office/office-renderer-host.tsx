@@ -8,8 +8,9 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import type { OfficeSceneState, OfficeZoneId } from '@/types/office-scene'
-import type { OfficeLayoutTemplate, OfficeRendererProps } from './types'
+import type { OfficeLayoutTemplate, OfficeRendererProps, OfficeRendererType } from './types'
 import { SvgOfficeRenderer } from './renderers/svg/svg-office-renderer'
+import { PixiOfficeRenderer } from './renderers/pixi/pixi-office-renderer'
 import { cn } from '@/lib/utils'
 
 export interface OfficeRendererHostProps extends Partial<OfficeRendererProps> {
@@ -26,6 +27,8 @@ export function OfficeRendererHost({
   selectedZoneId,
   layoutTemplate: initialLayoutTemplate = 'ezity_hq',
   onLayoutChange,
+  officeRenderer: propOfficeRenderer,
+  onRendererChange,
   hideHeader = false,
   companyName = 'EZity Solutions',
   onAgentClick: propOnAgentClick,
@@ -36,6 +39,32 @@ export function OfficeRendererHost({
   onViewOutput: propOnViewOutput,
 }: OfficeRendererHostProps) {
   const navigate = useNavigate()
+
+  // Developer setting: active renderer ('svg' default/fallback vs 'pixi' experimental)
+  const [rendererType, setRendererType] = useState<OfficeRendererType>(() => {
+    if (propOfficeRenderer) return propOfficeRenderer
+    if (typeof window === 'undefined') return 'svg'
+    const saved = window.localStorage.getItem('ezity-office:renderer')
+    return saved === 'pixi' ? 'pixi' : 'svg'
+  })
+
+  // Sync if prop changes
+  useEffect(() => {
+    if (propOfficeRenderer) {
+      setRendererType(propOfficeRenderer)
+    }
+  }, [propOfficeRenderer])
+
+  const handleRendererChange = useCallback(
+    (nextRenderer: OfficeRendererType) => {
+      setRendererType(nextRenderer)
+      onRendererChange?.(nextRenderer)
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('ezity-office:renderer', nextRenderer)
+      }
+    },
+    [onRendererChange],
+  )
 
   // Layout template state (defaults to modern 'ezity_hq')
   const [layoutTemplate, setLayoutTemplate] = useState<OfficeLayoutTemplate>(() => {
@@ -143,22 +172,69 @@ export function OfficeRendererHost({
       style={{ height: containerHeight || height || '100%' }}
     >
       {/* ─────────────────────────────────────────────────────────────
-          1. DESKTOP & TABLET VIEW: FULL SVG VIRTUAL OFFICE
+          1. DESKTOP & TABLET VIEW: DUAL VIRTUAL OFFICE RENDERER
       ───────────────────────────────────────────────────────────── */}
-      <div className="hidden h-full w-full md:block">
-        <SvgOfficeRenderer
-          scene={scene}
-          enableReducedMotion={enableReducedMotion}
-          selectedAgentId={selectedAgentId}
-          selectedZoneId={selectedZoneId}
-          companyName={companyName}
-          onAgentClick={handleAgentClick}
-          onZoneClick={handleZoneClick}
-          onWorkItemClick={handleWorkItemClick}
-          onApprovalClick={handleApprovalClick}
-          onMissionClick={handleMissionClick}
-          onViewOutput={propOnViewOutput}
-        />
+      <div className="relative hidden h-full w-full md:block">
+        {/* Developer Renderer Switcher Pill (Section 2 & 21) */}
+        <div className="absolute top-3 right-4 z-30 flex items-center gap-1 rounded-2xl border border-amber-900/15 bg-white/90 p-1 shadow-md backdrop-blur-md">
+          <button
+            type="button"
+            data-testid="renderer-switch-svg"
+            onClick={() => handleRendererChange('svg')}
+            className={cn(
+              'rounded-xl px-2.5 py-1 text-xs font-semibold transition',
+              rendererType === 'svg'
+                ? 'bg-amber-600 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900',
+            )}
+          >
+            📄 SVG Office
+          </button>
+          <button
+            type="button"
+            data-testid="renderer-switch-pixi"
+            onClick={() => handleRendererChange('pixi')}
+            className={cn(
+              'rounded-xl px-2.5 py-1 text-xs font-semibold transition',
+              rendererType === 'pixi'
+                ? 'bg-amber-600 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900',
+            )}
+          >
+            🎮 Game Office (Pixi)
+          </button>
+        </div>
+
+        {rendererType === 'pixi' ? (
+          <PixiOfficeRenderer
+            scene={scene}
+            enableReducedMotion={enableReducedMotion}
+            selectedAgentId={selectedAgentId}
+            selectedZoneId={selectedZoneId}
+            companyName={companyName}
+            onAgentClick={handleAgentClick}
+            onZoneClick={handleZoneClick}
+            onWorkItemClick={handleWorkItemClick}
+            onApprovalClick={handleApprovalClick}
+            onMissionClick={handleMissionClick}
+            onViewOutput={propOnViewOutput}
+            onFallbackToSvg={() => handleRendererChange('svg')}
+          />
+        ) : (
+          <SvgOfficeRenderer
+            scene={scene}
+            enableReducedMotion={enableReducedMotion}
+            selectedAgentId={selectedAgentId}
+            selectedZoneId={selectedZoneId}
+            companyName={companyName}
+            onAgentClick={handleAgentClick}
+            onZoneClick={handleZoneClick}
+            onWorkItemClick={handleWorkItemClick}
+            onApprovalClick={handleApprovalClick}
+            onMissionClick={handleMissionClick}
+            onViewOutput={propOnViewOutput}
+          />
+        )}
       </div>
 
       {/* ─────────────────────────────────────────────────────────────

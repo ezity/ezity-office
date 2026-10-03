@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="64" viewBox="0 0 48 64">
+  <!-- Isometric 3-Face Filing Cabinet -->
+  <polygon points="8,16 24,8 40,16 24,24" fill="#94a3b8" stroke="#64748b" stroke-width="1"/>
+  <polygon points="8,16 24,24 24,56 8,48" fill="#64748b" stroke="#475569" stroke-width="1"/>
+  <polygon points="24,24 40,16 40,48 24,56" fill="#475569" stroke="#334155" stroke-width="1"/>
+  <!-- Drawer Lines & Handles -->
+  <line x1="11" y1="28" x2="21" y2="33" stroke="#cbd5e1" stroke-width="1.5"/>
+  <line x1="11" y1="38" x2="21" y2="43" stroke="#cbd5e1" stroke-width="1.5"/>
+  <line x1="11" y1="48" x2="21" y2="53" stroke="#cbd5e1" stroke-width="1.5"/>
+  <circle cx="16" cy="30" r="1.5" fill="#f8fafc"/>
+  <circle cx="16" cy="40" r="1.5" fill="#f8fafc"/>
+  <circle cx="16" cy="50" r="1.5" fill="#f8fafc"/>
+</svg>

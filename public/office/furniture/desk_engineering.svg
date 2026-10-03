@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="64" viewBox="0 0 80 64">
+  <!-- Tech Desk Top (Matte Slate / Dark Oak) -->
+  <polygon points="10,32 40,17 70,32 40,47" fill="#334155" stroke="#1e293b" stroke-width="1"/>
+  <polygon points="10,32 40,47 40,50 10,35" fill="#1e293b"/>
+  <polygon points="40,47 70,32 70,35 40,50" fill="#0f172a"/>
+  <!-- Steel Legs -->
+  <line x1="12" y1="35" x2="12" y2="52" stroke="#64748b" stroke-width="3"/>
+  <line x1="68" y1="35" x2="68" y2="52" stroke="#64748b" stroke-width="3"/>
+  <!-- Ultrawide Curved Monitor (Cyan Glow) -->
+  <polygon points="25,18 45,8 55,13 35,23" fill="#38bdf8" stroke="#0284c7" stroke-width="1.5"/>
+  <line x1="40" y1="18" x2="40" y2="28" stroke="#94a3b8" stroke-width="2"/>
+  <!-- Mechanical Keyboard (RGB) -->
+  <polygon points="30,34 40,29 46,32 36,37" fill="#0f172a" stroke="#818cf8" stroke-width="1"/>
+</svg>
