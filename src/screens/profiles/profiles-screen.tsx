@@ -323,7 +323,7 @@ export function ProfilesScreen() {
                       src="/ezity-logo.png"
                       alt={profile.name}
                       className={cn(
-                        'size-20 rounded-full border-2 object-contain bg-white/5 p-2',
+                        'size-20 rounded-full border-2 object-contain',
                         profile.active
                           ? 'border-[var(--theme-border)] dark:border-neutral-950'
                           : 'border-[var(--theme-border)] dark:border-neutral-950',
@@ -832,7 +832,7 @@ export function ProfilesScreen() {
               <img
                 src="/ezity-logo.png"
                 alt={detailsName || ''}
-                className="size-12 rounded-full border-2 border-[var(--theme-border)] object-contain bg-white/5 p-1 dark:border-neutral-700"
+                className="size-12 rounded-full border-2 border-[var(--theme-border)] object-contain dark:border-neutral-700"
               />
               <div className="min-w-0">
                 <DialogTitle className="text-base font-semibold">
