@@ -124,7 +124,7 @@ export function ConductorActive({ conductor }: ConductorActiveProps) {
     totalWorkers > 0 ? Math.round((completedWorkers / totalWorkers) * 100) : 0
 
   // Canonical office scene state and legacy rows adapter
-  const { legacyRows: officeAgentRows } = useOfficeState({
+  const { scene: officeScene, legacyRows: officeAgentRows } = useOfficeState({
     conductor,
     companyName: 'EZity AI Office',
   })
@@ -258,8 +258,9 @@ export function ConductorActive({ conductor }: ConductorActiveProps) {
       {/* Office view */}
       <section className="h-[360px] overflow-hidden rounded-3xl border border-[var(--theme-border)] bg-[var(--theme-card)] shadow-[0_24px_80px_var(--theme-shadow)]">
         <OfficeView
+          scene={officeScene}
           agentRows={officeAgentRows}
-          missionRunning
+          missionRunning={officeScene.missionRunning}
           onViewOutput={() => {}}
           processType="parallel"
           companyName="EZity AI Office"

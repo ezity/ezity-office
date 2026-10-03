@@ -178,9 +178,9 @@ export function ConductorHome({
   const hasMissionHistory = conductor.missionHistory.length > 0
 
   // Canonical office scene state and legacy rows adapter
-  const { legacyRows: homeOfficeRows } = useOfficeState({
+  const { scene: officeScene, legacyRows: homeOfficeRows } = useOfficeState({
     conductor,
-    companyName: '',
+    companyName: 'EZity Solutions',
   })
 
   // Activity list (history or recent sessions)
@@ -448,11 +448,12 @@ export function ConductorHome({
 
       <section className="overflow-hidden rounded-3xl border border-[var(--theme-border)] bg-[var(--theme-card)] shadow-[0_24px_80px_var(--theme-shadow)] md:h-[520px]">
         <OfficeView
+          scene={officeScene}
           agentRows={homeOfficeRows}
-          missionRunning={homeOfficeRows.some((a) => a.status === 'active')}
+          missionRunning={officeScene.missionRunning}
           onViewOutput={() => {}}
           processType="parallel"
-          companyName=""
+          companyName="EZity Solutions"
           containerHeight={520}
           hideHeader
         />
