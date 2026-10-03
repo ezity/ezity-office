@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 160" width="128" height="160">
+  <!-- Aluminium Frame -->
+  <polygon points="4,48 124,88 124,152 4,112" fill="#38bdf8" fill-opacity="0.12" stroke="#0284c7" stroke-width="2"/>
+  <polygon points="4,40 124,80 124,48 4,8" fill="#e0f2fe" fill-opacity="0.25"/>
+  <!-- Glass Glare Lines -->
+  <line x1="30" y1="70" x2="70" y2="130" stroke="#ffffff" stroke-opacity="0.6" stroke-width="3"/>
+  <line x1="50" y1="65" x2="90" y2="125" stroke="#ffffff" stroke-opacity="0.4" stroke-width="2"/>
+  <!-- Base Trim -->
+  <polygon points="4,106 124,146 124,152 4,112" fill="#0284c7" fill-opacity="0.8"/>
+</svg>

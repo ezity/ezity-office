@@ -193,7 +193,7 @@ export function PixiOfficeRenderer({
   return (
     <div
       ref={containerRef}
-      className={`relative h-full w-full select-none overflow-hidden bg-[#faf7ef] ${className}`}
+      className={`relative h-full w-full select-none overflow-hidden bg-[#4d5c69] ${className}`}
     >
       {/* Pixi Canvas Mount Target */}
       <div ref={canvasMountRef} className="absolute inset-0 block h-full w-full" />

@@ -131,8 +131,9 @@ export class AgentLayer extends Container {
       const isFacingLeft = moveState.facing.endsWith('left')
       obj.sprite.scale.x = isFacingLeft ? -Math.abs(obj.sprite.scale.x) : Math.abs(obj.sprite.scale.x)
 
-      // Position container
+      // Position container and scale with camera zoom
       obj.container.position.set(screenPos.x, screenPos.y + bobY)
+      obj.container.scale.set(camera.zoom)
 
       // Y-based depth sorting
       obj.container.zIndex = screenPos.y

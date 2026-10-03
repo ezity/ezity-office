@@ -1,0 +1,187 @@
+{
+  "name": "Ezity AI Office Production Asset Pack",
+  "version": "1.0.0",
+  "artDirection": {
+    "style": "2.5D pseudo-isometric management simulation",
+    "cameraAngle": "30-35 degree downward elevated 3/4 view",
+    "lighting": "Soft daylight from upper-left, ambient occlusion, subtle contact shadows",
+    "palette": {
+      "neutral": ["#ffffff", "#f8fafc", "#e2e8f0", "#334155", "#0f172a"],
+      "executive": ["#1e3a8a", "#312e81", "#7c3aed"],
+      "finance": ["#059669", "#064e3b", "#10b981"],
+      "engineering": ["#0284c7", "#0ea5e9", "#38bdf8"],
+      "review": ["#d97706", "#78350f", "#fbbf24"],
+      "lounge": ["#ea580c", "#7c2d12", "#fed7aa"]
+    }
+  },
+  "concept": {
+    "office_world_concept": {
+      "png": "/assets/virtual-office/concept/office_world_concept.png",
+      "webp": "/assets/virtual-office/concept/office_world_concept.webp",
+      "description": "Complete master isometric virtual office layout showing all 6 interconnected zones"
+    }
+  },
+  "characters": {
+    "chief": {
+      "name": "Chief of Staff",
+      "identity": "Male executive, neat dark brown hair, navy suit, deep purple tie",
+      "idle": "/assets/virtual-office/characters/chief/chief_idle.webp",
+      "sit": "/assets/virtual-office/characters/chief/chief_sit.webp",
+      "work": "/assets/virtual-office/characters/chief/chief_work.webp",
+      "walk_dl": "/assets/virtual-office/characters/chief/chief_walk_dl.webp",
+      "walk_dr": "/assets/virtual-office/characters/chief/chief_walk_dr.webp",
+      "walk_ul": "/assets/virtual-office/characters/chief/chief_walk_ul.webp",
+      "walk_ur": "/assets/virtual-office/characters/chief/chief_walk_ur.webp",
+      "meeting": "/assets/virtual-office/characters/chief/chief_meeting.webp",
+      "review": "/assets/virtual-office/characters/chief/chief_review.webp",
+      "error": "/assets/virtual-office/characters/chief/chief_error.webp",
+      "spritesheet": "/assets/virtual-office/characters/spritesheets/chief_walk_sheet.webp"
+    },
+    "accountant": {
+      "name": "Accountant",
+      "identity": "Male accountant, modern round glasses, dark green sweater vest, white shirt",
+      "idle": "/assets/virtual-office/characters/accountant/accountant_idle.webp",
+      "sit": "/assets/virtual-office/characters/accountant/accountant_sit.webp",
+      "work": "/assets/virtual-office/characters/accountant/accountant_work.webp",
+      "walk_dl": "/assets/virtual-office/characters/accountant/accountant_walk_dl.webp",
+      "walk_dr": "/assets/virtual-office/characters/accountant/accountant_walk_dr.webp",
+      "walk_ul": "/assets/virtual-office/characters/accountant/accountant_walk_ul.webp",
+      "walk_ur": "/assets/virtual-office/characters/accountant/accountant_walk_ur.webp",
+      "meeting": "/assets/virtual-office/characters/accountant/accountant_meeting.webp",
+      "review": "/assets/virtual-office/characters/accountant/accountant_review.webp",
+      "error": "/assets/virtual-office/characters/accountant/accountant_error.webp",
+      "spritesheet": "/assets/virtual-office/characters/spritesheets/accountant_walk_sheet.webp"
+    },
+    "developer": {
+      "name": "Developer",
+      "identity": "Male developer, wavy brown hair, cyan hoodie over indigo shirt, sneakers",
+      "idle": "/assets/virtual-office/characters/developer/developer_idle.webp",
+      "sit": "/assets/virtual-office/characters/developer/developer_sit.webp",
+      "work": "/assets/virtual-office/characters/developer/developer_work.webp",
+      "walk_dl": "/assets/virtual-office/characters/developer/developer_walk_dl.webp",
+      "walk_dr": "/assets/virtual-office/characters/developer/developer_walk_dr.webp",
+      "walk_ul": "/assets/virtual-office/characters/developer/developer_walk_ul.webp",
+      "walk_ur": "/assets/virtual-office/characters/developer/developer_walk_ur.webp",
+      "meeting": "/assets/virtual-office/characters/developer/developer_meeting.webp",
+      "review": "/assets/virtual-office/characters/developer/developer_review.webp",
+      "error": "/assets/virtual-office/characters/developer/developer_error.webp",
+      "spritesheet": "/assets/virtual-office/characters/spritesheets/developer_walk_sheet.webp"
+    }
+  },
+  "furniture": {
+    "desk_executive": {
+      "svg": "/assets/virtual-office/furniture/desk_executive.svg",
+      "png": "/assets/virtual-office/furniture/desk_executive.png",
+      "webp": "/assets/virtual-office/furniture/desk_executive.webp",
+      "dimensions": { "width": 256, "height": 200 },
+      "anchor": { "x": 0.5, "y": 0.65 }
+    },
+    "chair_executive": {
+      "svg": "/assets/virtual-office/furniture/chair_executive.svg",
+      "png": "/assets/virtual-office/furniture/chair_executive.png",
+      "webp": "/assets/virtual-office/furniture/chair_executive.webp",
+      "dimensions": { "width": 160, "height": 190 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    "chair_office": {
+      "svg": "/assets/virtual-office/furniture/chair_office.svg",
+      "png": "/assets/virtual-office/furniture/chair_office.png",
+      "webp": "/assets/virtual-office/furniture/chair_office.webp",
+      "dimensions": { "width": 140, "height": 160 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    "desk_finance": {
+      "svg": "/assets/virtual-office/furniture/desk_finance.svg",
+      "png": "/assets/virtual-office/furniture/desk_finance.png",
+      "webp": "/assets/virtual-office/furniture/desk_finance.webp",
+      "dimensions": { "width": 256, "height": 200 },
+      "anchor": { "x": 0.5, "y": 0.65 }
+    },
+    "cabinet_filing": {
+      "svg": "/assets/virtual-office/furniture/cabinet_filing.svg",
+      "png": "/assets/virtual-office/furniture/cabinet_filing.png",
+      "webp": "/assets/virtual-office/furniture/cabinet_filing.webp",
+      "dimensions": { "width": 160, "height": 210 },
+      "anchor": { "x": 0.5, "y": 0.8 }
+    },
+    "desk_engineering": {
+      "svg": "/assets/virtual-office/furniture/desk_engineering.svg",
+      "png": "/assets/virtual-office/furniture/desk_engineering.png",
+      "webp": "/assets/virtual-office/furniture/desk_engineering.webp",
+      "dimensions": { "width": 256, "height": 200 },
+      "anchor": { "x": 0.5, "y": 0.65 }
+    },
+    "rack_server": {
+      "svg": "/assets/virtual-office/furniture/rack_server.svg",
+      "png": "/assets/virtual-office/furniture/rack_server.png",
+      "webp": "/assets/virtual-office/furniture/rack_server.webp",
+      "dimensions": { "width": 160, "height": 230 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    "table_meeting": {
+      "svg": "/assets/virtual-office/furniture/table_meeting.svg",
+      "png": "/assets/virtual-office/furniture/table_meeting.png",
+      "webp": "/assets/virtual-office/furniture/table_meeting.webp",
+      "dimensions": { "width": 320, "height": 220 },
+      "anchor": { "x": 0.5, "y": 0.6 }
+    },
+    "desk_review": {
+      "svg": "/assets/virtual-office/furniture/desk_review.svg",
+      "png": "/assets/virtual-office/furniture/desk_review.png",
+      "webp": "/assets/virtual-office/furniture/desk_review.webp",
+      "dimensions": { "width": 256, "height": 200 },
+      "anchor": { "x": 0.5, "y": 0.65 }
+    },
+    "board_operations": {
+      "svg": "/assets/virtual-office/furniture/board_operations.svg",
+      "png": "/assets/virtual-office/furniture/board_operations.png",
+      "webp": "/assets/virtual-office/furniture/board_operations.webp",
+      "dimensions": { "width": 220, "height": 180 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    "board_strategy": {
+      "svg": "/assets/virtual-office/furniture/board_strategy.svg",
+      "png": "/assets/virtual-office/furniture/board_strategy.png",
+      "webp": "/assets/virtual-office/furniture/board_strategy.webp",
+      "dimensions": { "width": 200, "height": 180 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    "sofa_lounge": {
+      "svg": "/assets/virtual-office/furniture/sofa_lounge.svg",
+      "png": "/assets/virtual-office/furniture/sofa_lounge.png",
+      "webp": "/assets/virtual-office/furniture/sofa_lounge.webp",
+      "dimensions": { "width": 260, "height": 180 },
+      "anchor": { "x": 0.5, "y": 0.7 }
+    },
+    "coffee_machine": {
+      "svg": "/assets/virtual-office/furniture/coffee_machine.svg",
+      "png": "/assets/virtual-office/furniture/coffee_machine.png",
+      "webp": "/assets/virtual-office/furniture/coffee_machine.webp",
+      "dimensions": { "width": 140, "height": 160 },
+      "anchor": { "x": 0.5, "y": 0.8 }
+    }
+  },
+  "environment": {
+    "rug_executive": { "url": "/assets/virtual-office/environment/rug_executive.svg" },
+    "rug_meeting": { "url": "/assets/virtual-office/environment/rug_meeting.svg" },
+    "rug_finance": { "url": "/assets/virtual-office/environment/rug_finance.svg" },
+    "rug_engineering": { "url": "/assets/virtual-office/environment/rug_engineering.svg" },
+    "rug_lounge": { "url": "/assets/virtual-office/environment/rug_lounge.svg" },
+    "rug_review": { "url": "/assets/virtual-office/environment/rug_review.svg" },
+    "wall_straight": { "url": "/assets/virtual-office/environment/wall_straight.svg" },
+    "glass_wall": { "url": "/assets/virtual-office/environment/glass_wall.svg" },
+    "wall_corner_inner": { "url": "/assets/virtual-office/environment/wall_corner_inner.svg" }
+  },
+  "floor": {
+    "floor_tile": { "url": "/assets/virtual-office/floor/floor_tile.svg" },
+    "tile_hallway": { "url": "/assets/virtual-office/floor/tile_hallway.svg" }
+  },
+  "props": {
+    "plant_potted": { "url": "/assets/virtual-office/props/plant_potted.svg" },
+    "plant_tall": { "url": "/assets/virtual-office/props/plant_tall.svg" },
+    "dispenser_water": { "url": "/assets/virtual-office/props/dispenser_water.svg" },
+    "printer_office": { "url": "/assets/virtual-office/props/printer_office.svg" },
+    "bin_recycle": { "url": "/assets/virtual-office/props/bin_recycle.svg" },
+    "clock_wall": { "url": "/assets/virtual-office/props/clock_wall.svg" }
+  }
+}

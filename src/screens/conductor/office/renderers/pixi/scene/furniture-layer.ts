@@ -1,13 +1,15 @@
 /**
- * Pixi Virtual Office Furniture Layer
+ * Pixi Virtual Office Furniture & Interactive Zones Layer
  *
- * Renders 2.5D isometric office furniture items, workstations, boards, and interactive fixtures.
+ * Provides interactive hitboxes, hover highlights, and click handlers
+ * for operational fixtures (Operations Board, Review Counter, Conference Table, Workstations)
+ * seamlessly aligned with the master office environment.
  */
 
-import { Container, Sprite, type Application } from 'pixi.js'
-import { getOfficeTexture } from '../assets/asset-manifest'
+import { Container, Graphics, type Application } from 'pixi.js'
 import {
   worldToScreen,
+  ZONE_DEFINITIONS,
   type CameraState,
   type WorldPoint,
 } from '../movement/navigation'
@@ -18,17 +20,18 @@ export interface FurnitureClickHandlers {
   onMissionClick?: () => void
 }
 
-interface FurnitureItemDef {
+interface InteractiveZoneDef {
   id: string
-  assetId: string
+  name: string
   worldPos: WorldPoint
-  anchor?: { x: number; y: number }
-  interactive?: boolean
+  radiusX: number
+  radiusY: number
+  color: number
   onClickType?: 'inbox' | 'approval' | 'mission'
 }
 
 export class FurnitureLayer extends Container {
-  private items = new Map<string, Sprite>()
+  private items = new Map<string, Container>()
 
   constructor(
     private app: Application,
@@ -42,162 +45,118 @@ export class FurnitureLayer extends Container {
     this.removeChildren()
     this.items.clear()
 
-    const furnitureDefs: FurnitureItemDef[] = [
-      // 1. Executive Suite
-      {
-        id: 'exec_chair',
-        assetId: 'chair_office',
-        worldPos: { x: 2.2, y: 3.7 },
-      },
-      {
-        id: 'exec_desk',
-        assetId: 'desk_executive',
-        worldPos: { x: 2.5, y: 4.2 },
-      },
-      {
-        id: 'exec_plant',
-        assetId: 'plant_potted',
-        worldPos: { x: 1.5, y: 3.0 },
-      },
-
-      // 2. Conference Room
-      {
-        id: 'conf_table',
-        assetId: 'table_meeting',
-        worldPos: { x: 10.5, y: 2.8 },
-        interactive: true,
-        onClickType: 'mission',
-      },
-      {
-        id: 'conf_chair_1',
-        assetId: 'chair_office',
-        worldPos: { x: 9.8, y: 2.0 },
-      },
-      {
-        id: 'conf_chair_2',
-        assetId: 'chair_office',
-        worldPos: { x: 11.2, y: 2.0 },
-      },
-      {
-        id: 'conf_chair_3',
-        assetId: 'chair_office',
-        worldPos: { x: 9.8, y: 3.6 },
-      },
-      {
-        id: 'conf_chair_4',
-        assetId: 'chair_office',
-        worldPos: { x: 11.2, y: 3.6 },
-      },
-
-      // 3. Finance Wing
-      {
-        id: 'fin_chair',
-        assetId: 'chair_office',
-        worldPos: { x: 2.2, y: 10.2 },
-      },
-      {
-        id: 'fin_desk',
-        assetId: 'desk_finance',
-        worldPos: { x: 2.5, y: 10.7 },
-      },
-      {
-        id: 'fin_cabinet',
-        assetId: 'cabinet_filing',
-        worldPos: { x: 1.5, y: 9.5 },
-      },
-
-      // 4. Engineering Bay
-      {
-        id: 'eng_chair',
-        assetId: 'chair_office',
-        worldPos: { x: 12.2, y: 6.2 },
-      },
-      {
-        id: 'eng_desk',
-        assetId: 'desk_engineering',
-        worldPos: { x: 12.5, y: 6.7 },
-      },
-      {
-        id: 'eng_server',
-        assetId: 'rack_server',
-        worldPos: { x: 14.2, y: 5.5 },
-      },
-
-      // 5. Review Station
-      {
-        id: 'rev_chair',
-        assetId: 'chair_office',
-        worldPos: { x: 6.5, y: 9.5 },
-      },
-      {
-        id: 'rev_desk',
-        assetId: 'desk_review',
-        worldPos: { x: 6.5, y: 8.8 },
-        interactive: true,
-        onClickType: 'approval',
-      },
-
-      // 6. Operations Cork Board
+    const interactiveZones: InteractiveZoneDef[] = [
+      // 1. Operations Board (Top-Right Room)
       {
         id: 'ops_board',
-        assetId: 'board_operations',
-        worldPos: { x: 9.2, y: 10.5 },
-        interactive: true,
+        name: 'Operations Inbox Board',
+        worldPos: ZONE_DEFINITIONS.inbox_board.primaryAnchor,
+        radiusX: 42,
+        radiusY: 22,
+        color: 0x38bdf8,
         onClickType: 'inbox',
       },
-
-      // 7. Staff Lounge
+      // 2. Review Station Counter (Bottom-Center Station)
+      {
+        id: 'rev_desk',
+        name: 'Approval & Verification Desk',
+        worldPos: ZONE_DEFINITIONS.review_station.primaryAnchor,
+        radiusX: 40,
+        radiusY: 20,
+        color: 0xf59e0b,
+        onClickType: 'approval',
+      },
+      // 3. Strategic Conference Table (Top-Center Glass Room)
+      {
+        id: 'conf_table',
+        name: 'Strategic Conference Table',
+        worldPos: ZONE_DEFINITIONS.meeting_room.primaryAnchor,
+        radiusX: 52,
+        radiusY: 26,
+        color: 0x60a5fa,
+        onClickType: 'mission',
+      },
+      // 4. Executive Desk (Top-Left Suite)
+      {
+        id: 'exec_desk',
+        name: 'Executive Orchestrator Desk',
+        worldPos: ZONE_DEFINITIONS.executive.primaryAnchor,
+        radiusX: 48,
+        radiusY: 24,
+        color: 0x818cf8,
+      },
+      // 5. Finance Desk (Bottom-Left Wing)
+      {
+        id: 'fin_desk',
+        name: 'Financial Ledger Station',
+        worldPos: ZONE_DEFINITIONS.finance.primaryAnchor,
+        radiusX: 45,
+        radiusY: 22,
+        color: 0x10b981,
+      },
+      // 6. Engineering Workstation (Bottom-Right Bay)
+      {
+        id: 'eng_desk',
+        name: 'Engineering Bay Workstation',
+        worldPos: ZONE_DEFINITIONS.engineering.primaryAnchor,
+        radiusX: 46,
+        radiusY: 23,
+        color: 0x0ea5e9,
+      },
+      // 7. Staff Lounge (Center-Right Area)
       {
         id: 'lounge_sofa',
-        assetId: 'sofa_lounge',
-        worldPos: { x: 10.5, y: 14.8 },
-      },
-      {
-        id: 'lounge_coffee',
-        assetId: 'coffee_machine',
-        worldPos: { x: 12.5, y: 13.5 },
-      },
-      {
-        id: 'lounge_plant',
-        assetId: 'plant_potted',
-        worldPos: { x: 8.8, y: 13.5 },
+        name: 'Staff Coffee Lounge',
+        worldPos: ZONE_DEFINITIONS.lounge_break.primaryAnchor,
+        radiusX: 42,
+        radiusY: 22,
+        color: 0xf97316,
       },
     ]
 
-    for (const def of furnitureDefs) {
-      const texture = getOfficeTexture(def.assetId, this.app)
-      const sprite = new Sprite(texture)
-
+    for (const def of interactiveZones) {
+      const zoneContainer = new Container()
       const screenPos = worldToScreen(def.worldPos.x, def.worldPos.y, 0, camera)
-      sprite.anchor.set(def.anchor?.x ?? 0.5, def.anchor?.y ?? 0.75)
-      sprite.position.set(screenPos.x, screenPos.y)
+      zoneContainer.position.set(screenPos.x, screenPos.y)
+      zoneContainer.zIndex = screenPos.y
 
-      // Depth sorting zIndex based on screen Y
-      sprite.zIndex = screenPos.y
+      // Subtle ambient interaction plate
+      const plate = new Graphics()
+      plate.ellipse(0, 0, def.radiusX, def.radiusY)
+      plate.stroke({ color: def.color, width: 1.5, alpha: 0.25 })
+      plate.fill({ color: def.color, alpha: 0.04 })
+      zoneContainer.addChild(plate)
 
-      if (def.interactive) {
-        sprite.eventMode = 'static'
-        sprite.cursor = 'pointer'
+      // Hover glow highlight
+      const hoverGlow = new Graphics()
+      hoverGlow.ellipse(0, 0, def.radiusX + 4, def.radiusY + 2)
+      hoverGlow.stroke({ color: def.color, width: 2, alpha: 0.85 })
+      hoverGlow.fill({ color: def.color, alpha: 0.18 })
+      hoverGlow.visible = false
+      zoneContainer.addChild(hoverGlow)
 
-        sprite.on('pointerover', () => {
-          sprite.tint = 0xfff0c2 // Warm hover highlight
-        })
-        sprite.on('pointerout', () => {
-          sprite.tint = 0xffffff
-        })
-        sprite.on('pointerdown', () => {
-          if (def.onClickType === 'inbox') {
-            this.handlers.onWorkItemClick?.('inbox')
-          } else if (def.onClickType === 'approval') {
-            this.handlers.onApprovalClick?.()
-          } else if (def.onClickType === 'mission') {
-            this.handlers.onMissionClick?.()
-          }
-        })
-      }
+      // Interactivity
+      zoneContainer.eventMode = 'static'
+      zoneContainer.cursor = 'pointer'
 
-      this.items.set(def.id, sprite)
-      this.addChild(sprite)
+      zoneContainer.on('pointerover', () => {
+        hoverGlow.visible = true
+      })
+      zoneContainer.on('pointerout', () => {
+        hoverGlow.visible = false
+      })
+      zoneContainer.on('pointerdown', () => {
+        if (def.onClickType === 'inbox') {
+          this.handlers.onWorkItemClick?.('inbox')
+        } else if (def.onClickType === 'approval') {
+          this.handlers.onApprovalClick?.()
+        } else if (def.onClickType === 'mission') {
+          this.handlers.onMissionClick?.()
+        }
+      })
+
+      this.items.set(def.id, zoneContainer)
+      this.addChild(zoneContainer)
     }
   }
 

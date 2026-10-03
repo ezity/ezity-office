@@ -89,11 +89,15 @@ export class OfficeScene {
       options.container.appendChild(app.canvas)
     }
 
-    // Compute initial camera offset centered around grid (7.5, 7.5)
+    // Compute initial camera offset centered on the office building
+    const scaleX = options.width / 1376
+    const scaleY = options.height / 768
+    const zoom = Math.max(0.6, Math.min(scaleX, scaleY, 1.25))
+
     const camera: CameraState = {
       x: options.width / 2,
-      y: Math.max(70, options.height * 0.12),
-      zoom: options.width < 900 ? 0.8 : 1.0,
+      y: options.height / 2,
+      zoom,
     }
 
     const scene = new OfficeScene(app, camera)
@@ -114,9 +118,11 @@ export class OfficeScene {
     if (this.isDestroyed) return
 
     this.app.renderer.resize(width, height)
+    const scaleX = width / 1376
+    const scaleY = height / 768
+    this.camera.zoom = Math.max(0.6, Math.min(scaleX, scaleY, 1.25))
     this.camera.x = width / 2
-    this.camera.y = Math.max(70, height * 0.12)
-    this.camera.zoom = width < 900 ? 0.8 : 1.0
+    this.camera.y = height / 2
 
     // Rebuild static layers with new camera
     this.roomLayer.buildEnvironment(this.camera)
