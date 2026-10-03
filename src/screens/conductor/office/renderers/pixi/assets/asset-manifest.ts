@@ -138,10 +138,10 @@ export const OFFICE_ASSETS: Record<string, AssetDescriptor> = {
     id: 'chair_office',
     category: 'furniture',
     url: '/office/furniture/chair_office.png',
-    width: 48,
-    height: 54,
+    width: 41,
+    height: 51,
     anchorX: 0.5,
-    anchorY: 0.85,
+    anchorY: 0.88,
     label: 'Ergonomic Task Chair',
   },
   table_meeting: {

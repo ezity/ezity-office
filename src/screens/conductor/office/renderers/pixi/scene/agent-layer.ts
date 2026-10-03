@@ -26,6 +26,7 @@ export interface AgentLayerHandlers {
 interface AgentDisplayObject {
   container: Container
   sprite: Sprite
+  chairSprite: Sprite
   shadow: Graphics
   selectionHalo: Graphics
   agentId: string
@@ -129,9 +130,26 @@ export class AgentLayer extends Container {
         obj.lastFacing = moveState.facing
       }
 
+      // Update chair visibility and orientation
+      const isSeated =
+        moveState.animationState === 'sit' ||
+        moveState.animationState === 'work' ||
+        moveState.animationState === 'meeting' ||
+        moveState.animationState === 'review'
+
+      obj.chairSprite.visible = isSeated
+
       // Flip sprite horizontally when facing left vs right
       const isFacingLeft = moveState.facing.endsWith('left')
       obj.sprite.scale.x = isFacingLeft ? -Math.abs(obj.sprite.scale.x) : Math.abs(obj.sprite.scale.x)
+
+      if (isSeated) {
+        // Match chair orientation with agent's facing direction
+        obj.chairSprite.scale.x = isFacingLeft
+          ? -Math.abs(obj.chairSprite.scale.x)
+          : Math.abs(obj.chairSprite.scale.x)
+        obj.chairSprite.position.set(isFacingLeft ? 4 : -4, -6)
+      }
 
       // Position container and scale with camera zoom
       obj.container.position.set(screenPos.x, screenPos.y + bobY)
@@ -178,6 +196,14 @@ export class AgentLayer extends Container {
     halo.visible = false
     container.addChild(halo)
 
+    // Ergonomic Chair (rendered underneath character sprite)
+    const chairTexture = getOfficeTexture('chair_office', this.app)
+    const chairSprite = new Sprite(chairTexture)
+    chairSprite.anchor.set(0.5, 0.88)
+    chairSprite.position.set(-4, -6)
+    chairSprite.visible = true
+    container.addChild(chairSprite)
+
     // Sprite
     const textureKey = this.getTextureKeyForRole(agent.id, 'sit')
     const texture = getOfficeTexture(textureKey, this.app)
@@ -202,6 +228,7 @@ export class AgentLayer extends Container {
     return {
       container,
       sprite,
+      chairSprite,
       shadow,
       selectionHalo: halo,
       agentId: agent.id,
