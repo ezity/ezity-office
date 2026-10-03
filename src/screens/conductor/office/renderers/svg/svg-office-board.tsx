@@ -1,8 +1,14 @@
 /**
- * SVG Office Interactive Boards
+ * SVG Isometric Office Boards & Operational Overlays
+ * Phase I-C.2 — Game-Style Art Pass
  *
- * Renders the Work Inbox Operations Board, the Dual-Control Approval Counter,
- * and the Strategic Mission Display in the Conference Room.
+ * Renders physical game-like operational boards:
+ * - Cork pinboard with sticky note cards (Work Inbox)
+ * - Compact whiteboard mission display (Conference)
+ * - Physical review desk tray counter (Approval)
+ *
+ * All counters and states derive from real OfficeSceneState.
+ * No giant dashboard widgets or SaaS metric panels.
  */
 
 import React from 'react'
@@ -21,7 +27,6 @@ export function SvgOfficeBoard({
   onApprovalClick,
   onMissionClick,
 }: SvgOfficeBoardProps) {
-  // Compute real counts from canonical scene state
   const needsAttentionCount = scene.workItems.filter(
     (item) => item.status === 'needs_attention',
   ).length
@@ -41,9 +46,9 @@ export function SvgOfficeBoard({
 
   return (
     <g id="office-boards-layer">
-      {/* ─────────────────────────────────────────────────────────────
-          1. WORK INBOX & OPERATIONS WALL BOARD (Upper Right)
-      ───────────────────────────────────────────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════
+          1. WORK INBOX CORK PINBOARD (Operations Room)
+      ═══════════════════════════════════════════════════════ */}
       <g
         id="board-work-inbox"
         role="button"
@@ -53,91 +58,89 @@ export function SvgOfficeBoard({
         onClick={() => onWorkItemClick?.('inbox-root')}
         onKeyDown={(e) => handleKeyDown(e, () => onWorkItemClick?.('inbox-root'))}
       >
-        {/* Wall Board Frame */}
-        <rect
-          x="840"
-          y="88"
-          width="310"
-          height="132"
-          rx="12"
-          fill="#091b2c"
-          stroke="#14b8a6"
-          strokeWidth="1.5"
-          filter="url(#desk-shadow)"
-        />
-        {/* Header Strip */}
-        <rect x="840" y="88" width="310" height="28" rx="12" fill="#042f2e" />
-        <rect x="840" y="104" width="310" height="12" fill="#042f2e" />
-        <text x="855" y="107" fill="#5eead4" fontSize="11" fontWeight="700" letterSpacing="0.08em">
-          WORK INBOX METRICS
+        {/* Cork board backing (already rendered by furniture — this adds the sticky cards) */}
+        {/* Header label on the board */}
+        <rect x="864" y="90" width="262" height="20" fill="#ffffff" fillOpacity="0.85" rx="3" />
+        <text x="876" y="104" fill="#78350f" fontSize="10" fontWeight="700" letterSpacing="0.05em">
+          📌 OPERATIONS BOARD
         </text>
-        <text x="1135" y="107" fill="#2dd4bf" fontSize="10" textAnchor="end" fontWeight="500">
+        <text x="1118" y="104" fill="#b45309" fontSize="9" textAnchor="end" fontWeight="600">
           Open Inbox ↗
         </text>
 
-        {/* Counter Columns */}
-        {/* Needs Attention */}
-        <g transform="translate(855, 128)">
+        {/* 3 Sticky Note Cards pinned to the board */}
+        {/* Card 1: Needs Attention (Amber) */}
+        <g transform="translate(872, 116)">
           <rect
-            x="0"
-            y="0"
-            width="86"
-            height="76"
-            rx="8"
-            fill={needsAttentionCount > 0 ? '#451a03' : '#0f172a'}
-            stroke={needsAttentionCount > 0 ? '#f59e0b' : '#334155'}
+            x="0" y="0" width="78" height="72" rx="3"
+            fill={needsAttentionCount > 0 ? '#fff7ed' : '#ffffff'}
+            stroke={needsAttentionCount > 0 ? '#f97316' : '#e2e8f0'}
             strokeWidth="1"
+            filter="url(#badge-soft-shadow)"
           />
+          {/* Pushpin */}
+          <circle cx="39" cy="6" r="3" fill="#ef4444" />
           <text
-            x="43"
-            y="32"
-            fill={needsAttentionCount > 0 ? '#f59e0b' : '#94a3b8'}
-            fontSize="22"
-            fontWeight="800"
-            textAnchor="middle"
+            x="39" y="34"
+            fill={needsAttentionCount > 0 ? '#c2410c' : '#94a3b8'}
+            fontSize="20" fontWeight="800" textAnchor="middle"
           >
             {needsAttentionCount}
           </text>
-          <text x="43" y="52" fill="#cbd5e1" fontSize="9" fontWeight="600" textAnchor="middle">
+          <text x="39" y="48" fill="#475569" fontSize="7.5" fontWeight="700" textAnchor="middle">
             NEEDS
           </text>
-          <text x="43" y="63" fill="#cbd5e1" fontSize="9" fontWeight="600" textAnchor="middle">
+          <text x="39" y="58" fill="#475569" fontSize="7.5" fontWeight="700" textAnchor="middle">
             ATTENTION
           </text>
         </g>
 
-        {/* In Progress */}
-        <g transform="translate(952, 128)">
-          <rect x="0" y="0" width="86" height="76" rx="8" fill="#0c4a6e" stroke="#0ea5e9" strokeWidth="1" />
-          <text x="43" y="32" fill="#38bdf8" fontSize="22" fontWeight="800" textAnchor="middle">
+        {/* Card 2: In Progress (Blue) */}
+        <g transform="translate(958, 116)">
+          <rect
+            x="0" y="0" width="78" height="72" rx="3"
+            fill="#f0f9ff"
+            stroke="#0284c7"
+            strokeWidth="1"
+            filter="url(#badge-soft-shadow)"
+          />
+          <circle cx="39" cy="6" r="3" fill="#0284c7" />
+          <text x="39" y="34" fill="#0369a1" fontSize="20" fontWeight="800" textAnchor="middle">
             {inProgressCount}
           </text>
-          <text x="43" y="52" fill="#e0f2fe" fontSize="9" fontWeight="600" textAnchor="middle">
+          <text x="39" y="48" fill="#0369a1" fontSize="7.5" fontWeight="700" textAnchor="middle">
             IN
           </text>
-          <text x="43" y="63" fill="#e0f2fe" fontSize="9" fontWeight="600" textAnchor="middle">
+          <text x="39" y="58" fill="#0369a1" fontSize="7.5" fontWeight="700" textAnchor="middle">
             PROGRESS
           </text>
         </g>
 
-        {/* Waiting */}
-        <g transform="translate(1049, 128)">
-          <rect x="0" y="0" width="86" height="76" rx="8" fill="#1e1b4b" stroke="#818cf8" strokeWidth="1" />
-          <text x="43" y="32" fill="#a5b4fc" fontSize="22" fontWeight="800" textAnchor="middle">
+        {/* Card 3: Waiting (Green) */}
+        <g transform="translate(1044, 116)">
+          <rect
+            x="0" y="0" width="78" height="72" rx="3"
+            fill="#f0fdf4"
+            stroke="#10b981"
+            strokeWidth="1"
+            filter="url(#badge-soft-shadow)"
+          />
+          <circle cx="39" cy="6" r="3" fill="#10b981" />
+          <text x="39" y="34" fill="#047857" fontSize="20" fontWeight="800" textAnchor="middle">
             {waitingCount}
           </text>
-          <text x="43" y="52" fill="#e0e7ff" fontSize="9" fontWeight="600" textAnchor="middle">
+          <text x="39" y="48" fill="#047857" fontSize="7.5" fontWeight="700" textAnchor="middle">
             WAITING /
           </text>
-          <text x="43" y="63" fill="#e0e7ff" fontSize="9" fontWeight="600" textAnchor="middle">
+          <text x="39" y="58" fill="#047857" fontSize="7.5" fontWeight="700" textAnchor="middle">
             QUEUED
           </text>
         </g>
       </g>
 
-      {/* ─────────────────────────────────────────────────────────────
-          2. STRATEGIC MISSION DISPLAY (Upper Center Conference Room)
-      ───────────────────────────────────────────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════
+          2. CONFERENCE MISSION DISPLAY (Game-style whiteboard)
+      ═══════════════════════════════════════════════════════ */}
       <g
         id="board-conference-mission"
         role="button"
@@ -151,42 +154,46 @@ export function SvgOfficeBoard({
         onClick={() => onMissionClick?.()}
         onKeyDown={(e) => handleKeyDown(e, () => onMissionClick?.())}
       >
+        {/* Compact status bar below whiteboard */}
         <rect
           x="440"
-          y="88"
-          width="320"
-          height="38"
-          rx="8"
-          fill={scene.missionRunning ? '#0c4a6e' : '#0f172a'}
-          stroke={scene.missionRunning ? '#38bdf8' : '#334155'}
-          strokeWidth="1.2"
+          y="270"
+          width="300"
+          height="28"
+          rx="6"
+          fill="#ffffff"
+          stroke={scene.missionRunning ? '#6366f1' : '#e2e8f0'}
+          strokeWidth={scene.missionRunning ? '1.5' : '1'}
+          filter="url(#badge-soft-shadow)"
         />
+        {/* Status beacon */}
         <circle
-          cx="458"
-          cy="107"
-          r="5"
-          fill={scene.missionRunning ? '#10b981' : '#64748b'}
+          cx="456"
+          cy="284"
+          r="4"
+          fill={scene.missionRunning ? '#22c55e' : '#94a3b8'}
           className={scene.missionRunning ? 'office-pulse-working' : ''}
         />
-        <text x="472" y="111" fill="#f8fafc" fontSize="11" fontWeight="600">
+        {/* Mission text */}
+        <text x="468" y="288" fill="#1e293b" fontSize="10" fontWeight="600">
           {scene.missionRunning
             ? scene.activeMissionGoal
-              ? scene.activeMissionGoal.length > 34
-                ? `${scene.activeMissionGoal.slice(0, 33)}…`
+              ? scene.activeMissionGoal.length > 32
+                ? `${scene.activeMissionGoal.slice(0, 31)}…`
                 : scene.activeMissionGoal
               : 'Active Conductor Mission'
             : 'Strategic Council • Standing by'}
         </text>
         {scene.missionProgressPercent !== undefined && (
-          <text x="748" y="111" fill="#38bdf8" fontSize="11" fontWeight="700" textAnchor="end">
+          <text x="730" y="288" fill="#6366f1" fontSize="10" fontWeight="700" textAnchor="end">
             {scene.missionProgressPercent}%
           </text>
         )}
       </g>
 
-      {/* ─────────────────────────────────────────────────────────────
-          3. REVIEW & APPROVAL COUNTER (Lower Center Review Station)
-      ───────────────────────────────────────────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════
+          3. REVIEW & APPROVAL TRAY COUNTER (Compact game badge)
+      ═══════════════════════════════════════════════════════ */}
       <g
         id="board-approval-queue"
         role="button"
@@ -197,21 +204,22 @@ export function SvgOfficeBoard({
         onKeyDown={(e) => handleKeyDown(e, () => onApprovalClick?.())}
       >
         <rect
-          x="440"
-          y="445"
-          width="320"
-          height="42"
-          rx="10"
-          fill={scene.pendingApprovalCount > 0 ? '#451a03' : '#064e3b'}
-          stroke={scene.pendingApprovalCount > 0 ? '#f59e0b' : '#059669'}
-          strokeWidth={scene.pendingApprovalCount > 0 ? '1.8' : '1'}
+          x="460"
+          y="450"
+          width="260"
+          height="30"
+          rx="6"
+          fill={scene.pendingApprovalCount > 0 ? '#fffbeb' : '#f0fdf4'}
+          stroke={scene.pendingApprovalCount > 0 ? '#f59e0b' : '#10b981'}
+          strokeWidth={scene.pendingApprovalCount > 0 ? '1.5' : '1'}
+          filter="url(#badge-soft-shadow)"
           className={scene.pendingApprovalCount > 0 ? 'office-pulse-alert' : ''}
         />
         <text
-          x="458"
+          x="476"
           y="470"
-          fill={scene.pendingApprovalCount > 0 ? '#fef3c7' : '#d1fae5'}
-          fontSize="12"
+          fill={scene.pendingApprovalCount > 0 ? '#92400e' : '#065f46'}
+          fontSize="10.5"
           fontWeight="700"
         >
           {scene.pendingApprovalCount > 0
@@ -219,14 +227,14 @@ export function SvgOfficeBoard({
             : '✓ All Drafts & Entries Verified'}
         </text>
         <text
-          x="748"
+          x="710"
           y="470"
-          fill={scene.pendingApprovalCount > 0 ? '#fbbf24' : '#6ee7b7'}
-          fontSize="11"
+          fill={scene.pendingApprovalCount > 0 ? '#b45309' : '#047857'}
+          fontSize="10"
           fontWeight="600"
           textAnchor="end"
         >
-          {scene.pendingApprovalCount > 0 ? 'Review Queue ↗' : 'Settled'}
+          {scene.pendingApprovalCount > 0 ? 'Review ↗' : 'Settled'}
         </text>
       </g>
     </g>

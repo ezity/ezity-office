@@ -1,8 +1,13 @@
 /**
- * SVG Office Agent Node
+ * SVG Office Agent Node (Isometric Game-Style)
+ * Phase I-C.2 — Game-Style Art Pass
  *
- * Renders an autonomous AI coworker inside the SVG coordinate space.
- * Eliminates coordinate drift bugs and random fake speech loops.
+ * Renders a game-like illustrated office character that:
+ * - Traverses the Phase I-C navigation graph
+ * - Shows game-style speech-bubble status overlay
+ * - Supports y-based depth sorting
+ * - Maintains full click interactivity during transit
+ * - Displays compact name/role badge
  */
 
 import React, { useEffect, useRef, useState } from 'react'
@@ -19,6 +24,7 @@ import {
   interpolatePath,
   type SvgPoint,
 } from './svg-office-pathing'
+import { OfficeCharacter } from './office-character'
 
 export interface SvgOfficeAgentProps {
   agent: OfficeAgentSceneNode
@@ -36,7 +42,7 @@ export function getAgentSvgCoordinates(
   agent: OfficeAgentSceneNode,
   index = 0,
 ): { x: number; y: number } {
-  // If moving or targeted to a specific utility zone
+  // Target operational zones
   if (agent.targetZoneId === 'review_station') {
     return { x: 600, y: 555 }
   }
@@ -67,7 +73,6 @@ export function getAgentSvgCoordinates(
     agent.agentDefinitionId === 'ezity-developer' ||
     agent.department === 'engineering'
   ) {
-    // If multiple developers/workers, space them across the engineering bay
     const offsetX = (index % 3) * 60
     return { x: 995 - offsetX, y: 555 }
   }
@@ -86,8 +91,9 @@ export function SvgOfficeAgent({
 }: SvgOfficeAgentProps) {
   const targetCoords = getAgentSvgCoordinates(agent, index)
 
-  // Track position for smooth waypoint path traversal
+  // Track physical position for smooth waypoint path traversal
   const [pos, setPos] = useState<SvgPoint>(targetCoords)
+  const [isMoving, setIsMoving] = useState(false)
   const currentZoneRef = useRef(agent.targetZoneId || agent.currentZoneId)
   const animationFrameRef = useRef<number | null>(null)
 
@@ -95,17 +101,19 @@ export function SvgOfficeAgent({
     const destinationZone = agent.targetZoneId || agent.currentZoneId
     if (destinationZone === currentZoneRef.current) {
       setPos(targetCoords)
+      setIsMoving(false)
       return
     }
 
-    // When reduced motion is preferred, jump instantly without animation
+    // Instant transition if reduced-motion is requested
     if (enableReducedMotion) {
       currentZoneRef.current = destinationZone
       setPos(targetCoords)
+      setIsMoving(false)
       return
     }
 
-    // Compute navigation path through doorways and central hallway
+    // Calculate waypoint path
     const fromKey = getNavNodeKeyForZone(currentZoneRef.current, agent.department)
     const toKey = getNavNodeKeyForZone(destinationZone, agent.department)
     const path = calculateNavPath(fromKey, toKey)
@@ -114,11 +122,12 @@ export function SvgOfficeAgent({
 
     if (path.length <= 1) {
       setPos(targetCoords)
+      setIsMoving(false)
       return
     }
 
+    setIsMoving(true)
     const startTime = performance.now()
-    // Proportional speed: 1.2ms per SVG coordinate unit (min 500ms, max 1600ms)
     let totalDist = 0
     for (let i = 0; i < path.length - 1; i++) {
       totalDist += getDistance(path[i], path[i + 1])
@@ -128,7 +137,6 @@ export function SvgOfficeAgent({
     const step = (now: number) => {
       const elapsed = now - startTime
       const progress = Math.min(1, elapsed / duration)
-      // Smooth cubic ease-in-out
       const eased =
         progress < 0.5
           ? 4 * progress * progress * progress
@@ -141,6 +149,7 @@ export function SvgOfficeAgent({
         animationFrameRef.current = requestAnimationFrame(step)
       } else {
         setPos(targetCoords)
+        setIsMoving(false)
       }
     }
 
@@ -165,6 +174,8 @@ export function SvgOfficeAgent({
 
   const isWorking = agent.status === 'working'
   const isAwaitingApproval = agent.attentionState === 'waiting_approval'
+  // Character is considered seated when stationary at their desk
+  const isSeated = !isMoving && !agent.targetZoneId
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -186,153 +197,107 @@ export function SvgOfficeAgent({
       onClick={() => onClick?.(agent.id, agent.sessionKey)}
       onKeyDown={handleKeyDown}
     >
-      {/* 1. Desk Monitor Status Display */}
-      <g transform="translate(-85, -78)">
-        {/* Monitor Screen Frame */}
+      {/* ═══ 1. Game-Style Speech-Bubble Status Overlay ═══ */}
+      <g transform="translate(0, -48)">
+        {/* Speech bubble body */}
         <rect
-          x="0"
-          y="0"
-          width="170"
-          height="28"
-          rx="6"
-          fill={isWorking ? 'url(#grad-monitor-active)' : 'url(#grad-monitor-idle)'}
-          stroke={isAwaitingApproval ? '#f59e0b' : isWorking ? '#38bdf8' : '#475569'}
+          x="-70"
+          y="-14"
+          width="140"
+          height="22"
+          rx="11"
+          fill="#ffffff"
+          stroke={isAwaitingApproval ? '#f59e0b' : isWorking ? '#6366f1' : '#e2e8f0'}
           strokeWidth={isWorking || isAwaitingApproval ? '1.5' : '1'}
-          filter="url(#desk-shadow)"
+          filter="url(#badge-soft-shadow)"
         />
-        {/* Activity Indicator Dot */}
+        {/* Speech bubble tail */}
+        <polygon
+          points="-4,8 4,8 0,13"
+          fill="#ffffff"
+          stroke={isAwaitingApproval ? '#f59e0b' : isWorking ? '#6366f1' : '#e2e8f0'}
+          strokeWidth="1"
+        />
+        {/* Cover the tail top stroke with fill */}
+        <rect x="-5" y="5" width="10" height="4" fill="#ffffff" />
+
+        {/* Status dot */}
         <circle
-          cx="12"
-          cy="14"
-          r="4"
+          cx="-58"
+          cy="-3"
+          r="3.5"
           fill={statusColor}
           className={isWorking ? 'office-pulse-working' : ''}
         />
-        {/* Real Task or Neutral Text */}
+        {/* Task text */}
         <text
-          x="22"
-          y="18"
-          fill={isWorking ? '#f0f9ff' : '#94a3b8'}
-          fontSize="10"
+          x="-48"
+          y="0"
+          fill={isWorking ? '#1e293b' : '#64748b'}
+          fontSize="9"
           fontWeight="600"
         >
-          {monitorText}
+          {monitorText.length > 28 ? `${monitorText.slice(0, 27)}…` : monitorText}
         </text>
       </g>
 
-      {/* 2. Agent Avatar Disc */}
-      <g transform="translate(0, 0)">
-        {/* Selection Ring */}
-        {isSelected && (
-          <circle
-            cx="0"
-            cy="0"
-            r="32"
-            fill="none"
-            stroke="#38bdf8"
-            strokeWidth="2.5"
-            strokeDasharray="4 4"
-          />
-        )}
+      {/* ═══ 2. Illustrated Game Character ═══ */}
+      <OfficeCharacter
+        agent={agent}
+        isMoving={isMoving}
+        isSeated={isSeated}
+        isSelected={isSelected}
+      />
 
-        {/* Outer Glow on Working/Alert */}
-        {isWorking && (
-          <circle
-            cx="0"
-            cy="0"
-            r="28"
-            fill="none"
-            stroke="#10b981"
-            strokeWidth="1.5"
-            strokeOpacity="0.4"
-            className="office-pulse-working"
-          />
-        )}
-
-        {/* Main Avatar Circle */}
-        <circle
-          cx="0"
-          cy="0"
-          r="24"
-          fill="#0f172a"
-          stroke={agent.colorHex || statusColor}
-          strokeWidth="2.5"
-          filter="url(#desk-shadow)"
-        />
-
-        {/* Agent Emoji Icon */}
-        <text
-          x="0"
-          y="7"
-          fontSize="22"
-          textAnchor="middle"
-          pointerEvents="none"
-          style={{ userSelect: 'none' }}
-        >
-          {agent.emoji || '🤖'}
-        </text>
-
-        {/* Status Dot Pill on bottom-right of avatar */}
-        <circle
-          cx="16"
-          cy="16"
-          r="5"
-          fill={statusColor}
-          stroke="#0f172a"
-          strokeWidth="1.5"
-        />
-      </g>
-
-      {/* 3. Name & Role Plate */}
-      <g transform="translate(0, 36)" textAnchor="middle">
+      {/* ═══ 3. Compact Name Badge ═══ */}
+      <g transform={`translate(0, ${isSeated ? 24 : 38})`} textAnchor="middle">
         <rect
-          x="-65"
+          x="-50"
           y="-2"
-          width="130"
-          height="32"
-          rx="6"
-          fill="#091b2c"
-          fillOpacity="0.85"
-          stroke="#334155"
-          strokeWidth="1"
+          width="100"
+          height="22"
+          rx="11"
+          fill="#ffffff"
+          stroke="#e2e8f0"
+          strokeWidth="0.8"
+          filter="url(#badge-soft-shadow)"
         />
-        <text x="0" y="11" fill="#f8fafc" fontSize="11" fontWeight="700">
+        <text x="0" y="10" fill="#1e293b" fontSize="9.5" fontWeight="700">
           {agent.name}
         </text>
         <text
           x="0"
-          y="23"
-          fill="#94a3b8"
-          fontSize="9"
+          y="17"
+          fill="#64748b"
+          fontSize="7"
           fontWeight="500"
-          letterSpacing="0.02em"
         >
-          {agent.roleTitle.length > 20
-            ? `${agent.roleTitle.slice(0, 19)}…`
+          {agent.roleTitle.length > 22
+            ? `${agent.roleTitle.slice(0, 21)}…`
             : agent.roleTitle}
         </text>
       </g>
 
-      {/* 4. Attention Alert Badge (e.g. Awaiting Sign-off) */}
+      {/* ═══ 4. Attention Alert Badge ═══ */}
       {attentionBadge && (
-        <g transform="translate(0, -96)" textAnchor="middle">
+        <g transform="translate(0, -74)" textAnchor="middle">
           <rect
-            x="-70"
-            y="-4"
-            width="140"
-            height="20"
-            rx="10"
+            x="-58"
+            y="-2"
+            width="116"
+            height="16"
+            rx="8"
             fill={attentionBadge.bg}
             stroke={attentionBadge.border}
             strokeWidth="1.2"
-            filter="url(#alert-glow)"
+            filter="url(#badge-soft-shadow)"
             className="office-pulse-alert"
           />
           <text
             x="0"
-            y="10"
+            y="9"
             fill={attentionBadge.text}
-            fontSize="10"
+            fontSize="8.5"
             fontWeight="700"
           >
             {attentionBadge.icon} {attentionBadge.label}

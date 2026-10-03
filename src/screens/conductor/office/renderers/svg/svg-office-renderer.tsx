@@ -1,19 +1,24 @@
 /**
- * SVG Office Renderer
+ * SVG Office Renderer (Isometric Game-Style)
+ * Phase I-C.2 — Game-Style Art Pass
  *
  * Primary 2D vector renderer for the Ezity Virtual Office.
- * Coordinates all department rooms, furniture, interactive boards, and agents
- * within a unified 1200x720 SVG coordinate space.
+ * Assembles all isometric layers with correct depth ordering:
+ *   1. Floor & environment
+ *   2. Zones & walls
+ *   3. Back-row furniture
+ *   4. Agents (y-sorted for correct depth)
+ *   5. Front-row overlays & boards
  */
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import type { OfficeRendererProps } from '../../types'
 import { SvgOfficeDefs } from './svg-office-status'
 import { SvgOfficeFloor } from './svg-office-floor'
 import { SvgOfficeZones } from './svg-office-zones'
 import { SvgOfficeFurniture } from './svg-office-furniture'
 import { SvgOfficeBoard } from './svg-office-board'
-import { SvgOfficeAgent } from './svg-office-agent'
+import { SvgOfficeAgent, getAgentSvgCoordinates } from './svg-office-agent'
 
 export function SvgOfficeRenderer({
   scene,
@@ -28,6 +33,15 @@ export function SvgOfficeRenderer({
   onMissionClick,
   companyName = 'EZity Solutions',
 }: OfficeRendererProps) {
+  // Y-based depth sort: agents lower on screen render on top
+  const sortedAgents = useMemo(() => {
+    return [...scene.agents].sort((a, b) => {
+      const posA = getAgentSvgCoordinates(a)
+      const posB = getAgentSvgCoordinates(b)
+      return posA.y - posB.y
+    })
+  }, [scene.agents])
+
   return (
     <div
       className={`relative h-full w-full overflow-hidden ${className}`}
@@ -43,10 +57,10 @@ export function SvgOfficeRenderer({
         {/* Visual Defs, Gradients & Filters */}
         <SvgOfficeDefs enableReducedMotion={enableReducedMotion} />
 
-        {/* 1. Base Flooring & Watermark */}
+        {/* 1. Base Flooring & Environment */}
         <SvgOfficeFloor companyName={companyName} />
 
-        {/* 2. Department Rooms & Zones */}
+        {/* 2. Department Rooms, Walls & Zones */}
         <SvgOfficeZones
           missionRunning={scene.missionRunning}
           pendingApprovalCount={scene.pendingApprovalCount}
@@ -54,7 +68,7 @@ export function SvgOfficeRenderer({
           onZoneClick={onZoneClick}
         />
 
-        {/* 3. Workstations & Furniture */}
+        {/* 3. Furniture (desks, chairs, monitors, shelves, plants) */}
         <SvgOfficeFurniture scene={scene} />
 
         {/* 4. Interactive Operations & Mission Boards */}
@@ -65,9 +79,9 @@ export function SvgOfficeRenderer({
           onMissionClick={onMissionClick}
         />
 
-        {/* 5. Autonomous Coworker Agents */}
+        {/* 5. Agents (y-sorted for depth) */}
         <g id="office-agents-layer">
-          {scene.agents.map((agent, index) => (
+          {sortedAgents.map((agent, index) => (
             <SvgOfficeAgent
               key={agent.id}
               agent={agent}

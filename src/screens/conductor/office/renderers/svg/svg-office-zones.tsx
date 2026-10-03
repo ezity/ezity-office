@@ -1,7 +1,11 @@
 /**
- * SVG Office Zones & Department Rooms
+ * SVG Isometric Office Zones & Department Rooms
+ * Phase I-C.2 — Game-Style Isometric Art Pass
  *
- * Renders department boundaries, glass partitions, and accessible room labels.
+ * Renders physical room areas using floor rugs, low partition walls
+ * with isometric depth, open doorways, and wall-mounted signage.
+ * Replaces dashboard-card room containers with actual game-like
+ * architectural spaces. All 7 zone IDs and accessible labels preserved.
  */
 
 import React from 'react'
@@ -12,6 +16,85 @@ export interface SvgOfficeZonesProps {
   pendingApprovalCount?: number
   onZoneClick?: (zoneId: OfficeZoneId) => void
   selectedZoneId?: OfficeZoneId
+}
+
+/**
+ * Renders a low isometric partition wall segment.
+ */
+function IsoPartition({
+  x1,
+  y1,
+  x2,
+  y2,
+  wallHeight = 18,
+  color = '#d8d2c8',
+  sideColor = '#c8c0b4',
+}: {
+  x1: number; y1: number; x2: number; y2: number
+  wallHeight?: number
+  color?: string
+  sideColor?: string
+}) {
+  // Wall face
+  const isHorizontal = Math.abs(y2 - y1) < 2
+  return (
+    <g>
+      {/* Wall front face */}
+      <polygon
+        points={`${x1},${y1} ${x2},${y2} ${x2},${y2 - wallHeight} ${x1},${y1 - wallHeight}`}
+        fill={color}
+        stroke={sideColor}
+        strokeWidth="0.5"
+      />
+      {/* Wall top cap */}
+      {isHorizontal && (
+        <polygon
+          points={`${x1},${y1 - wallHeight} ${x2},${y2 - wallHeight} ${x2 - 3},${y2 - wallHeight - 4} ${x1 - 3},${y1 - wallHeight - 4}`}
+          fill={sideColor}
+          opacity="0.6"
+        />
+      )}
+    </g>
+  )
+}
+
+/**
+ * Renders a wall-mounted room sign plaque.
+ */
+function RoomSign({
+  x, y, label, color, textColor,
+}: {
+  x: number; y: number; label: string; color: string; textColor: string
+}) {
+  const w = Math.min(label.length * 7.5 + 20, 200)
+  return (
+    <g>
+      {/* Sign backing plate */}
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height="20"
+        rx="3"
+        fill={color}
+        stroke={textColor}
+        strokeWidth="0.8"
+        strokeOpacity="0.4"
+        filter="url(#badge-soft-shadow)"
+      />
+      <text
+        x={x + w / 2}
+        y={y + 14}
+        fill={textColor}
+        fontSize="10"
+        fontWeight="700"
+        textAnchor="middle"
+        letterSpacing="0.06em"
+      >
+        {label}
+      </text>
+    </g>
+  )
 }
 
 export function SvgOfficeZones({
@@ -29,7 +112,9 @@ export function SvgOfficeZones({
 
   return (
     <g id="office-zones-layer">
-      {/* 1. Executive Suite (Upper Left) */}
+      {/* ═══════════════════════════════════════════════════
+          1. EXECUTIVE SUITE (Upper Left: 30–370, 50–325)
+      ═══════════════════════════════════════════════════ */}
       <g
         id="zone-executive"
         role="button"
@@ -39,75 +124,78 @@ export function SvgOfficeZones({
         onClick={() => onZoneClick?.('executive')}
         onKeyDown={(e) => handleKeyDown(e, 'executive')}
       >
-        <rect
-          x="30"
-          y="45"
-          width="350"
-          height="280"
-          rx="16"
-          fill="url(#grad-room-executive)"
-          stroke={selectedZoneId === 'executive' ? '#c084fc' : '#a855f7'}
-          strokeWidth={selectedZoneId === 'executive' ? '2.5' : '1.5'}
-          strokeOpacity={selectedZoneId === 'executive' ? '0.9' : '0.45'}
+        {/* Floor rug (soft lavender) */}
+        <polygon
+          points="40,70 360,70 370,320 30,320"
+          fill="url(#grad-room-executive-light)"
+          fillOpacity="0.65"
+          stroke={selectedZoneId === 'executive' ? '#7c3aed' : 'none'}
+          strokeWidth="2"
         />
-        {/* Header Ribbon */}
-        <path
-          d="M 30,61 A 16,16 0 0 1 46,45 L 364,45 A 16,16 0 0 1 380,61 L 380,82 L 30,82 Z"
-          fill="#3b0764"
-          fillOpacity="0.4"
-        />
-        <text x="48" y="69" fill="#e9d5ff" fontSize="13" fontWeight="700" letterSpacing="0.06em">
-          👔 EXECUTIVE SUITE
-        </text>
-        <text x="362" y="68" fill="#c084fc" fontSize="10" fontWeight="500" textAnchor="end" fillOpacity="0.8">
-          Orchestration HQ
-        </text>
+
+        {/* East partition wall with glass section */}
+        <IsoPartition x1={370} y1={320} x2={370} y2={70} wallHeight={22} />
+        {/* Glass section in wall */}
+        <rect x="368" y="100" width="4" height="80" fill="#c8e6f8" fillOpacity="0.5" rx="1" />
+
+        {/* South partition wall with doorway gap (160–250) */}
+        <IsoPartition x1={30} y1={325} x2={155} y2={325} wallHeight={16} />
+        <IsoPartition x1={255} y1={325} x2={370} y2={325} wallHeight={16} />
+
+        {/* Room sign */}
+        <RoomSign x={48} y={58} label="EXECUTIVE" color="#f0eaff" textColor="#6d28d9" />
       </g>
 
-      {/* 2. Strategic Conference Room (Upper Center) */}
+      {/* ═══════════════════════════════════════════════════
+          2. STRATEGIC CONFERENCE ROOM (Upper Center: 390–790, 50–325)
+      ═══════════════════════════════════════════════════ */}
       <g
         id="zone-meeting_room"
         role="button"
         tabIndex={0}
         aria-label="Strategic Conference Room"
-        className={`office-interactive-focus cursor-pointer ${
-          missionRunning ? 'office-pulse-mission' : ''
-        }`}
+        className="office-interactive-focus cursor-pointer"
         onClick={() => onZoneClick?.('meeting_room')}
         onKeyDown={(e) => handleKeyDown(e, 'meeting_room')}
       >
-        <rect
-          x="400"
-          y="45"
-          width="400"
-          height="280"
-          rx="16"
-          fill="url(#grad-room-conference)"
+        {/* Floor treatment (subtle periwinkle) */}
+        <polygon
+          points="390,70 790,70 800,320 380,320"
+          fill="url(#grad-room-conference-light)"
+          fillOpacity="0.55"
           stroke={
             selectedZoneId === 'meeting_room'
-              ? '#38bdf8'
+              ? '#6366f1'
               : missionRunning
-                ? '#0ea5e9'
-                : '#475569'
+                ? '#6366f1'
+                : 'none'
           }
-          strokeWidth={missionRunning || selectedZoneId === 'meeting_room' ? '2.5' : '1.5'}
-          strokeOpacity={missionRunning ? '0.85' : '0.4'}
+          strokeWidth="2"
         />
-        {/* Header Ribbon */}
-        <path
-          d="M 400,61 A 16,16 0 0 1 416,45 L 784,45 A 16,16 0 0 1 800,61 L 800,82 L 400,82 Z"
-          fill="#0c4a6e"
-          fillOpacity={missionRunning ? '0.5' : '0.25'}
+
+        {/* Left glass partition */}
+        <rect x="386" y="80" width="4" height="230" fill="#c8e6f8" fillOpacity="0.35" rx="1" />
+
+        {/* Right glass partition */}
+        <rect x="794" y="80" width="4" height="230" fill="#c8e6f8" fillOpacity="0.35" rx="1" />
+
+        {/* South partition with doorway (545–655) */}
+        <IsoPartition x1={380} y1={325} x2={540} y2={325} wallHeight={16} />
+        <IsoPartition x1={660} y1={325} x2={800} y2={325} wallHeight={16} />
+
+        {/* Room sign */}
+        <RoomSign
+          x={470}
+          y={58}
+          label={missionRunning ? '● CONFERENCE' : 'CONFERENCE'}
+          color={missionRunning ? '#e0e7ff' : '#f0eef8'}
+          textColor={missionRunning ? '#4338ca' : '#4338ca'}
         />
-        <text x="418" y="69" fill="#bae6fd" fontSize="13" fontWeight="700" letterSpacing="0.06em">
-          🏛️ STRATEGIC CONFERENCE ROOM
-        </text>
-        <text x="782" y="68" fill="#7dd3fc" fontSize="10" fontWeight="500" textAnchor="end" fillOpacity="0.8">
-          {missionRunning ? 'Active Mission Session' : 'Ready'}
-        </text>
       </g>
 
-      {/* 3. Work Inbox & Operations (Upper Right) */}
+      {/* ═══════════════════════════════════════════════════
+          3. WORK INBOX & OPERATIONS (Upper Right: 810–1170, 50–325)
+      ═══════════════════════════════════════════════════ */}
       <g
         id="zone-inbox_board"
         role="button"
@@ -117,32 +205,31 @@ export function SvgOfficeZones({
         onClick={() => onZoneClick?.('inbox_board')}
         onKeyDown={(e) => handleKeyDown(e, 'inbox_board')}
       >
-        <rect
-          x="820"
-          y="45"
-          width="350"
-          height="280"
-          rx="16"
-          fill="url(#grad-room-inbox)"
-          stroke={selectedZoneId === 'inbox_board' ? '#2dd4bf' : '#14b8a6'}
-          strokeWidth={selectedZoneId === 'inbox_board' ? '2.5' : '1.5'}
-          strokeOpacity={selectedZoneId === 'inbox_board' ? '0.9' : '0.45'}
+        {/* Floor rug (mint/teal) */}
+        <polygon
+          points="810,70 1170,70 1170,320 810,320"
+          fill="url(#grad-room-inbox-light)"
+          fillOpacity="0.55"
+          stroke={selectedZoneId === 'inbox_board' ? '#0d9488' : 'none'}
+          strokeWidth="2"
         />
-        {/* Header Ribbon */}
-        <path
-          d="M 820,61 A 16,16 0 0 1 836,45 L 1154,45 A 16,16 0 0 1 1170,61 L 1170,82 L 820,82 Z"
-          fill="#134e4a"
-          fillOpacity="0.4"
-        />
-        <text x="838" y="69" fill="#ccfbf1" fontSize="13" fontWeight="700" letterSpacing="0.06em">
-          📋 WORK INBOX & OPERATIONS
-        </text>
-        <text x="1152" y="68" fill="#5eead4" fontSize="10" fontWeight="500" textAnchor="end" fillOpacity="0.8">
-          Central Dispatch
-        </text>
+
+        {/* Left partition wall */}
+        <IsoPartition x1={810} y1={320} x2={810} y2={70} wallHeight={22} />
+        {/* Glass section */}
+        <rect x="808" y="100" width="4" height="80" fill="#c8e6f8" fillOpacity="0.5" rx="1" />
+
+        {/* South partition with doorway (935–1055) */}
+        <IsoPartition x1={810} y1={325} x2={930} y2={325} wallHeight={16} />
+        <IsoPartition x1={1060} y1={325} x2={1170} y2={325} wallHeight={16} />
+
+        {/* Room sign */}
+        <RoomSign x={860} y={58} label="OPERATIONS" color="#e8f8f2" textColor="#0f766e" />
       </g>
 
-      {/* 4. Finance & Accounting Wing (Lower Left) */}
+      {/* ═══════════════════════════════════════════════════
+          4. FINANCE & ACCOUNTING (Lower Left: 30–370, 405–685)
+      ═══════════════════════════════════════════════════ */}
       <g
         id="zone-finance"
         role="button"
@@ -152,32 +239,30 @@ export function SvgOfficeZones({
         onClick={() => onZoneClick?.('finance')}
         onKeyDown={(e) => handleKeyDown(e, 'finance')}
       >
-        <rect
-          x="30"
-          y="405"
-          width="350"
-          height="280"
-          rx="16"
-          fill="url(#grad-room-finance)"
-          stroke={selectedZoneId === 'finance' ? '#34d399' : '#10b981'}
-          strokeWidth={selectedZoneId === 'finance' ? '2.5' : '1.5'}
-          strokeOpacity={selectedZoneId === 'finance' ? '0.9' : '0.45'}
+        {/* Floor rug (sage green) */}
+        <polygon
+          points="30,410 370,410 360,680 40,680"
+          fill="url(#grad-room-finance-light)"
+          fillOpacity="0.6"
+          stroke={selectedZoneId === 'finance' ? '#059669' : 'none'}
+          strokeWidth="2"
         />
-        {/* Header Ribbon */}
-        <path
-          d="M 30,421 A 16,16 0 0 1 46,405 L 364,405 A 16,16 0 0 1 380,421 L 380,442 L 30,442 Z"
-          fill="#064e3b"
-          fillOpacity="0.45"
-        />
-        <text x="48" y="429" fill="#d1fae5" fontSize="13" fontWeight="700" letterSpacing="0.06em">
-          📊 FINANCE & ACCOUNTING WING
-        </text>
-        <text x="362" y="428" fill="#6ee7b7" fontSize="10" fontWeight="500" textAnchor="end" fillOpacity="0.8">
-          Authoritative Ledger
-        </text>
+
+        {/* East partition wall */}
+        <IsoPartition x1={370} y1={680} x2={370} y2={410} wallHeight={22} />
+        <rect x="368" y="480" width="4" height="80" fill="#c8e6f8" fillOpacity="0.5" rx="1" />
+
+        {/* North partition with doorway (155–255) */}
+        <IsoPartition x1={30} y1={405} x2={155} y2={405} wallHeight={16} />
+        <IsoPartition x1={255} y1={405} x2={370} y2={405} wallHeight={16} />
+
+        {/* Room sign */}
+        <RoomSign x={48} y={418} label="FINANCE" color="#e6f7ef" textColor="#047857" />
       </g>
 
-      {/* 5. Review & Approval Station (Lower Center) */}
+      {/* ═══════════════════════════════════════════════════
+          5. REVIEW & APPROVAL STATION (Lower Center: 390–790, 405–685)
+      ═══════════════════════════════════════════════════ */}
       <g
         id="zone-review_station"
         role="button"
@@ -187,42 +272,44 @@ export function SvgOfficeZones({
         onClick={() => onZoneClick?.('review_station')}
         onKeyDown={(e) => handleKeyDown(e, 'review_station')}
       >
-        <rect
-          x="400"
-          y="405"
-          width="400"
-          height="280"
-          rx="16"
-          fill="url(#grad-room-review)"
+        {/* Floor rug (warm amber) */}
+        <polygon
+          points="390,410 800,410 790,680 380,680"
+          fill="url(#grad-room-review-light)"
+          fillOpacity="0.55"
           stroke={
             pendingApprovalCount > 0
-              ? '#f59e0b'
+              ? '#d97706'
               : selectedZoneId === 'review_station'
-                ? '#fbbf24'
-                : '#64748b'
+                ? '#f59e0b'
+                : 'none'
           }
-          strokeWidth={
-            pendingApprovalCount > 0 || selectedZoneId === 'review_station'
-              ? '2.5'
-              : '1.5'
-          }
-          strokeOpacity={pendingApprovalCount > 0 ? '0.85' : '0.4'}
+          strokeWidth="2"
         />
-        {/* Header Ribbon */}
-        <path
-          d="M 400,421 A 16,16 0 0 1 416,405 L 784,405 A 16,16 0 0 1 800,421 L 800,442 L 400,442 Z"
-          fill="#78350f"
-          fillOpacity="0.4"
+
+        {/* Left partition */}
+        <rect x="386" y="420" width="4" height="250" fill="#c8e6f8" fillOpacity="0.3" rx="1" />
+
+        {/* Right partition */}
+        <rect x="794" y="420" width="4" height="250" fill="#c8e6f8" fillOpacity="0.3" rx="1" />
+
+        {/* North partition with doorway (540–660) */}
+        <IsoPartition x1={380} y1={405} x2={540} y2={405} wallHeight={16} />
+        <IsoPartition x1={660} y1={405} x2={800} y2={405} wallHeight={16} />
+
+        {/* Room sign */}
+        <RoomSign
+          x={470}
+          y={418}
+          label={pendingApprovalCount > 0 ? `⚖ REVIEW (${pendingApprovalCount})` : 'REVIEW'}
+          color={pendingApprovalCount > 0 ? '#fef8e8' : '#fef8e8'}
+          textColor="#b45309"
         />
-        <text x="418" y="429" fill="#fef3c7" fontSize="13" fontWeight="700" letterSpacing="0.06em">
-          ⚖️ APPROVAL & REVIEW STATION
-        </text>
-        <text x="782" y="428" fill="#fcd34d" fontSize="10" fontWeight="500" textAnchor="end" fillOpacity="0.8">
-          Dual-Control Sign-off
-        </text>
       </g>
 
-      {/* 6. Engineering Bay (Lower Right) */}
+      {/* ═══════════════════════════════════════════════════
+          6. ENGINEERING BAY (Lower Right: 810–1170, 405–685)
+      ═══════════════════════════════════════════════════ */}
       <g
         id="zone-engineering"
         role="button"
@@ -232,32 +319,30 @@ export function SvgOfficeZones({
         onClick={() => onZoneClick?.('engineering')}
         onKeyDown={(e) => handleKeyDown(e, 'engineering')}
       >
-        <rect
-          x="820"
-          y="405"
-          width="350"
-          height="280"
-          rx="16"
-          fill="url(#grad-room-engineering)"
-          stroke={selectedZoneId === 'engineering' ? '#38bdf8' : '#0284c7'}
-          strokeWidth={selectedZoneId === 'engineering' ? '2.5' : '1.5'}
-          strokeOpacity={selectedZoneId === 'engineering' ? '0.9' : '0.45'}
+        {/* Floor rug (sky blue) */}
+        <polygon
+          points="810,410 1170,410 1170,680 810,680"
+          fill="url(#grad-room-engineering-light)"
+          fillOpacity="0.55"
+          stroke={selectedZoneId === 'engineering' ? '#0284c7' : 'none'}
+          strokeWidth="2"
         />
-        {/* Header Ribbon */}
-        <path
-          d="M 820,421 A 16,16 0 0 1 836,405 L 1154,405 A 16,16 0 0 1 1170,421 L 1170,442 L 820,442 Z"
-          fill="#0369a1"
-          fillOpacity="0.4"
-        />
-        <text x="838" y="429" fill="#e0f2fe" fontSize="13" fontWeight="700" letterSpacing="0.06em">
-          💻 ENGINEERING BAY
-        </text>
-        <text x="1152" y="428" fill="#7dd3fc" fontSize="10" fontWeight="500" textAnchor="end" fillOpacity="0.8">
-          Systems & Architecture
-        </text>
+
+        {/* Left partition wall */}
+        <IsoPartition x1={810} y1={680} x2={810} y2={410} wallHeight={22} />
+        <rect x="808" y="480" width="4" height="80" fill="#c8e6f8" fillOpacity="0.5" rx="1" />
+
+        {/* North partition with doorway (930–1060) */}
+        <IsoPartition x1={810} y1={405} x2={930} y2={405} wallHeight={16} />
+        <IsoPartition x1={1060} y1={405} x2={1170} y2={405} wallHeight={16} />
+
+        {/* Room sign */}
+        <RoomSign x={860} y={418} label="ENGINEERING" color="#e6f2fd" textColor="#0369a1" />
       </g>
 
-      {/* 7. Staff Lounge & Coffee Bar Label (Inside Operations, bottom of upper right) */}
+      {/* ═══════════════════════════════════════════════════
+          7. STAFF LOUNGE & COFFEE (Upper Right Corner nook)
+      ═══════════════════════════════════════════════════ */}
       <g
         id="zone-lounge_break"
         role="button"
@@ -267,22 +352,17 @@ export function SvgOfficeZones({
         onClick={() => onZoneClick?.('lounge_break')}
         onKeyDown={(e) => handleKeyDown(e, 'lounge_break')}
       >
+        {/* Small accent rug (warm rose) */}
         <rect
-          x="840"
-          y="235"
-          width="310"
-          height="75"
-          rx="10"
-          fill="#1e293b"
-          fillOpacity="0.5"
-          stroke="#475569"
-          strokeWidth="1"
-          strokeOpacity="0.4"
-          strokeDasharray="4 4"
+          x="850"
+          y="240"
+          width="300"
+          height="70"
+          rx="4"
+          fill="#fce4ec"
+          fillOpacity="0.4"
         />
-        <text x="855" y="254" fill="#94a3b8" fontSize="11" fontWeight="600" letterSpacing="0.04em">
-          ☕ STAFF LOUNGE & RECOVERY
-        </text>
+        <RoomSign x={860} y={248} label="☕ LOUNGE" color="#fce4ec" textColor="#9f1239" />
       </g>
     </g>
   )

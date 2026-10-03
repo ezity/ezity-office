@@ -1,8 +1,11 @@
 /**
- * SVG Office Floor & Architectural Base
+ * SVG Isometric Office Floor
+ * Phase I-C.2 — Game-Style Isometric Art Pass
  *
- * Renders the virtual office floor tiles, hallway walkway, and subtle
- * Ezity branding watermark in the central thoroughfare.
+ * Renders a continuous warm isometric office floor with subtle
+ * diamond tile grid, architectural walls along the perimeter,
+ * daylight windows, and company branding — all in a game-like
+ * management-sim visual style.
  */
 
 import React from 'react'
@@ -10,85 +13,135 @@ import React from 'react'
 export function SvgOfficeFloor({ companyName = 'EZity Solutions' }: { companyName?: string }) {
   return (
     <g id="office-floor-layer">
-      {/* Base Foundation */}
+      {/* ═══ 1. Main Office Floor (Warm cream/beige continuous surface) ═══ */}
       <rect
         x="0"
         y="0"
         width="1200"
         height="720"
-        fill="url(#ezity-floor-glow)"
-        rx="24"
+        fill="url(#ezity-light-floor)"
       />
 
-      {/* Architectural Grid Lines (Subtle) */}
-      <g stroke="#334155" strokeWidth="0.5" strokeOpacity="0.25">
-        {/* Horizontal floor gridlines */}
-        {Array.from({ length: 14 }).map((_, i) => (
-          <line
-            key={`h-${i}`}
-            x1="20"
-            y1={50 + i * 45}
-            x2="1180"
-            y2={50 + i * 45}
-            strokeDasharray="4 8"
-          />
-        ))}
-        {/* Vertical floor gridlines */}
-        {Array.from({ length: 24 }).map((_, i) => (
-          <line
-            key={`v-${i}`}
-            x1={50 + i * 48}
-            y1="40"
-            x2={50 + i * 48}
-            y2="690"
-            strokeDasharray="4 8"
-          />
+      {/* Subtle isometric diamond tile overlay */}
+      <rect
+        x="0"
+        y="0"
+        width="1200"
+        height="720"
+        fill="url(#iso-tile-grid)"
+        opacity="0.5"
+      />
+
+      {/* ═══ 2. North Wall (Back wall with windows & depth) ═══ */}
+      <g id="office-north-wall">
+        {/* Wall face — the vertical surface */}
+        <rect x="0" y="0" width="1200" height="48" fill="#e0dbd2" />
+        {/* Wall top edge / cap */}
+        <rect x="0" y="0" width="1200" height="6" fill="#d4cec4" />
+        {/* Baseboard trim */}
+        <rect x="0" y="42" width="1200" height="6" fill="#c8c0b4" />
+
+        {/* 4 Daylight Windows with glass panes */}
+        {[120, 380, 660, 940].map((winX) => (
+          <g key={`win-${winX}`}>
+            {/* Window recess */}
+            <rect
+              x={winX}
+              y="8"
+              width="140"
+              height="30"
+              rx="3"
+              fill="#c0bab0"
+            />
+            {/* Glass pane */}
+            <rect
+              x={winX + 4}
+              y="11"
+              width="132"
+              height="24"
+              rx="2"
+              fill="#c8e6f8"
+              fillOpacity="0.8"
+            />
+            {/* Window frame mullion (center vertical) */}
+            <line
+              x1={winX + 70}
+              y1="11"
+              x2={winX + 70}
+              y2="35"
+              stroke="#e0dbd2"
+              strokeWidth="2"
+            />
+            {/* Window frame mullion (horizontal) */}
+            <line
+              x1={winX + 4}
+              y1="23"
+              x2={winX + 136}
+              y2="23"
+              stroke="#e0dbd2"
+              strokeWidth="1.2"
+            />
+            {/* Soft daylight cast on floor (trapezoidal light beam) */}
+            <polygon
+              points={`${winX + 10},48 ${winX + 130},48 ${winX + 155},110 ${winX - 15},110`}
+              fill="#fffde8"
+              fillOpacity="0.25"
+              pointerEvents="none"
+            />
+          </g>
         ))}
       </g>
 
-      {/* Central Hallway Walkway */}
+      {/* ═══ 3. South Wall (Bottom edge) ═══ */}
+      <rect x="0" y="690" width="1200" height="30" fill="#d8d2c8" />
+      <rect x="0" y="690" width="1200" height="4" fill="#c8c0b4" />
+
+      {/* ═══ 4. Left Wall ═══ */}
+      <rect x="0" y="0" width="20" height="720" fill="#ddd6c8" />
+      <rect x="16" y="0" width="4" height="720" fill="#c8c0b4" />
+
+      {/* ═══ 5. Right Wall ═══ */}
+      <rect x="1180" y="0" width="20" height="720" fill="#ddd6c8" />
+      <rect x="1180" y="0" width="4" height="720" fill="#c8c0b4" />
+
+      {/* ═══ 6. Central Hallway Corridor (Warm stone runner) ═══ */}
       <g id="central-hallway">
         <rect
-          x="30"
-          y="335"
-          width="1140"
-          height="60"
-          fill="url(#ezity-hallway-gradient)"
-          rx="8"
-          stroke="#475569"
-          strokeWidth="1"
-          strokeOpacity="0.3"
+          x="20"
+          y="330"
+          width="1160"
+          height="70"
+          fill="url(#ezity-hallway-light)"
         />
+        {/* Hallway edge strips (carpet-to-stone transition) */}
+        <line x1="20" y1="330" x2="1180" y2="330" stroke="#c8c0b4" strokeWidth="1.5" />
+        <line x1="20" y1="400" x2="1180" y2="400" stroke="#c8c0b4" strokeWidth="1.5" />
 
-        {/* Central Hallway Walkway Guide Line */}
+        {/* Center guide line (subtle) */}
         <line
-          x1="50"
+          x1="60"
           y1="365"
-          x2="1150"
+          x2="1140"
           y2="365"
-          stroke="#0ea5e9"
-          strokeWidth="1.5"
-          strokeOpacity="0.2"
-          strokeDasharray="12 16"
+          stroke="#c8c0b4"
+          strokeWidth="1"
+          strokeOpacity="0.4"
+          strokeDasharray="12 12"
         />
 
-        {/* Subtle Watermark Branding in Hallway Center */}
+        {/* Company floor emblem */}
         <g transform="translate(600, 365)" textAnchor="middle" pointerEvents="none">
-          <circle cx="0" cy="0" r="18" fill="#0f172a" stroke="#0284c7" strokeWidth="1" strokeOpacity="0.4" />
-          <polygon
-            points="0,-10 9,6 -9,6"
-            fill="#38bdf8"
-            fillOpacity="0.4"
-          />
+          {/* Stone medallion */}
+          <circle cx="0" cy="0" r="20" fill="#ede8df" stroke="#c8c0b4" strokeWidth="1.5" />
+          <polygon points="0,-8 7,5 -7,5" fill="#6366f1" fillOpacity="0.7" />
           <text
-            y="4"
-            fill="#94a3b8"
-            fontSize="10"
-            fontWeight="600"
-            letterSpacing="0.25em"
-            fillOpacity="0.75"
+            y="16"
+            fill="#8b7e6a"
+            fontSize="5"
+            fontWeight="700"
+            letterSpacing="0.15em"
           >
-            {companyName.toUpperCase()} • VIRTUAL HQ
+            {companyName.toUpperCase()}
           </text>
         </g>
       </g>

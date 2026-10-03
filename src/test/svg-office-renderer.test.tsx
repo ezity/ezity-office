@@ -24,15 +24,25 @@ describe('Phase I-B: Modern SVG Virtual Office with Department Rooms', () => {
 
   describe('A. Ezity HQ layout renders required zones', () => {
     it('renders all required department rooms and functional zones', () => {
-      render(<SvgOfficeRenderer scene={baseScene} />)
+      const { container } = render(<SvgOfficeRenderer scene={baseScene} />)
 
-      expect(screen.getByText('👔 EXECUTIVE SUITE')).toBeTruthy()
-      expect(screen.getByText('🏛️ STRATEGIC CONFERENCE ROOM')).toBeTruthy()
-      expect(screen.getByText('📋 WORK INBOX & OPERATIONS')).toBeTruthy()
-      expect(screen.getByText('📊 FINANCE & ACCOUNTING WING')).toBeTruthy()
-      expect(screen.getByText('⚖️ APPROVAL & REVIEW STATION')).toBeTruthy()
-      expect(screen.getByText('💻 ENGINEERING BAY')).toBeTruthy()
-      expect(screen.getByText('☕ STAFF LOUNGE & RECOVERY')).toBeTruthy()
+      // Compact wall sign plaques for each zone
+      expect(screen.getByText('EXECUTIVE')).toBeTruthy()
+      expect(screen.getByText('CONFERENCE')).toBeTruthy()
+      expect(screen.getByText('OPERATIONS')).toBeTruthy()
+      expect(screen.getByText('FINANCE')).toBeTruthy()
+      expect(screen.getAllByText('REVIEW').length).toBeGreaterThanOrEqual(1)
+      expect(screen.getByText('ENGINEERING')).toBeTruthy()
+      expect(screen.getByText('☕ LOUNGE')).toBeTruthy()
+
+      // All zone groups render
+      expect(container.querySelector('#zone-executive')).toBeTruthy()
+      expect(container.querySelector('#zone-meeting_room')).toBeTruthy()
+      expect(container.querySelector('#zone-inbox_board')).toBeTruthy()
+      expect(container.querySelector('#zone-finance')).toBeTruthy()
+      expect(container.querySelector('#zone-review_station')).toBeTruthy()
+      expect(container.querySelector('#zone-engineering')).toBeTruthy()
+      expect(container.querySelector('#zone-lounge_break')).toBeTruthy()
     })
   })
 
@@ -179,9 +189,10 @@ describe('Phase I-B: Modern SVG Virtual Office with Department Rooms', () => {
 
       render(<SvgOfficeRenderer scene={activeMissionScene} />)
 
-      const matches = screen.getAllByText('Automate weekly financial dispatch')
-      expect(matches.length).toBeGreaterThanOrEqual(1)
-      expect(screen.getByText('Active Mission Session')).toBeTruthy()
+      // Mission goal renders in the conference board (may be truncated by speech bubble)
+      expect(screen.getByText(/Automate weekly financial/)).toBeTruthy()
+      // Conference zone sign shows active indicator when mission running
+      expect(screen.getByText('● CONFERENCE')).toBeTruthy()
     })
   })
 
@@ -223,7 +234,8 @@ describe('Phase I-B: Modern SVG Virtual Office with Department Rooms', () => {
 
       render(<SvgOfficeRenderer scene={sceneWithTasks} />)
 
-      expect(screen.getByText('Refactoring WebSocket heartbeat')).toBeTruthy()
+      // Speech bubble truncates to 28 chars; use substring match
+      expect(screen.getByText(/Refactoring WebSocket/)).toBeTruthy()
       // Ensure synthetic speech from old office-view.tsx is absent
       expect(screen.queryByText(/Grabbing coffee/i)).toBeNull()
       expect(screen.queryByText(/Checking messages/i)).toBeNull()
