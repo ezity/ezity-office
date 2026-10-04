@@ -16,6 +16,7 @@ import {
   Cancel01Icon,
   Chat01Icon,
   Drag01Icon,
+  Location01Icon,
   Minimize01Icon,
   PencilEdit02Icon,
   SidebarRightIcon,
@@ -298,6 +299,10 @@ export function ChatPanel() {
     [queryClient, setChatPanelSessionKey],
   )
 
+  const handleLocateInOffice = useCallback(() => {
+    navigate({ to: '/conductor' }).catch(() => {})
+  }, [navigate])
+
   const handleExpand = useCallback(() => {
     setChatPanelOpen(false)
     navigate({
@@ -466,12 +471,19 @@ export function ChatPanel() {
                         top: bounds.y,
                         width: bounds.width,
                         height: bounds.height,
-                        boxShadow:
-                          '0 20px 40px -8px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--theme-border)',
+                        boxShadow: `0 24px 50px -12px rgba(0, 0, 0, 0.55), 0 0 0 1.5px ${agentBadge.color}77, 0 0 24px -2px ${agentBadge.color}25`,
                       }
                     : {}
                 }
               >
+                {/* Ambient top accent bar in agent department color */}
+                <div
+                  className="h-[2px] w-full shrink-0"
+                  style={{
+                    background: `linear-gradient(90deg, transparent, ${agentBadge.color}, transparent)`,
+                  }}
+                />
+
                 {/* Window Header */}
                 <div
                   onPointerDown={handleDragPointerDown}
@@ -515,6 +527,28 @@ export function ChatPanel() {
                   {/* Right Header Window Controls */}
                   <div className="flex items-center gap-0.5">
                     <TooltipProvider>
+                      {/* Locate Agent in Office */}
+                      <TooltipRoot>
+                        <TooltipTrigger
+                          onClick={handleLocateInOffice}
+                          render={
+                            <Button
+                              size="icon-sm"
+                              variant="ghost"
+                              className="size-7 rounded-lg text-[var(--theme-text-muted)] hover:text-accent-500 hover:bg-[var(--theme-bg)]"
+                              aria-label="Locate in office"
+                            >
+                              <HugeiconsIcon
+                                icon={Location01Icon}
+                                size={14}
+                                strokeWidth={1.5}
+                              />
+                            </Button>
+                          }
+                        />
+                        <TooltipContent side="bottom">Locate in office</TooltipContent>
+                      </TooltipRoot>
+
                       {/* New Chat */}
                       <TooltipRoot>
                         <TooltipTrigger

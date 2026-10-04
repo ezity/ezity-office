@@ -347,15 +347,53 @@ export function SvgOfficeDefs({ enableReducedMotion = false }: { enableReducedMo
             .char-sparkle-dot {
               animation: typing-sparkle 0.6s infinite ease-out;
             }
-            @keyframes soft-pulse-active {
-              0%, 100% { opacity: 0.85; }
-              50% { opacity: 1; }
+            @keyframes coffee-steam-float {
+              0% { transform: translateY(0) scaleX(1); opacity: 0.15; }
+              50% { transform: translateY(-3px) scaleX(1.2); opacity: 0.65; }
+              100% { transform: translateY(-7px) scaleX(0.8); opacity: 0; }
             }
-            .office-pulse-working {
-              animation: soft-pulse-active 2s infinite ease-in-out;
+            .office-coffee-steam {
+              animation: coffee-steam-float 2.2s infinite ease-out;
             }
-            .office-pulse-alert {
-              animation: soft-pulse-active 1.5s infinite ease-in-out;
+            @keyframes monitor-code-scroll {
+              0% { transform: translateY(0); opacity: 0.75; }
+              50% { transform: translateY(-1.5px); opacity: 1; }
+              100% { transform: translateY(0); opacity: 0.75; }
+            }
+            .office-monitor-code-stream {
+              animation: monitor-code-scroll 0.7s infinite ease-in-out;
+            }
+            @keyframes monitor-ambient-glow {
+              0%, 100% { filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.3)); }
+              50% { filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.75)); }
+            }
+            .office-monitor-active {
+              animation: monitor-ambient-glow 1.6s infinite ease-in-out;
+            }
+            @keyframes dot-bounce {
+              0%, 80%, 100% { transform: translateY(0); }
+              40% { transform: translateY(-3px); }
+            }
+            .office-dot-1 {
+              animation: dot-bounce 1s infinite ease-in-out;
+              animation-delay: 0s;
+            }
+            .office-dot-2 {
+              animation: dot-bounce 1s infinite ease-in-out;
+              animation-delay: 0.2s;
+            }
+            .office-dot-3 {
+              animation: dot-bounce 1s infinite ease-in-out;
+              animation-delay: 0.4s;
+            }
+            @keyframes celebrate-float {
+              0% { transform: translateY(0) scale(0.6); opacity: 0; }
+              25% { transform: translateY(-6px) scale(1.15); opacity: 1; }
+              75% { transform: translateY(-12px) scale(1); opacity: 0.9; }
+              100% { transform: translateY(-18px) scale(0.9); opacity: 0; }
+            }
+            .office-celebrate-burst {
+              animation: celebrate-float 1.8s ease-out forwards;
             }
           `
           }

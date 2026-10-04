@@ -303,9 +303,30 @@ export function SvgOfficeAgent({
           fontSize="9"
           fontWeight={isStreamingActivity ? '700' : '600'}
         >
-          {displayMonitorText.length > 28 ? `${displayMonitorText.slice(0, 27)}…` : displayMonitorText}
+          {isTyping
+            ? 'Answering'
+            : displayMonitorText.length > 28
+              ? `${displayMonitorText.slice(0, 27)}…`
+              : displayMonitorText}
         </text>
+
+        {/* Live bouncing 3-dot typing wave */}
+        {isTyping && (
+          <g transform="translate(6, -3)">
+            <circle cx="0" cy="0" r="1.6" fill="#10b981" className="office-dot-1" />
+            <circle cx="5" cy="0" r="1.6" fill="#10b981" className="office-dot-2" />
+            <circle cx="10" cy="0" r="1.6" fill="#10b981" className="office-dot-3" />
+          </g>
+        )}
       </g>
+
+      {/* ═══ Optional Celebration Burst (Completed Task) ═══ */}
+      {agent.status === 'completed' && (
+        <g transform="translate(0, -68)" className="office-celebrate-burst" pointerEvents="none">
+          <circle cx="0" cy="0" r="11" fill="#ecfdf5" stroke="#10b981" strokeWidth="1.2" filter="url(#badge-soft-shadow)" />
+          <text x="0" y="4" textAnchor="middle" fontSize="11" fill="#059669" fontWeight="bold">✓</text>
+        </g>
+      )}
 
       {/* ═══ 2. Illustrated Game Character ═══ */}
       <OfficeCharacter

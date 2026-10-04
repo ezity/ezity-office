@@ -62,23 +62,79 @@ function IsoChair({
 
 /** Isometric computer monitor */
 function IsoMonitor({
-  x, y, w = 44, h = 28, screenColor = '#e0f2fe', borderColor = '#334155',
+  x,
+  y,
+  w = 44,
+  h = 28,
+  screenColor = '#e0f2fe',
+  borderColor = '#334155',
+  isLive = false,
+  neonColor = '#38bdf8',
   children,
 }: {
-  x: number; y: number; w?: number; h?: number
-  screenColor?: string; borderColor?: string
+  x: number
+  y: number
+  w?: number
+  h?: number
+  screenColor?: string
+  borderColor?: string
+  isLive?: boolean
+  neonColor?: string
   children?: React.ReactNode
 }) {
   return (
-    <g>
+    <g className={isLive ? 'office-monitor-active' : ''}>
       {/* Monitor stand */}
       <rect x={x + w / 2 - 3} y={y + h} width={6} height={8} fill="#94a3b8" />
       <ellipse cx={x + w / 2} cy={y + h + 9} rx={10} ry={3} fill="#94a3b8" fillOpacity="0.5" />
       {/* Monitor bezel */}
-      <rect x={x} y={y} width={w} height={h} rx="3" fill={borderColor} />
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height={h}
+        rx="3"
+        fill={borderColor}
+        stroke={isLive ? neonColor : 'none'}
+        strokeWidth={isLive ? 1 : 0}
+      />
       {/* Screen */}
-      <rect x={x + 2} y={y + 2} width={w - 4} height={h - 6} rx="1.5" fill={screenColor} />
-      {children}
+      <rect
+        x={x + 2}
+        y={y + 2}
+        width={w - 4}
+        height={h - 6}
+        rx="1.5"
+        fill={isLive ? '#090d16' : screenColor}
+      />
+      {/* Animated neon code / data lines when agent is live in chat */}
+      {isLive ? (
+        <g className="office-monitor-code-stream">
+          <line x1={x + 4} y1={y + 6} x2={x + w - 7} y2={y + 6} stroke={neonColor} strokeWidth="1.2" strokeLinecap="round" />
+          <line x1={x + 4} y1={y + 11} x2={x + w - 13} y2={y + 11} stroke={neonColor} strokeWidth="1.2" strokeLinecap="round" opacity="0.8" />
+          <line x1={x + 4} y1={y + 16} x2={x + w - 5} y2={y + 16} stroke="#34d399" strokeWidth="1.2" strokeLinecap="round" opacity="0.9" />
+          <line x1={x + 4} y1={y + 20} x2={x + w - 11} y2={y + 20} stroke={neonColor} strokeWidth="1.2" strokeLinecap="round" opacity="0.7" />
+        </g>
+      ) : (
+        children
+      )}
+    </g>
+  )
+}
+
+/** Isometric coffee mug with rising steam */
+function IsoCoffeeMug({ x, y, hasSteam = true }: { x: number; y: number; hasSteam?: boolean }) {
+  return (
+    <g transform={`translate(${x}, ${y})`}>
+      <rect x="-4" y="0" width="8" height="7" rx="1.5" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="0.5" />
+      <path d="M 4,1.5 C 6,1.5 6,5 4,5" fill="none" stroke="#cbd5e1" strokeWidth="0.8" />
+      <ellipse cx="0" cy="0.8" rx="3" ry="1" fill="#451a03" />
+      {hasSteam && (
+        <g className="office-coffee-steam">
+          <path d="M -1,-2 Q 1,-4 -1,-6" fill="none" stroke="#cbd5e1" strokeWidth="0.7" strokeLinecap="round" opacity="0.6" />
+          <path d="M 1,-3 Q -1,-5 1,-7" fill="none" stroke="#cbd5e1" strokeWidth="0.7" strokeLinecap="round" opacity="0.4" />
+        </g>
+      )}
     </g>
   )
 }
@@ -267,12 +323,15 @@ function darken(hex: string, amount: number): string {
 export function SvgOfficeFurniture({ scene }: { scene?: OfficeSceneState }) {
   const cos = scene?.agents.find((a) => a.agentDefinitionId === 'ezity-chief-of-staff')
   const isCosAway = Boolean(cos?.targetZoneId && cos.targetZoneId !== 'executive')
+  const isCosLive = Boolean(cos?.liveActivity && !isCosAway)
 
   const acct = scene?.agents.find((a) => a.agentDefinitionId === 'ezity-accountant')
   const isAcctAway = Boolean(acct?.targetZoneId && acct.targetZoneId !== 'finance')
+  const isAcctLive = Boolean(acct?.liveActivity && !isAcctAway)
 
   const dev = scene?.agents.find((a) => a.agentDefinitionId === 'ezity-developer')
   const isDevAway = Boolean(dev?.targetZoneId && dev.targetZoneId !== 'engineering')
+  const isDevLive = Boolean(dev?.liveActivity && !isDevAway)
 
   return (
     <g id="office-furniture-layer" pointerEvents="none">
@@ -284,14 +343,25 @@ export function SvgOfficeFurniture({ scene }: { scene?: OfficeSceneState }) {
         {/* Chair behind desk */}
         <IsoChair x={163} y={160} color="#312e81" />
 
-        {/* Executive monitor */}
-        <IsoMonitor x={155} y={170} w={50} h={30} borderColor="#1e293b">
+        {/* Executive monitor with live streaming neon lines */}
+        <IsoMonitor
+          x={155}
+          y={170}
+          w={50}
+          h={30}
+          borderColor="#1e293b"
+          isLive={isCosLive}
+          neonColor="#a855f7"
+        >
           {/* Executive dashboard line */}
           <polyline
             points="159,185 168,180 176,188 184,176 192,182 199,178"
             fill="none" stroke="#6366f1" strokeWidth="1.2"
           />
         </IsoMonitor>
+
+        {/* Executive coffee mug with steam */}
+        <IsoCoffeeMug x={224} y={224} hasSteam={!isCosAway} />
 
         {/* Bookshelf against back wall */}
         <IsoBookshelf x={60} y={80} />
@@ -359,13 +429,25 @@ export function SvgOfficeFurniture({ scene }: { scene?: OfficeSceneState }) {
         {/* Chair */}
         <IsoChair x={163} y={510} color="#064e3b" />
 
-        {/* Finance monitor (with chart) */}
-        <IsoMonitor x={150} y={520} w={55} h={30} borderColor="#064e3b" screenColor="#ecfdf5">
+        {/* Finance monitor (with chart and live streaming) */}
+        <IsoMonitor
+          x={150}
+          y={520}
+          w={55}
+          h={30}
+          borderColor="#064e3b"
+          screenColor="#ecfdf5"
+          isLive={isAcctLive}
+          neonColor="#10b981"
+        >
           <polyline
             points="155,538 163,533 170,536 178,528 186,532 194,526 200,530"
             fill="none" stroke="#059669" strokeWidth="1.2"
           />
         </IsoMonitor>
+
+        {/* Finance coffee mug with steam */}
+        <IsoCoffeeMug x={224} y={574} hasSteam={!isAcctAway} />
 
         {/* Filing cabinet */}
         <IsoCabinet x={300} y={460} />
@@ -418,19 +500,40 @@ export function SvgOfficeFurniture({ scene }: { scene?: OfficeSceneState }) {
         {/* Chair */}
         <IsoChair x={963} y={510} color="#0369a1" />
 
-        {/* Dual monitors */}
-        <IsoMonitor x={940} y={518} w={48} h={30} borderColor="#0369a1" screenColor="#f0f9ff">
+        {/* Dual monitors with code lines and live streaming */}
+        <IsoMonitor
+          x={940}
+          y={518}
+          w={48}
+          h={30}
+          borderColor="#0369a1"
+          screenColor="#f0f9ff"
+          isLive={isDevLive}
+          neonColor="#38bdf8"
+        >
           {/* Code lines */}
           <line x1="945" y1="528" x2="972" y2="528" stroke="#0284c7" strokeWidth="1" />
           <line x1="948" y1="533" x2="980" y2="533" stroke="#38bdf8" strokeWidth="0.8" />
           <line x1="948" y1="538" x2="970" y2="538" stroke="#38bdf8" strokeWidth="0.8" />
         </IsoMonitor>
         {/* Vertical second monitor */}
-        <IsoMonitor x={995} y={514} w={28} h={36} borderColor="#0369a1" screenColor="#f0f9ff">
+        <IsoMonitor
+          x={995}
+          y={514}
+          w={28}
+          h={36}
+          borderColor="#0369a1"
+          screenColor="#f0f9ff"
+          isLive={isDevLive}
+          neonColor="#38bdf8"
+        >
           <line x1="999" y1="524" x2="1017" y2="524" stroke="#0284c7" strokeWidth="0.8" />
           <line x1="999" y1="530" x2="1013" y2="530" stroke="#38bdf8" strokeWidth="0.8" />
           <line x1="999" y1="536" x2="1017" y2="536" stroke="#38bdf8" strokeWidth="0.8" />
         </IsoMonitor>
+
+        {/* Developer coffee mug with steam */}
+        <IsoCoffeeMug x={930} y={574} hasSteam={!isDevAway} />
 
         {/* Server rack */}
         <IsoServerRack x={1100} y={450} />
