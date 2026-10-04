@@ -332,34 +332,36 @@ export function OfficeRendererHost({
       ───────────────────────────────────────────────────────────── */}
       <div className="relative hidden h-full w-full md:block">
         {/* Developer Renderer Switcher Pill (Section 2 & 21) */}
-        <div className="absolute top-3 right-4 z-30 flex items-center gap-1 rounded-2xl border border-amber-900/15 bg-white/90 p-1 shadow-md backdrop-blur-md">
-          <button
-            type="button"
-            data-testid="renderer-switch-svg"
-            onClick={() => handleRendererChange('svg')}
-            className={cn(
-              'rounded-xl px-2.5 py-1 text-xs font-semibold transition',
-              rendererType === 'svg'
-                ? 'bg-amber-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900',
-            )}
-          >
-            📄 SVG Office
-          </button>
-          <button
-            type="button"
-            data-testid="renderer-switch-pixi"
-            onClick={() => handleRendererChange('pixi')}
-            className={cn(
-              'rounded-xl px-2.5 py-1 text-xs font-semibold transition',
-              rendererType === 'pixi'
-                ? 'bg-amber-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900',
-            )}
-          >
-            🎮 Game Office (Pixi)
-          </button>
-        </div>
+        {!hideHeader && (
+          <div className="absolute top-3 right-4 z-30 flex items-center gap-1 rounded-2xl border border-amber-900/15 bg-white/90 p-1 shadow-md backdrop-blur-md">
+            <button
+              type="button"
+              data-testid="renderer-switch-svg"
+              onClick={() => handleRendererChange('svg')}
+              className={cn(
+                'rounded-xl px-2.5 py-1 text-xs font-semibold transition',
+                rendererType === 'svg'
+                  ? 'bg-amber-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900',
+              )}
+            >
+              📄 SVG Office
+            </button>
+            <button
+              type="button"
+              data-testid="renderer-switch-pixi"
+              onClick={() => handleRendererChange('pixi')}
+              className={cn(
+                'rounded-xl px-2.5 py-1 text-xs font-semibold transition',
+                rendererType === 'pixi'
+                  ? 'bg-amber-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900',
+              )}
+            >
+              🎮 Game Office (Pixi)
+            </button>
+          </div>
+        )}
 
         {rendererType === 'pixi' ? (
           <PixiOfficeRenderer
