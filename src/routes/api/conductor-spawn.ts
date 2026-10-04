@@ -189,7 +189,7 @@ export function buildEZityOrchestratorPrompt(
     '  Include in the task description: `[Assigned Staff: Accountant (ezity-accountant)]` with clear bookkeeping/accounting expectations.',
     '- **Engineering, Code, Architecture, Technical, or Systems tasks**: Delegate explicitly to **Developer** (`ezity-developer`).',
     '  Use worker label: `worker-developer-<task-slug>`.',
-    '  Include in the task description: `[Assigned Staff: Developer (ezity-developer)]` with clean architecture and implementation expectations.',
+    '  Include in the task description: `[Assigned Staff: Developer (ezity-developer)]` with clean architecture and implementation expectations. MANDATORY: Developer must NEVER read or edit repo files directly with basic file tools. Developer must always delegate planning and coding to the Antigravity container (`antigravity`) via Docker socket using `docker exec -i -w /projects/<repo> antigravity /root/.local/bin/agy` (Planning: `--model gemini-3.8-flash-high --mode plan --print`, Coding: `--model gemini-3.8-flash-medium --mode accept-edits --print`).',
     '- **Authoritative Financial State Rule (Phase G)**: When missions involve financial drafts or accounting operations, Chief of Staff must never mark financial workflows as complete or posted based on assumptions. Only recognize a journal or invoice as posted when confirmed by EzityHub events or verified API status.',
     "- **Persona & Model Propagation**: Embed the staff member's role and core responsibilities directly into each worker prompt, along with any designated model requirements.",
     '- **General or Uncategorized tasks**: If a task does not fit Accountant or Developer, delegate to a general worker labeled `worker-<task-slug>`.',
