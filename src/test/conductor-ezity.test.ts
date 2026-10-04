@@ -240,4 +240,54 @@ describe('Phase C: Conductor EZity Staff Integration', () => {
       )
     })
   })
+
+  describe('G. Prompt length budget respects Hermes 5000 character limit', () => {
+    it('keeps total prompt within 5000 chars even with realistic skill and long user mission goals', async () => {
+      const { readFileSync } = await import('node:fs')
+      const { resolve } = await import('node:path')
+      const { clampPrompt, stripFrontmatter, MAX_HERMES_PROMPT_LENGTH } =
+        await import('@/routes/api/conductor-spawn')
+
+      const cos = getAgent('ezity-chief-of-staff')!
+      const accountant = getAgent('ezity-accountant')!
+      const developer = getAgent('ezity-developer')!
+      const roster = [accountant, developer]
+
+      const realSkill = readFileSync(
+        resolve(import.meta.dirname, '../../skills/workspace-dispatch/SKILL.md'),
+        'utf-8',
+      )
+
+      const userGoal =
+        'Current limitation: several finance-tool endpoints are misconfigured with a duplicated “/api/v1” path, so bank-account, invoice-list, and uncategorised-transaction queries fail despite the server being reachable. The financial summary is available; the connector URL configuration needs fixing for the other endpoints.'
+
+      const prompt = buildEZityOrchestratorPrompt(
+        userGoal,
+        realSkill,
+        cos,
+        roster,
+        {
+          orchestratorModel: 'anthropic/claude-3-5-sonnet',
+          workerModel: 'openai/gpt-4o',
+          projectsDir: '/tmp',
+          maxParallel: 2,
+          supervised: false,
+        },
+      )
+
+      expect(prompt.length).toBeLessThanOrEqual(MAX_HERMES_PROMPT_LENGTH)
+      expect(prompt).toContain(userGoal)
+      expect(prompt).toContain('You are En.Hafiz')
+
+      // Frontmatter stripping verification
+      expect(stripFrontmatter('---\nname: test\n---\nHello')).toBe('Hello')
+
+      // Clamping verification
+      const hugePrompt = 'a'.repeat(6000)
+      const clamped = clampPrompt(hugePrompt, 5000)
+      expect(clamped.length).toBe(5000)
+      expect(clamped.endsWith('...')).toBe(true)
+    })
+  })
 })
+

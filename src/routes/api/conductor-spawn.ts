@@ -75,6 +75,17 @@ function readMaxParallel(value: unknown): number {
   return Math.min(5, Math.max(1, Math.round(value)))
 }
 
+export const MAX_HERMES_PROMPT_LENGTH = 5000
+
+export function stripFrontmatter(text: string): string {
+  return text.replace(/^---[\s\S]*?---\s*/, '').trim()
+}
+
+export function clampPrompt(prompt: string, maxLength: number = MAX_HERMES_PROMPT_LENGTH): string {
+  if (prompt.length <= maxLength) return prompt
+  return prompt.slice(0, maxLength - 3) + '...'
+}
+
 export function buildOrchestratorPrompt(
   goal: string,
   skill: string,
@@ -92,13 +103,19 @@ export function buildOrchestratorPrompt(
       ? '/tmp/dispatch-<slug>'
       : `${outputBase}/dispatch-<slug>`
 
-  return [
+  const cleanedSkill = stripFrontmatter(skill).trim()
+  const dispatchInstructions = cleanedSkill
+    ? cleanedSkill.length > 800
+      ? `${cleanedSkill.slice(0, 797)}...`
+      : cleanedSkill
+    : '(workspace-dispatch skill not found locally; proceed using create_task to spawn workers)'
+
+  const prompt = [
     'You are a mission orchestrator. Execute this mission autonomously.',
     '',
     '## Dispatch Skill Instructions',
     '',
-    skill ||
-      '(workspace-dispatch skill not found locally; proceed using create_task to spawn workers)',
+    dispatchInstructions,
     '',
     '## Mission',
     '',
@@ -133,6 +150,8 @@ export function buildOrchestratorPrompt(
     '- After spawning all workers, report your plan summary and finish. The UI tracks worker completion automatically.',
     '- Report a summary when all tasks are done',
   ].join('\n')
+
+  return clampPrompt(prompt, MAX_HERMES_PROMPT_LENGTH)
 }
 
 export function buildEZityOrchestratorPrompt(
@@ -168,15 +187,21 @@ export function buildEZityOrchestratorPrompt(
           .join('\n\n')
       : '(No specialized staff defined; spawn general workers as needed)'
 
-  return [
+  const cleanedSkill = stripFrontmatter(skill).trim()
+  const dispatchInstructions = cleanedSkill
+    ? cleanedSkill.length > 800
+      ? `${cleanedSkill.slice(0, 797)}...`
+      : cleanedSkill
+    : '(workspace-dispatch skill not found locally; proceed using create_task to spawn workers)'
+
+  const prompt = [
     `# Orchestrator Persona: ${chiefOfStaff.name}`,
     `You are ${chiefOfStaff.name}.`,
     chiefOfStaff.systemPrompt.trim(),
     '',
     '## Dispatch Skill Instructions',
     '',
-    skill ||
-      '(workspace-dispatch skill not found locally; proceed using create_task to spawn workers)',
+    dispatchInstructions,
     '',
     '## Available Staff Roster',
     'You lead and coordinate the following specialized EZity staff members:',
@@ -233,7 +258,10 @@ export function buildEZityOrchestratorPrompt(
     '- Report an executive synthesis summary when all tasks are complete',
     ...formatInboxSummaryForPrompt(),
   ].join('\n')
+
+  return clampPrompt(prompt, MAX_HERMES_PROMPT_LENGTH)
 }
+
 
 function formatInboxSummaryForPrompt(): string[] {
   try {
@@ -335,6 +363,17 @@ export const Route = createFileRoute('/api/conductor-spawn')({
           if (!goal) {
             return new Response(
               JSON.stringify({ ok: false, error: 'goal required' }),
+              { status: 400, headers: { 'Content-Type': 'application/json' } },
+            )
+          }
+
+          if (goal.length > 3500) {
+            return new Response(
+              JSON.stringify({
+                ok: false,
+                error:
+                  'Mission goal is too long (maximum 3500 characters so orchestrator instructions fit within Hermes 5000 character limit).',
+              }),
               { status: 400, headers: { 'Content-Type': 'application/json' } },
             )
           }
