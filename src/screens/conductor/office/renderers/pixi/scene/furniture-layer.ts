@@ -111,7 +111,7 @@ export class FurnitureLayer extends Container {
       {
         id: 'eng_desk',
         name: 'Engineering Bay Workstation',
-        worldPos: { x: 13.03, y: -0.78 },
+        worldPos: { x: 12.7, y: -1.8 },
         deskAsset: 'desk_engineering',
         radiusX: 50,
         radiusY: 26,
