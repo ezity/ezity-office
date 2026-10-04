@@ -13,6 +13,7 @@ import type { OfficeLayoutTemplate, OfficeRendererProps, OfficeRendererType } fr
 import { SvgOfficeRenderer } from './renderers/svg/svg-office-renderer'
 import { PixiOfficeRenderer } from './renderers/pixi/pixi-office-renderer'
 import { chatQueryKeys } from '@/screens/chat/chat-queries'
+import { useWorkspaceStore } from '@/stores/workspace-store'
 import { cn } from '@/lib/utils'
 
 export interface OfficeRendererHostProps extends Partial<OfficeRendererProps> {
@@ -128,7 +129,7 @@ export function OfficeRendererHost({
     return rawId
   }, [])
 
-  // Smart agent click handler: navigate to this agent's active chat session
+  // Smart agent click handler: open floating agent chat on desktop (or navigate on mobile)
   const handleAgentClick = useCallback(
     async (agentId: string, sessionKey?: string) => {
       if (propOnAgentClick) {
@@ -139,7 +140,26 @@ export function OfficeRendererHost({
         propOnViewOutput(agentId)
       }
 
-      // 1. If agent node already has a valid active session key, navigate directly
+      const openTargetChat = (key?: string) => {
+        const isMobileScreen =
+          typeof window !== 'undefined' && window.innerWidth < 768
+        if (isMobileScreen) {
+          if (key) {
+            navigate({
+              to: '/chat/$sessionKey',
+              params: { sessionKey: key },
+            }).catch(() => {
+              navigate({ to: '/chat' }).catch(() => {})
+            })
+          } else {
+            navigate({ to: '/chat' }).catch(() => {})
+          }
+        } else {
+          useWorkspaceStore.getState().openFloatingChat(key)
+        }
+      }
+
+      // 1. If agent node already has a valid active session key, open directly
       if (
         sessionKey &&
         sessionKey !== 'conductor-placeholder-agent' &&
@@ -148,12 +168,7 @@ export function OfficeRendererHost({
         try {
           localStorage.setItem('hermes-last-session', sessionKey)
         } catch {}
-        navigate({
-          to: '/chat/$sessionKey',
-          params: { sessionKey },
-        }).catch(() => {
-          navigate({ to: '/chat' }).catch(() => {})
-        })
+        openTargetChat(sessionKey)
         return
       }
 
@@ -232,17 +247,12 @@ export function OfficeRendererHost({
           try {
             localStorage.setItem('hermes-last-session', resolvedKey)
           } catch {}
-          navigate({
-            to: '/chat/$sessionKey',
-            params: { sessionKey: resolvedKey },
-          }).catch(() => {
-            navigate({ to: '/chat' }).catch(() => {})
-          })
+          openTargetChat(resolvedKey)
         } else {
-          navigate({ to: '/chat' }).catch(() => {})
+          openTargetChat()
         }
       } catch {
-        navigate({ to: '/chat' }).catch(() => {})
+        openTargetChat()
       }
     },
     [

@@ -1,6 +1,15 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+export type ChatWindowMode = 'floating' | 'docked'
+
+export type ChatWindowBounds = {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
 type WorkspaceState = {
   sidebarCollapsed: boolean
   fileExplorerCollapsed: boolean
@@ -11,6 +20,12 @@ type WorkspaceState = {
   chatPanelOpen: boolean
   /** Session key for the chat panel (defaults to 'main') */
   chatPanelSessionKey: string
+  /** Floating or docked display mode */
+  chatWindowMode: ChatWindowMode
+  /** Whether the floating chat window is minimized to an avatar pill */
+  chatWindowMinimized: boolean
+  /** Stored position and dimensions for floating window */
+  chatWindowBounds: ChatWindowBounds
   /** Mobile keyboard / composer focus — hides tab bar */
   mobileKeyboardOpen: boolean
   mobileKeyboardInset: number
@@ -25,6 +40,10 @@ type WorkspaceState = {
   toggleChatPanel: () => void
   setChatPanelOpen: (open: boolean) => void
   setChatPanelSessionKey: (key: string) => void
+  setChatWindowMode: (mode: ChatWindowMode) => void
+  setChatWindowMinimized: (minimized: boolean) => void
+  setChatWindowBounds: (bounds: Partial<ChatWindowBounds>) => void
+  openFloatingChat: (sessionKey?: string) => void
   setMobileKeyboardOpen: (open: boolean) => void
   setMobileKeyboardInset: (inset: number) => void
   setMobileComposerFocused: (focused: boolean) => void
@@ -39,6 +58,14 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       activeSubPage: null,
       chatPanelOpen: false,
       chatPanelSessionKey: 'main',
+      chatWindowMode: 'floating',
+      chatWindowMinimized: false,
+      chatWindowBounds: {
+        x: -1,
+        y: -1,
+        width: 440,
+        height: 620,
+      },
       mobileKeyboardOpen: false,
       mobileKeyboardInset: 0,
       mobileComposerFocused: false,
@@ -53,13 +80,35 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         set((s) => ({ chatFocusMode: !s.chatFocusMode })),
       setChatFocusMode: (enabled) => set({ chatFocusMode: enabled }),
       setActiveSubPage: (page) => set({ activeSubPage: page }),
-      toggleChatPanel: () => set((s) => ({ chatPanelOpen: !s.chatPanelOpen })),
-      setChatPanelOpen: (open) => set({ chatPanelOpen: open }),
+      toggleChatPanel: () =>
+        set((s) => ({
+          chatPanelOpen: !s.chatPanelOpen,
+          // When toggling open, un-minimize
+          chatWindowMinimized: !s.chatPanelOpen ? false : s.chatWindowMinimized,
+        })),
+      setChatPanelOpen: (open) =>
+        set((s) => ({
+          chatPanelOpen: open,
+          chatWindowMinimized: open ? false : s.chatWindowMinimized,
+        })),
+      setChatPanelSessionKey: (key) => set({ chatPanelSessionKey: key }),
+      setChatWindowMode: (mode) => set({ chatWindowMode: mode }),
+      setChatWindowMinimized: (minimized) =>
+        set({ chatWindowMinimized: minimized }),
+      setChatWindowBounds: (bounds) =>
+        set((s) => ({
+          chatWindowBounds: { ...s.chatWindowBounds, ...bounds },
+        })),
+      openFloatingChat: (sessionKey) =>
+        set((s) => ({
+          chatPanelOpen: true,
+          chatWindowMinimized: false,
+          chatPanelSessionKey: sessionKey ?? s.chatPanelSessionKey,
+        })),
       setMobileKeyboardOpen: (open) => set({ mobileKeyboardOpen: open }),
       setMobileKeyboardInset: (inset) => set({ mobileKeyboardInset: inset }),
       setMobileComposerFocused: (focused) =>
         set({ mobileComposerFocused: focused }),
-      setChatPanelSessionKey: (key) => set({ chatPanelSessionKey: key }),
     }),
     {
       name: 'hermes-workspace-v1',
@@ -69,6 +118,9 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         fileExplorerCollapsed: state.fileExplorerCollapsed,
         chatPanelOpen: state.chatPanelOpen,
         chatPanelSessionKey: state.chatPanelSessionKey,
+        chatWindowMode: state.chatWindowMode,
+        chatWindowMinimized: state.chatWindowMinimized,
+        chatWindowBounds: state.chatWindowBounds,
       }),
     },
   ),
