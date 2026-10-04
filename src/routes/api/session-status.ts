@@ -41,7 +41,8 @@ export const Route = createFileRoute('/api/session-status')({
           let sessionKey = requestedKey || 'new'
 
           if (isSyntheticSessionKey(sessionKey)) {
-            const sessions = await listSessions(1, 0)
+            const rawSessions = await listSessions(1, 0)
+            const sessions = Array.isArray(rawSessions) ? rawSessions : []
             if (sessions.length === 0) {
               return json({
                 ok: true,
@@ -61,9 +62,32 @@ export const Route = createFileRoute('/api/session-status')({
             sessionKey = sessions[0].id
           }
 
-          const session = await getSession(sessionKey)
+          let session: HermesSession | null = null
+          try {
+            session = await getSession(sessionKey)
+          } catch {
+            session = null
+          }
+
+          if (!session) {
+            return json({
+              ok: true,
+              payload: {
+                status: 'idle',
+                sessionKey,
+                sessionLabel: '',
+                model: '',
+                modelProvider: '',
+                inputTokens: 0,
+                outputTokens: 0,
+                totalTokens: 0,
+                sessions: [],
+              },
+            })
+          }
+
           const config = capabilities.config
-            ? await getConfig()
+            ? await getConfig().catch(() => ({ model: '', provider: '' }))
             : ({ model: '', provider: '' } as const)
 
           const inputTokens = session.input_tokens ?? 0

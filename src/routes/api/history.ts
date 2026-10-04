@@ -78,7 +78,8 @@ export const Route = createFileRoute('/api/history')({
               return json({ sessionKey: 'new', sessionId: 'new', messages: [] })
             }
           }
-          const messages = await getMessages(sessionKey)
+          const rawMessages = await getMessages(sessionKey)
+          const messages = Array.isArray(rawMessages) ? rawMessages : []
           const boundedMessages = limit > 0 ? messages.slice(-limit) : messages
 
           return json({
