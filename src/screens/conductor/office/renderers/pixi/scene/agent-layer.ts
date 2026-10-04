@@ -148,24 +148,30 @@ export class AgentLayer extends Container {
         const breathScaleY = 1 + breath * 0.024
         const breathScaleX = 1 - breath * 0.012
 
-        // Active working typing bursts vs reading/resting
-        // Cycle: ~3.5s typing burst, ~2s pause
-        const burstEnvelope = Math.sin(t * 0.85)
-
-        if (burstEnvelope > 0.15) {
-          // In active typing burst: alternate between typing frame and sit frame
-          const isKeyStroke = Math.sin(t * 11) > 0
-          this.updateAgentTexture(agentId, obj, isKeyStroke ? 'work' : 'sit')
-
-          // Typing keystroke micro-motion
-          obj.sprite.position.y = Math.sin(t * 11) * 0.6
-          // Focus head nod towards monitor/desk
-          obj.sprite.rotation = (isFacingLeft ? -1 : 1) * (0.015 + Math.sin(t * 1.5) * 0.01)
-        } else {
-          // Thoughtful pause: reading screen, resting hands
-          this.updateAgentTexture(agentId, obj, 'sit')
+        if (moveState.animationState === 'meeting') {
+          this.updateAgentTexture(agentId, obj, 'meeting')
           obj.sprite.position.y = 0
-          obj.sprite.rotation = (isFacingLeft ? -1 : 1) * Math.sin(t * 0.9) * 0.012
+          obj.sprite.rotation = (isFacingLeft ? -1 : 1) * Math.sin(t * 1.0) * 0.012
+        } else if (moveState.animationState === 'review') {
+          this.updateAgentTexture(agentId, obj, 'review')
+          obj.sprite.position.y = 0
+          obj.sprite.rotation = (isFacingLeft ? -1 : 1) * Math.sin(t * 0.8) * 0.015
+        } else {
+          // Active working typing bursts vs reading/resting
+          // Cycle: ~3.5s typing burst, ~2s thoughtful pause
+          const burstEnvelope = Math.sin(t * 0.85)
+
+          if (burstEnvelope > 0.15) {
+            // Typing session: use working pose with keystroke micro-motion
+            this.updateAgentTexture(agentId, obj, 'work')
+            obj.sprite.position.y = Math.sin(t * 11) * 0.5
+            obj.sprite.rotation = (isFacingLeft ? -1 : 1) * (0.015 + Math.sin(t * 1.5) * 0.01)
+          } else {
+            // Thoughtful pause: reading screen, hands resting on desk
+            this.updateAgentTexture(agentId, obj, 'sit')
+            obj.sprite.position.y = 0
+            obj.sprite.rotation = (isFacingLeft ? -1 : 1) * Math.sin(t * 0.9) * 0.012
+          }
         }
 
         obj.sprite.scale.set(

@@ -225,7 +225,7 @@ export const OFFICE_ASSETS: Record<string, AssetDescriptor> = {
     label: 'Espresso Bar',
   },
 
-  // Characters (Realistic Proportions)
+  // Characters - Chief of Staff
   cos_idle: {
     id: 'cos_idle',
     category: 'characters',
@@ -246,6 +246,46 @@ export const OFFICE_ASSETS: Record<string, AssetDescriptor> = {
     anchorY: 0.95,
     label: 'Chief of Staff (Walk)',
   },
+  cos_walk_dr: {
+    id: 'cos_walk_dr',
+    category: 'characters',
+    url: '/office/characters/cos_walk_dr.png',
+    width: 39,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Chief of Staff (Walk Down-Right)',
+  },
+  cos_walk_dl: {
+    id: 'cos_walk_dl',
+    category: 'characters',
+    url: '/office/characters/cos_walk_dl.png',
+    width: 39,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Chief of Staff (Walk Down-Left)',
+  },
+  cos_walk_ur: {
+    id: 'cos_walk_ur',
+    category: 'characters',
+    url: '/office/characters/cos_walk_ur.png',
+    width: 37,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Chief of Staff (Walk Up-Right)',
+  },
+  cos_walk_ul: {
+    id: 'cos_walk_ul',
+    category: 'characters',
+    url: '/office/characters/cos_walk_ul.png',
+    width: 37,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Chief of Staff (Walk Up-Left)',
+  },
   cos_sit: {
     id: 'cos_sit',
     category: 'characters',
@@ -256,7 +296,48 @@ export const OFFICE_ASSETS: Record<string, AssetDescriptor> = {
     anchorY: 0.95,
     label: 'Chief of Staff (Seated)',
   },
+  cos_work: {
+    id: 'cos_work',
+    category: 'characters',
+    url: '/office/characters/cos_work.png',
+    width: 37,
+    height: 80,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Chief of Staff (Working)',
+  },
+  cos_meeting: {
+    id: 'cos_meeting',
+    category: 'characters',
+    url: '/office/characters/cos_meeting.png',
+    width: 40,
+    height: 80,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Chief of Staff (Meeting)',
+  },
+  cos_review: {
+    id: 'cos_review',
+    category: 'characters',
+    url: '/office/characters/cos_review.png',
+    width: 50,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Chief of Staff (Review)',
+  },
+  cos_error: {
+    id: 'cos_error',
+    category: 'characters',
+    url: '/office/characters/cos_error.png',
+    width: 44,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Chief of Staff (Error)',
+  },
 
+  // Characters - Accountant
   accountant_idle: {
     id: 'accountant_idle',
     category: 'characters',
@@ -277,6 +358,46 @@ export const OFFICE_ASSETS: Record<string, AssetDescriptor> = {
     anchorY: 0.95,
     label: 'Accountant (Walk)',
   },
+  accountant_walk_dr: {
+    id: 'accountant_walk_dr',
+    category: 'characters',
+    url: '/office/characters/accountant_walk_dr.png',
+    width: 40,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Accountant (Walk Down-Right)',
+  },
+  accountant_walk_dl: {
+    id: 'accountant_walk_dl',
+    category: 'characters',
+    url: '/office/characters/accountant_walk_dl.png',
+    width: 40,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Accountant (Walk Down-Left)',
+  },
+  accountant_walk_ur: {
+    id: 'accountant_walk_ur',
+    category: 'characters',
+    url: '/office/characters/accountant_walk_ur.png',
+    width: 40,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Accountant (Walk Up-Right)',
+  },
+  accountant_walk_ul: {
+    id: 'accountant_walk_ul',
+    category: 'characters',
+    url: '/office/characters/accountant_walk_ul.png',
+    width: 40,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Accountant (Walk Up-Left)',
+  },
   accountant_sit: {
     id: 'accountant_sit',
     category: 'characters',
@@ -287,7 +408,48 @@ export const OFFICE_ASSETS: Record<string, AssetDescriptor> = {
     anchorY: 0.95,
     label: 'Accountant (Seated)',
   },
+  accountant_work: {
+    id: 'accountant_work',
+    category: 'characters',
+    url: '/office/characters/accountant_work.png',
+    width: 38,
+    height: 80,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Accountant (Working)',
+  },
+  accountant_meeting: {
+    id: 'accountant_meeting',
+    category: 'characters',
+    url: '/office/characters/accountant_meeting.png',
+    width: 27,
+    height: 80,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Accountant (Meeting)',
+  },
+  accountant_review: {
+    id: 'accountant_review',
+    category: 'characters',
+    url: '/office/characters/accountant_review.png',
+    width: 34,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Accountant (Review)',
+  },
+  accountant_error: {
+    id: 'accountant_error',
+    category: 'characters',
+    url: '/office/characters/accountant_error.png',
+    width: 34,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Accountant (Error)',
+  },
 
+  // Characters - Developer
   developer_idle: {
     id: 'developer_idle',
     category: 'characters',
@@ -308,6 +470,46 @@ export const OFFICE_ASSETS: Record<string, AssetDescriptor> = {
     anchorY: 0.95,
     label: 'Developer (Walk)',
   },
+  developer_walk_dr: {
+    id: 'developer_walk_dr',
+    category: 'characters',
+    url: '/office/characters/developer_walk_dr.png',
+    width: 42,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Developer (Walk Down-Right)',
+  },
+  developer_walk_dl: {
+    id: 'developer_walk_dl',
+    category: 'characters',
+    url: '/office/characters/developer_walk_dl.png',
+    width: 42,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Developer (Walk Down-Left)',
+  },
+  developer_walk_ur: {
+    id: 'developer_walk_ur',
+    category: 'characters',
+    url: '/office/characters/developer_walk_ur.png',
+    width: 42,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Developer (Walk Up-Right)',
+  },
+  developer_walk_ul: {
+    id: 'developer_walk_ul',
+    category: 'characters',
+    url: '/office/characters/developer_walk_ul.png',
+    width: 42,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Developer (Walk Up-Left)',
+  },
   developer_sit: {
     id: 'developer_sit',
     category: 'characters',
@@ -317,6 +519,46 @@ export const OFFICE_ASSETS: Record<string, AssetDescriptor> = {
     anchorX: 0.5,
     anchorY: 0.95,
     label: 'Developer (Seated)',
+  },
+  developer_work: {
+    id: 'developer_work',
+    category: 'characters',
+    url: '/office/characters/developer_work.png',
+    width: 43,
+    height: 80,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Developer (Working)',
+  },
+  developer_meeting: {
+    id: 'developer_meeting',
+    category: 'characters',
+    url: '/office/characters/developer_meeting.png',
+    width: 31,
+    height: 80,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Developer (Meeting)',
+  },
+  developer_review: {
+    id: 'developer_review',
+    category: 'characters',
+    url: '/office/characters/developer_review.png',
+    width: 38,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Developer (Review)',
+  },
+  developer_error: {
+    id: 'developer_error',
+    category: 'characters',
+    url: '/office/characters/developer_error.png',
+    width: 38,
+    height: 100,
+    anchorX: 0.5,
+    anchorY: 0.95,
+    label: 'Developer (Error)',
   },
 }
 
@@ -348,7 +590,7 @@ export async function preloadOfficeAssets(app?: Application): Promise<void> {
 
 /**
  * Synchronous texture retrieval.
- * Returns the cached texture, or a safe 2D canvas fallback texture if not yet loaded.
+ * Returns the cached texture, or a safe fallback texture if not yet loaded.
  */
 export function getOfficeTexture(id: string, _app?: Application): Texture {
   if (textureCache.has(id)) {
@@ -357,6 +599,23 @@ export function getOfficeTexture(id: string, _app?: Application): Texture {
 
   const descriptor = OFFICE_ASSETS[id]
   if (!descriptor) {
+    // Smart fallback for character roles if pose key not found directly (e.g. prefix_work -> prefix_sit -> prefix_idle)
+    const underscoreIdx = id.lastIndexOf('_')
+    if (underscoreIdx > 0) {
+      const prefix = id.substring(0, underscoreIdx)
+      if (textureCache.has(`${prefix}_sit`)) {
+        return textureCache.get(`${prefix}_sit`)!
+      }
+      if (textureCache.has(`${prefix}_idle`)) {
+        return textureCache.get(`${prefix}_idle`)!
+      }
+      if (OFFICE_ASSETS[`${prefix}_sit`]) {
+        return getOfficeTexture(`${prefix}_sit`, _app)
+      }
+      if (OFFICE_ASSETS[`${prefix}_idle`]) {
+        return getOfficeTexture(`${prefix}_idle`, _app)
+      }
+    }
     return Texture.WHITE
   }
 
