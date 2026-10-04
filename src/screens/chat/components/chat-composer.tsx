@@ -157,7 +157,34 @@ async function fetchModels(): Promise<{
   providerLabels?: Record<string, string>
   providers?: Array<HermesProviderOption>
 }> {
-  // Prefer Hermes' current provider models; fetch other providers lazily if needed.
+  // Prefer same-origin /api/models first
+  try {
+    const apiRes = await fetch('/api/models')
+    if (apiRes.ok) {
+      const apiData = (await apiRes.json()) as {
+        ok?: boolean
+        models?: Array<ModelCatalogEntry>
+        configuredProviders?: Array<string>
+        currentProvider?: string
+        providerLabels?: Record<string, string>
+        providers?: Array<HermesProviderOption>
+      }
+      if (Array.isArray(apiData.models) && apiData.models.length > 0) {
+        return {
+          ok: true,
+          models: apiData.models,
+          configuredProviders: apiData.configuredProviders || [],
+          currentProvider: apiData.currentProvider,
+          providerLabels: apiData.providerLabels,
+          providers: apiData.providers,
+        }
+      }
+    }
+  } catch {
+    /* fallback to proxy */
+  }
+
+  // Next try Hermes available-models endpoint if supported
   try {
     const richRes = await fetch('/api/hermes-proxy/api/available-models')
     if (richRes.ok) {
@@ -226,38 +253,19 @@ async function fetchModels(): Promise<{
         }
       }
 
-      return {
-        ok: true,
-        models,
-        configuredProviders,
-        currentProvider,
-        providerLabels,
-        providers: authenticatedProviders,
-      }
-    }
-  } catch {
-    /* fallback to /api/models */
-  }
-
-  // Fall back to same-origin /api/models first
-  try {
-    const apiRes = await fetch('/api/models')
-    if (apiRes.ok) {
-      const apiData = (await apiRes.json()) as {
-        ok?: boolean
-        models?: Array<ModelCatalogEntry>
-        configuredProviders?: Array<string>
-      }
-      if (Array.isArray(apiData.models) && apiData.models.length > 0) {
+      if (models.length > 0) {
         return {
           ok: true,
-          models: apiData.models,
-          configuredProviders: apiData.configuredProviders || [],
+          models,
+          configuredProviders,
+          currentProvider,
+          providerLabels,
+          providers: authenticatedProviders,
         }
       }
     }
   } catch {
-    /* fallback to proxy */
+    /* fallback to /v1/models */
   }
 
   const response = await fetch('/api/hermes-proxy/v1/models')

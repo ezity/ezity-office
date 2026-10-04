@@ -162,7 +162,24 @@ async function readDirectory(
     return []
   }
 
-  const entries = await fs.readdir(dirPath, { withFileTypes: true })
+  let entries: Array<import('node:fs').Dirent> = []
+  try {
+    entries = await fs.readdir(dirPath, { withFileTypes: true })
+  } catch (err: unknown) {
+    const nodeErr = err as NodeJS.ErrnoException
+    if (nodeErr?.code === 'ENOENT') {
+      // Auto-create workspace root directory if missing
+      if (depth === 0) {
+        try {
+          await fs.mkdir(dirPath, { recursive: true })
+        } catch {
+          // Ignore mkdir error
+        }
+      }
+      return []
+    }
+    throw err
+  }
   const mapped: Array<FileEntry> = []
 
   for (const entry of entries) {
@@ -210,7 +227,19 @@ async function readDirectory(
 async function readGlobDirectory(globPath: string) {
   const { directoryPath, regex } = parseGlobPattern(globPath)
   const resolvedDirectory = ensureWorkspacePath(directoryPath)
-  const entries = await fs.readdir(resolvedDirectory, { withFileTypes: true })
+  let entries: Array<import('node:fs').Dirent> = []
+  try {
+    entries = await fs.readdir(resolvedDirectory, { withFileTypes: true })
+  } catch (err: unknown) {
+    const nodeErr = err as NodeJS.ErrnoException
+    if (nodeErr?.code === 'ENOENT') {
+      return {
+        root: toRelative(resolvedDirectory),
+        entries: [],
+      }
+    }
+    throw err
+  }
   const mapped: Array<FileEntry> = []
 
   for (const entry of entries) {
@@ -288,32 +317,48 @@ export const Route = createFileRoute('/api/files')({
           const resolvedPath = ensureWorkspacePathFor(inputPath, effectiveRoot)
 
           if (action === 'read') {
-            const buffer = await fs.readFile(resolvedPath)
-            if (isImageFile(resolvedPath)) {
-              const mime = getMimeType(resolvedPath)
+            try {
+              const buffer = await fs.readFile(resolvedPath)
+              if (isImageFile(resolvedPath)) {
+                const mime = getMimeType(resolvedPath)
+                return json({
+                  type: 'image',
+                  path: toRelativeFor(resolvedPath, effectiveRoot),
+                  content: `data:${mime};base64,${buffer.toString('base64')}`,
+                })
+              }
               return json({
-                type: 'image',
+                type: 'text',
                 path: toRelativeFor(resolvedPath, effectiveRoot),
-                content: `data:${mime};base64,${buffer.toString('base64')}`,
+                content: buffer.toString('utf8'),
               })
+            } catch (err: unknown) {
+              const nodeErr = err as NodeJS.ErrnoException
+              if (nodeErr?.code === 'ENOENT') {
+                return json({ error: 'File not found' }, { status: 404 })
+              }
+              throw err
             }
-            return json({
-              type: 'text',
-              path: toRelativeFor(resolvedPath, effectiveRoot),
-              content: buffer.toString('utf8'),
-            })
           }
 
           if (action === 'download') {
-            const buffer = await fs.readFile(resolvedPath)
-            return new Response(buffer, {
-              headers: {
-                'Content-Type': getMimeType(resolvedPath),
-                'Content-Disposition': `attachment; filename="${path.basename(
-                  resolvedPath,
-                )}"`,
-              },
-            })
+            try {
+              const buffer = await fs.readFile(resolvedPath)
+              return new Response(buffer, {
+                headers: {
+                  'Content-Type': getMimeType(resolvedPath),
+                  'Content-Disposition': `attachment; filename="${path.basename(
+                    resolvedPath,
+                  )}"`,
+                },
+              })
+            } catch (err: unknown) {
+              const nodeErr = err as NodeJS.ErrnoException
+              if (nodeErr?.code === 'ENOENT') {
+                return json({ error: 'File not found' }, { status: 404 })
+              }
+              throw err
+            }
           }
 
           const tree = await readDirectory(resolvedPath, 0, {

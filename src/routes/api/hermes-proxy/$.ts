@@ -4,7 +4,8 @@ import { isAuthenticated } from '../../../server/auth-middleware'
 
 async function proxyRequest(request: Request, splat: string) {
   const incomingUrl = new URL(request.url)
-  const targetPath = splat.startsWith('/') ? splat : `/${splat}`
+  const splatPath = splat || incomingUrl.pathname.replace(/^\/api\/hermes-proxy\/?/, '')
+  const targetPath = splatPath.startsWith('/') ? splatPath : `/${splatPath}`
   const targetUrl = new URL(`${HERMES_API}${targetPath}`)
   targetUrl.search = incomingUrl.search
 
@@ -27,6 +28,19 @@ async function proxyRequest(request: Request, splat: string) {
   }
 
   const upstream = await fetch(targetUrl, init)
+  if (upstream.status === 404 && targetPath.includes('available-models')) {
+    return new Response(
+      JSON.stringify({
+        provider: 'hermes',
+        models: [],
+        providers: [],
+      }),
+      {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      },
+    )
+  }
   const body = await upstream.text()
   const responseHeaders = new Headers()
   const contentType = upstream.headers.get('content-type')
