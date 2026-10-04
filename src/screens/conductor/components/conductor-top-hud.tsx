@@ -29,6 +29,8 @@ export interface ConductorTopHudProps {
   onSettingsOpen: () => void
   missionDrawerOpen: boolean
   onToggleMissionDrawer: () => void
+  inboxOpen?: boolean
+  onInboxOpen?: () => void
 }
 
 function formatElapsedMilliseconds(durationMs: number): string {
@@ -61,6 +63,8 @@ export function ConductorTopHud({
   onSettingsOpen,
   missionDrawerOpen,
   onToggleMissionDrawer,
+  inboxOpen = false,
+  onInboxOpen,
 }: ConductorTopHudProps) {
   const [now, setNow] = useState(() => Date.now())
 
@@ -205,6 +209,35 @@ export function ConductorTopHud({
             )}
           </button>
         )}
+
+        {/* Operations Board / Inbox Button */}
+        <button
+          type="button"
+          onClick={onInboxOpen}
+          className={cn(
+            'flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-semibold shadow-lg backdrop-blur-md transition-colors',
+            inboxOpen
+              ? 'border-amber-500 bg-amber-500/15 text-amber-400'
+              : 'border-[var(--theme-border)] bg-[var(--theme-card)]/90 text-[var(--theme-text)] hover:border-amber-500/50',
+          )}
+          title="Open Operations Board & Work Inbox"
+          aria-label="Operations Inbox"
+        >
+          <span className="text-xs">📌</span>
+          <span className="hidden sm:inline">Inbox</span>
+          {officeScene.workItems.length > 0 && (
+            <span
+              className={cn(
+                'rounded-full px-1.5 py-0.2 text-[10px] font-bold text-white',
+                officeScene.workItems.some((i) => i.status === 'needs_attention')
+                  ? 'bg-amber-500 animate-pulse'
+                  : 'bg-slate-600',
+              )}
+            >
+              {officeScene.workItems.length}
+            </span>
+          )}
+        </button>
 
         {/* History Button */}
         <button

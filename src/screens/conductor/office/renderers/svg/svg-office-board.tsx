@@ -37,6 +37,10 @@ export function SvgOfficeBoard({
     (item) => item.status === 'waiting',
   ).length
 
+  const needsAttentionItem = scene.workItems.find((i) => i.status === 'needs_attention')
+  const inProgressItem = scene.workItems.find((i) => i.status === 'in_progress')
+  const waitingItem = scene.workItems.find((i) => i.status === 'waiting' || i.status === 'completed')
+
   const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
@@ -64,6 +68,11 @@ export function SvgOfficeBoard({
         <text x="876" y="104" fill="#78350f" fontSize="10" fontWeight="700" letterSpacing="0.05em">
           📌 OPERATIONS BOARD
         </text>
+        {scene.workItems.length > 0 && (
+          <text x="1030" y="104" fill="#b45309" fontSize="9" fontWeight="700">
+            ({scene.workItems.length})
+          </text>
+        )}
         <text x="1118" y="104" fill="#b45309" fontSize="9" textAnchor="end" fontWeight="600">
           Open Inbox ↗
         </text>
@@ -81,18 +90,23 @@ export function SvgOfficeBoard({
           {/* Pushpin */}
           <circle cx="39" cy="6" r="3" fill="#ef4444" />
           <text
-            x="39" y="34"
+            x="39" y="32"
             fill={needsAttentionCount > 0 ? '#c2410c' : '#94a3b8'}
-            fontSize="20" fontWeight="800" textAnchor="middle"
+            fontSize="18" fontWeight="800" textAnchor="middle"
           >
             {needsAttentionCount}
           </text>
-          <text x="39" y="48" fill="#475569" fontSize="7.5" fontWeight="700" textAnchor="middle">
+          <text x="39" y="44" fill="#475569" fontSize="7" fontWeight="700" textAnchor="middle">
             NEEDS
           </text>
-          <text x="39" y="58" fill="#475569" fontSize="7.5" fontWeight="700" textAnchor="middle">
+          <text x="39" y="52" fill="#475569" fontSize="7" fontWeight="700" textAnchor="middle">
             ATTENTION
           </text>
+          {needsAttentionItem && (
+            <text x="39" y="64" fill="#c2410c" fontSize="6" fontWeight="600" textAnchor="middle">
+              {needsAttentionItem.title.length > 13 ? `${needsAttentionItem.title.slice(0, 12)}…` : needsAttentionItem.title}
+            </text>
+          )}
         </g>
 
         {/* Card 2: In Progress (Blue) */}
@@ -105,15 +119,20 @@ export function SvgOfficeBoard({
             filter="url(#badge-soft-shadow)"
           />
           <circle cx="39" cy="6" r="3" fill="#0284c7" />
-          <text x="39" y="34" fill="#0369a1" fontSize="20" fontWeight="800" textAnchor="middle">
+          <text x="39" y="32" fill="#0369a1" fontSize="18" fontWeight="800" textAnchor="middle">
             {inProgressCount}
           </text>
-          <text x="39" y="48" fill="#0369a1" fontSize="7.5" fontWeight="700" textAnchor="middle">
+          <text x="39" y="44" fill="#0369a1" fontSize="7" fontWeight="700" textAnchor="middle">
             IN
           </text>
-          <text x="39" y="58" fill="#0369a1" fontSize="7.5" fontWeight="700" textAnchor="middle">
+          <text x="39" y="52" fill="#0369a1" fontSize="7" fontWeight="700" textAnchor="middle">
             PROGRESS
           </text>
+          {inProgressItem && (
+            <text x="39" y="64" fill="#0284c7" fontSize="6" fontWeight="600" textAnchor="middle">
+              {inProgressItem.title.length > 13 ? `${inProgressItem.title.slice(0, 12)}…` : inProgressItem.title}
+            </text>
+          )}
         </g>
 
         {/* Card 3: Waiting (Green) */}
@@ -126,15 +145,20 @@ export function SvgOfficeBoard({
             filter="url(#badge-soft-shadow)"
           />
           <circle cx="39" cy="6" r="3" fill="#10b981" />
-          <text x="39" y="34" fill="#047857" fontSize="20" fontWeight="800" textAnchor="middle">
+          <text x="39" y="32" fill="#047857" fontSize="18" fontWeight="800" textAnchor="middle">
             {waitingCount}
           </text>
-          <text x="39" y="48" fill="#047857" fontSize="7.5" fontWeight="700" textAnchor="middle">
-            WAITING /
+          <text x="39" y="44" fill="#047857" fontSize="7" fontWeight="700" textAnchor="middle">
+            REVIEW /
           </text>
-          <text x="39" y="58" fill="#047857" fontSize="7.5" fontWeight="700" textAnchor="middle">
+          <text x="39" y="52" fill="#047857" fontSize="7" fontWeight="700" textAnchor="middle">
             QUEUED
           </text>
+          {waitingItem && (
+            <text x="39" y="64" fill="#047857" fontSize="6" fontWeight="600" textAnchor="middle">
+              {waitingItem.title.length > 13 ? `${waitingItem.title.slice(0, 12)}…` : waitingItem.title}
+            </text>
+          )}
         </g>
       </g>
 

@@ -11,9 +11,11 @@
 
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ConductorTopHud } from '@/screens/conductor/components/conductor-top-hud'
 import { ConductorCommandBar } from '@/screens/conductor/components/conductor-command-bar'
 import { ConductorAgentInspector } from '@/screens/conductor/components/conductor-agent-inspector'
+import { ConductorInboxDrawer } from '@/screens/conductor/components/conductor-inbox-drawer'
 import { OfficeRendererHost } from '@/screens/conductor/office/office-renderer-host'
 import type { OfficeSceneState, OfficeAgentSceneNode } from '@/types/office-scene'
 
@@ -24,7 +26,7 @@ vi.mock('@tanstack/react-router', () => ({
 const mockScene: OfficeSceneState = {
   companyName: 'EZity AI Office',
   missionRunning: false,
-  pendingApprovalCount: 0,
+  pendingApprovalCount: 1,
   lastSyncAt: Date.now(),
   agents: [
     {
@@ -60,11 +62,28 @@ const mockScene: OfficeSceneState = {
       currentTaskTitle: 'Reconciling Q3 ledger',
       isMoving: false,
       pendingApprovalIds: [],
-      activeWorkItemIds: [],
+      activeWorkItemIds: ['item-1'],
     },
   ],
   rooms: [],
-  workItems: [],
+  workItems: [
+    {
+      id: 'item-1',
+      type: 'approval',
+      title: 'Approve invoice #INV-2024-001 ($4,250.00)',
+      assignedAgentId: 'agent-2',
+      status: 'needs_attention',
+      priority: 'high',
+    },
+    {
+      id: 'item-2',
+      type: 'task',
+      title: 'Process vendor batch #992',
+      assignedAgentId: 'agent-2',
+      status: 'in_progress',
+      priority: 'medium',
+    },
+  ],
 }
 
 const mockConductor = {
@@ -190,5 +209,89 @@ describe('Conductor Command Center HUD Components', () => {
     // Reset zoom back to 100%
     fireEvent.click(screen.getByTestId('zoom-reset-btn'))
     expect(screen.getByTestId('zoom-reset-btn').textContent).toBe('100%')
+  })
+
+  it('renders ConductorTopHud with Inbox trigger button showing pending count', () => {
+    const onInboxOpen = vi.fn()
+
+    render(
+      <ConductorTopHud
+        companyName="EZity Solutions"
+        officeScene={mockScene}
+        conductor={mockConductor as any}
+        rendererType="svg"
+        onRendererChange={vi.fn()}
+        onHistoryOpen={vi.fn()}
+        onSettingsOpen={vi.fn()}
+        missionDrawerOpen={false}
+        onToggleMissionDrawer={vi.fn()}
+        inboxOpen={false}
+        onInboxOpen={onInboxOpen}
+      />,
+    )
+
+    const inboxBtn = screen.getByLabelText(/Operations Inbox/i)
+    expect(inboxBtn).toBeDefined()
+    // Should show count badge (2 items)
+    expect(screen.getByText('2')).toBeDefined()
+
+    fireEvent.click(inboxBtn)
+    expect(onInboxOpen).toHaveBeenCalled()
+  })
+
+  it('renders ConductorInboxDrawer with work items, filtering tabs, and agent locator', () => {
+    const onClose = vi.fn()
+    const onLocateAgent = vi.fn()
+    const queryClient = new QueryClient()
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ConductorInboxDrawer
+          open={true}
+          onClose={onClose}
+          scene={mockScene}
+          onLocateAgent={onLocateAgent}
+        />
+      </QueryClientProvider>,
+    )
+
+    // Verify title and item count
+    expect(screen.getByText('Operations Board & Inbox')).toBeDefined()
+    expect(screen.getByText('Approve invoice #INV-2024-001 ($4,250.00)')).toBeDefined()
+    expect(screen.getByText('Process vendor batch #992')).toBeDefined()
+
+    // Test filter tabs: Click "Attention" tab
+    fireEvent.click(screen.getByRole('button', { name: /Attention/i }))
+    expect(screen.getByText('Approve invoice #INV-2024-001 ($4,250.00)')).toBeDefined()
+    expect(screen.queryByText('Process vendor batch #992')).toBeNull()
+
+    // Test locate agent button
+    const locateBtn = screen.getAllByTitle('Locate agent at their desk')[0]
+    fireEvent.click(locateBtn)
+    expect(onLocateAgent).toHaveBeenCalledWith('agent-2')
+
+    // Test close button
+    const closeBtn = screen.getByLabelText('Close operations board')
+    fireEvent.click(closeBtn)
+    expect(onClose).toHaveBeenCalled()
+  })
+
+  it('triggers onWorkItemClick when Operations Board is clicked on SVG canvas', () => {
+    const onWorkItemClick = vi.fn()
+
+    render(
+      <OfficeRendererHost
+        scene={mockScene}
+        officeRenderer="svg"
+        onWorkItemClick={onWorkItemClick}
+      />,
+    )
+
+    // The SVG Operations Board has role="button" with aria-label starting with "Work Inbox Board"
+    const board = screen.getByRole('button', { name: /Work Inbox Board/i })
+    expect(board).toBeDefined()
+
+    fireEvent.click(board)
+    expect(onWorkItemClick).toHaveBeenCalledWith('inbox-root')
   })
 })

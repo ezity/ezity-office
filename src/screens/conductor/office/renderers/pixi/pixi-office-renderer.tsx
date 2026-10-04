@@ -66,6 +66,7 @@ export function PixiOfficeRenderer({
     if (!root) return
 
     for (const [agentId, pos] of positions.entries()) {
+      if (agentId === 'ops_board') continue
       const el = root.querySelector<HTMLDivElement>(`[data-agent-overlay="${agentId}"]`)
       if (el) {
         if (!pos || (pos.x === 0 && pos.y === 0)) {
@@ -74,6 +75,17 @@ export function PixiOfficeRenderer({
           el.style.opacity = '1'
           el.style.transform = `translate3d(${Math.round(pos.x)}px, ${Math.round(pos.y - 74)}px, 0) translate(-50%, -100%)`
         }
+      }
+    }
+
+    const opsPos = positions.get('ops_board')
+    const opsEl = root.querySelector<HTMLDivElement>('[data-ops-board-overlay]')
+    if (opsEl) {
+      if (!opsPos || (opsPos.x === 0 && opsPos.y === 0)) {
+        opsEl.style.opacity = '0'
+      } else {
+        opsEl.style.opacity = '1'
+        opsEl.style.transform = `translate3d(${Math.round(opsPos.x)}px, ${Math.round(opsPos.y - 120)}px, 0) translate(-50%, -100%)`
       }
     }
   }, [])
@@ -362,6 +374,60 @@ export function PixiOfficeRenderer({
             </div>
           )
         })}
+
+        {/* Operations Board Interactive Wall Overlay */}
+        <div
+          data-ops-board-overlay
+          className="absolute top-0 left-0 transition-opacity duration-150 will-change-transform pointer-events-auto"
+          style={{ opacity: 0 }}
+        >
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onWorkItemClick?.('inbox_board')}
+            className="group relative flex cursor-pointer flex-col items-center select-none"
+            title="Open Operations Work Inbox"
+          >
+            {/* Header Badge */}
+            <div className="flex items-center gap-1.5 rounded-xl border border-amber-900/15 bg-white/95 px-2.5 py-1 shadow-md backdrop-blur-md transition hover:scale-105 hover:border-amber-500/50">
+              <span className="text-xs">📌</span>
+              <span className="text-[10px] font-bold text-slate-800">
+                Operations Inbox
+              </span>
+              <span className="rounded-full bg-amber-500/15 px-1.5 py-0.2 text-[9px] font-bold text-amber-700">
+                {scene.workItems.length}
+              </span>
+            </div>
+
+            {/* Mini Sticky Notes Grid matching the 3 columns in the screenshot */}
+            <div className="mt-1 flex items-center gap-1">
+              <div className="flex flex-col items-center justify-center rounded-md border border-orange-400 bg-orange-100/90 p-1 shadow-sm transition hover:scale-105 w-10 text-center">
+                <span className="text-[9px] font-bold text-orange-800">
+                  {scene.workItems.filter((i) => i.status === 'needs_attention').length}
+                </span>
+                <span className="text-[7px] font-bold uppercase text-orange-700">
+                  Urgent
+                </span>
+              </div>
+              <div className="flex flex-col items-center justify-center rounded-md border border-sky-400 bg-sky-100/90 p-1 shadow-sm transition hover:scale-105 w-10 text-center">
+                <span className="text-[9px] font-bold text-sky-800">
+                  {scene.workItems.filter((i) => i.status === 'in_progress').length}
+                </span>
+                <span className="text-[7px] font-bold uppercase text-sky-700">
+                  Active
+                </span>
+              </div>
+              <div className="flex flex-col items-center justify-center rounded-md border border-emerald-400 bg-emerald-100/90 p-1 shadow-sm transition hover:scale-105 w-10 text-center">
+                <span className="text-[9px] font-bold text-emerald-800">
+                  {scene.workItems.filter((i) => i.status === 'waiting' || i.status === 'completed').length}
+                </span>
+                <span className="text-[7px] font-bold uppercase text-emerald-700">
+                  Review
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* ─────────────────────────────────────────────────────────────

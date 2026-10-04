@@ -16,6 +16,7 @@ import { ConductorMissionDrawer } from './components/conductor-mission-drawer'
 import { ConductorAgentInspector } from './components/conductor-agent-inspector'
 import { ConductorHistoryDrawer } from './components/conductor-history-drawer'
 import { ConductorSettingsDrawer } from './components/conductor-settings'
+import { ConductorInboxDrawer } from './components/conductor-inbox-drawer'
 import type { OfficeAgentSceneNode } from '@/types/office-scene'
 import type { OfficeRendererType } from './office/types'
 
@@ -29,6 +30,7 @@ export function ConductorScreen() {
   const [goalDraft, setGoalDraft] = useState('')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [inboxOpen, setInboxOpen] = useState(false)
   const [missionDrawerOpen, setMissionDrawerOpen] = useState(false)
   const [selectedAgentNode, setSelectedAgentNode] =
     useState<OfficeAgentSceneNode | null>(null)
@@ -112,6 +114,7 @@ export function ConductorScreen() {
           companyName="EZity Solutions"
           hideHeader
           onAgentClick={handleAgentClick}
+          onWorkItemClick={() => setInboxOpen(true)}
           className="h-full w-full rounded-none border-none shadow-none"
         />
       </div>
@@ -127,6 +130,8 @@ export function ConductorScreen() {
         onRendererChange={handleRendererChange}
         onHistoryOpen={() => setHistoryOpen(true)}
         onSettingsOpen={() => setSettingsOpen(true)}
+        inboxOpen={inboxOpen}
+        onInboxOpen={() => setInboxOpen((open) => !open)}
         missionDrawerOpen={missionDrawerOpen}
         onToggleMissionDrawer={() => setMissionDrawerOpen((open) => !open)}
       />
@@ -204,6 +209,16 @@ export function ConductorScreen() {
         onClose={() => setSettingsOpen(false)}
         settings={conductor.conductorSettings}
         onUpdate={updateSettings}
+      />
+
+      {/* ─────────────────────────────────────────────────────────────
+          9. WORK INBOX OPERATIONS DRAWER
+      ───────────────────────────────────────────────────────────── */}
+      <ConductorInboxDrawer
+        open={inboxOpen}
+        onClose={() => setInboxOpen(false)}
+        scene={officeScene}
+        onLocateAgent={handleAgentClick}
       />
     </div>
   )

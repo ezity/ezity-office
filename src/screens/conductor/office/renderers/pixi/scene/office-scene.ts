@@ -270,6 +270,8 @@ export class OfficeScene {
       // 3. Emit updated screen positions for DOM overlay
       if (this.onOverlayPositionsUpdate) {
         const positions = this.agentLayer.getAgentScreenPositions()
+        const opsPos = worldToScreen(2.56, -11.56, 0, this.camera)
+        positions.set('ops_board', opsPos)
         this.onOverlayPositionsUpdate(positions)
       }
     })
