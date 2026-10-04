@@ -52,40 +52,54 @@ export function OfficeRendererHost({
   const queryClient = useOptionalQueryClient()
 
   // Developer setting: active renderer ('svg' default/fallback vs 'pixi' experimental)
-  const [rendererType, setRendererType] = useState<OfficeRendererType>(() => {
-    if (propOfficeRenderer) return propOfficeRenderer
-    if (typeof window === 'undefined') return 'svg'
-    const saved = window.localStorage.getItem('ezity-office:renderer')
-    return saved === 'pixi' ? 'pixi' : 'svg'
-  })
+  const [rendererType, setRendererType] = useState<OfficeRendererType>(
+    () => propOfficeRenderer || 'svg',
+  )
 
-  // Sync if prop changes
+  // Sync renderer preference from localStorage after hydration to avoid SSR mismatch
   useEffect(() => {
     if (propOfficeRenderer) {
       setRendererType(propOfficeRenderer)
+      return
     }
+    try {
+      const saved = window.localStorage.getItem('ezity-office:renderer')
+      if (saved === 'pixi' || saved === 'svg') {
+        setRendererType(saved)
+      }
+    } catch {}
   }, [propOfficeRenderer])
 
   const handleRendererChange = useCallback(
     (nextRenderer: OfficeRendererType) => {
       setRendererType(nextRenderer)
       onRendererChange?.(nextRenderer)
-      if (typeof window !== 'undefined') {
+      try {
         window.localStorage.setItem('ezity-office:renderer', nextRenderer)
-      }
+      } catch {}
     },
     [onRendererChange],
   )
 
   // Layout template state (defaults to modern 'ezity_hq')
-  const [layoutTemplate, setLayoutTemplate] = useState<OfficeLayoutTemplate>(() => {
-    if (typeof window === 'undefined') return initialLayoutTemplate
-    const saved = window.localStorage.getItem('ezity-office:layout')
-    if (saved === 'ezity_hq' || saved === 'grid' || saved === 'roundtable' || saved === 'warroom') {
-      return saved as OfficeLayoutTemplate
-    }
-    return initialLayoutTemplate
-  })
+  const [layoutTemplate, setLayoutTemplate] = useState<OfficeLayoutTemplate>(
+    () => initialLayoutTemplate,
+  )
+
+  // Sync layout template preference from localStorage after hydration
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem('ezity-office:layout')
+      if (
+        saved === 'ezity_hq' ||
+        saved === 'grid' ||
+        saved === 'roundtable' ||
+        saved === 'warroom'
+      ) {
+        setLayoutTemplate(saved as OfficeLayoutTemplate)
+      }
+    } catch {}
+  }, [])
 
   const handleLayoutChange = useCallback(
     (nextLayout: OfficeLayoutTemplate) => {

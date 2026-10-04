@@ -18,12 +18,11 @@ const APP_CSP = [
   "base-uri 'self'",
   "object-src 'none'",
   "form-action 'self'",
-  "frame-ancestors 'none'",
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data: https://fonts.gstatic.com",
-  "connect-src 'self' ws: wss: http: https:",
+  "connect-src 'self' ws: wss: http: https: data: blob:",
   "worker-src 'self' blob:",
   "media-src 'self' blob: data:",
   "frame-src 'self' http: https:",
@@ -127,6 +126,10 @@ export const Route = createRootRoute({
       {
         name: 'theme-color',
         content: '#0A0E1A',
+      },
+      {
+        name: 'mobile-web-app-capable',
+        content: 'yes',
       },
       {
         name: 'apple-mobile-web-app-capable',
