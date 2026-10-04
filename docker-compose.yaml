@@ -1,0 +1,32 @@
+services:
+  ezity-office:
+    build:
+      context: .
+      dockerfile: docker/workspace/Dockerfile
+
+    container_name: ezity-office
+    restart: unless-stopped
+
+    environment:
+      HERMES_API_URL: http://hermes:8642
+      HERMES_API_TOKEN: ${HERMES_API_TOKEN}
+      ANTIGRAVITY_BRIDGE_URL: http://antigravity-bridge:8787
+      ANTIGRAVITY_BRIDGE_TOKEN: ${ANTIGRAVITY_BRIDGE_TOKEN}
+      PORT: 3000
+
+    volumes:
+      - ezity-office-runtime:/app/.runtime
+
+    ports:
+      - "3000:3000"
+
+    networks:
+      - hermes-network
+
+networks:
+  hermes-network:
+    external: true
+    name: hermes_default
+
+volumes:
+  ezity-office-runtime:
