@@ -278,7 +278,10 @@ export class AgentLayer extends Container {
       sprite.tint = 0xffffff
     })
     container.on('pointerdown', () => {
-      this.handlers.onAgentClick?.(agent.id, agent.sessionKey)
+      this.handlers.onAgentClick?.(
+        agent.agentDefinitionId || agent.id,
+        agent.sessionKey,
+      )
     })
 
     return {

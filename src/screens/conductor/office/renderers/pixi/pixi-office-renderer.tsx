@@ -226,7 +226,12 @@ export function PixiOfficeRenderer({
               <div
                 role="button"
                 tabIndex={0}
-                onClick={() => onAgentClick?.(agent.id, agent.sessionKey)}
+                onClick={() =>
+                  onAgentClick?.(
+                    agent.agentDefinitionId || agent.id,
+                    agent.sessionKey,
+                  )
+                }
                 className="pointer-events-auto group relative flex cursor-pointer flex-col items-center"
               >
                 {/* Status bubble */}
@@ -281,7 +286,11 @@ export function PixiOfficeRenderer({
           <ul>
             {scene.agents.map((a) => (
               <li key={a.id}>
-                <button onClick={() => onAgentClick?.(a.id, a.sessionKey)}>
+                <button
+                  onClick={() =>
+                    onAgentClick?.(a.agentDefinitionId || a.id, a.sessionKey)
+                  }
+                >
                   {a.name} ({a.roleTitle}) - Zone: {a.targetZoneId || a.currentZoneId}
                 </button>
               </li>

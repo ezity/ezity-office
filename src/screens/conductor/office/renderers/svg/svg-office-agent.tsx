@@ -180,7 +180,7 @@ export function SvgOfficeAgent({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
-      onClick?.(agent.id, agent.sessionKey)
+      onClick?.(agent.agentDefinitionId || agent.id, agent.sessionKey)
     }
   }
 
@@ -194,7 +194,7 @@ export function SvgOfficeAgent({
         agent.currentTaskTitle ? `Task: ${agent.currentTaskTitle}` : ''
       }`}
       className="office-interactive-focus office-hover-card cursor-pointer"
-      onClick={() => onClick?.(agent.id, agent.sessionKey)}
+      onClick={() => onClick?.(agent.agentDefinitionId || agent.id, agent.sessionKey)}
       onKeyDown={handleKeyDown}
     >
       {/* ═══ 1. Game-Style Speech-Bubble Status Overlay ═══ */}

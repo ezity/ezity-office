@@ -75,6 +75,7 @@ export type OfficeViewProps = {
   containerHeight?: number
   /** Hide the header bar (title, badges, buttons) */
   hideHeader?: boolean
+  onAgentClick?: (agentId: string, sessionKey?: string) => void
 }
 
 // ── Model preset helpers (retained for backward compatibility) ──
@@ -233,6 +234,7 @@ export function OfficeView({
   companyName = 'EZity AI Office',
   containerHeight,
   hideHeader = false,
+  onAgentClick,
 }: OfficeViewProps) {
   // Use canonical scene if passed, or synthesize from legacy agentRows
   const effectiveScene = useMemo(() => {
@@ -247,6 +249,7 @@ export function OfficeView({
       companyName={companyName}
       hideHeader={hideHeader}
       onViewOutput={onViewOutput}
+      onAgentClick={onAgentClick}
     />
   )
 }

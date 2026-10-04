@@ -7,14 +7,24 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import type { OfficeSceneState, OfficeZoneId } from '@/types/office-scene'
 import type { OfficeLayoutTemplate, OfficeRendererProps, OfficeRendererType } from './types'
 import { SvgOfficeRenderer } from './renderers/svg/svg-office-renderer'
 import { PixiOfficeRenderer } from './renderers/pixi/pixi-office-renderer'
+import { chatQueryKeys } from '@/screens/chat/chat-queries'
 import { cn } from '@/lib/utils'
 
 export interface OfficeRendererHostProps extends Partial<OfficeRendererProps> {
   scene: OfficeSceneState
+}
+
+function useOptionalQueryClient() {
+  try {
+    return useQueryClient()
+  } catch {
+    return undefined
+  }
 }
 
 export function OfficeRendererHost({
@@ -39,6 +49,7 @@ export function OfficeRendererHost({
   onViewOutput: propOnViewOutput,
 }: OfficeRendererHostProps) {
   const navigate = useNavigate()
+  const queryClient = useOptionalQueryClient()
 
   // Developer setting: active renderer ('svg' default/fallback vs 'pixi' experimental)
   const [rendererType, setRendererType] = useState<OfficeRendererType>(() => {
@@ -87,9 +98,24 @@ export function OfficeRendererHost({
     [onLayoutChange],
   )
 
-  // Default smart routing handlers
+  // Normalize agent ID to canonical definition ID
+  const resolveTargetAgentId = useCallback((rawId: string): string => {
+    const id = rawId.toLowerCase()
+    if (id.includes('accountant')) return 'ezity-accountant'
+    if (id.includes('developer')) return 'ezity-developer'
+    if (
+      id.includes('chief-of-staff') ||
+      id.includes('cos') ||
+      id.includes('orchestrator')
+    ) {
+      return 'ezity-chief-of-staff'
+    }
+    return rawId
+  }, [])
+
+  // Smart agent click handler: navigate to this agent's active chat session
   const handleAgentClick = useCallback(
-    (agentId: string, sessionKey?: string) => {
+    async (agentId: string, sessionKey?: string) => {
       if (propOnAgentClick) {
         propOnAgentClick(agentId, sessionKey)
         return
@@ -97,15 +123,120 @@ export function OfficeRendererHost({
       if (propOnViewOutput) {
         propOnViewOutput(agentId)
       }
-      if (sessionKey) {
-        navigate({ to: '/chat/$sessionKey', params: { sessionKey } }).catch(() => {
+
+      // 1. If agent node already has a valid active session key, navigate directly
+      if (
+        sessionKey &&
+        sessionKey !== 'conductor-placeholder-agent' &&
+        !sessionKey.startsWith('placeholder-')
+      ) {
+        try {
+          localStorage.setItem('hermes-last-session', sessionKey)
+        } catch {}
+        navigate({
+          to: '/chat/$sessionKey',
+          params: { sessionKey },
+        }).catch(() => {
           navigate({ to: '/chat' }).catch(() => {})
         })
-      } else {
+        return
+      }
+
+      const targetAgentId = resolveTargetAgentId(agentId)
+
+      try {
+        // 2. Look up existing sessions for this agent from React Query cache
+        const cachedSessions = queryClient?.getQueryData<
+          Array<{
+            key?: string
+            friendlyId?: string
+            agentId?: string | null
+          }>
+        >(chatQueryKeys.sessions)
+
+        let matchingSession = cachedSessions?.find(
+          (s) =>
+            s.agentId === targetAgentId ||
+            (s.friendlyId && s.friendlyId.includes(targetAgentId)) ||
+            (s.key && s.key.includes(targetAgentId)),
+        )
+
+        // 3. If not found in cache, query /api/sessions from server
+        if (!matchingSession) {
+          const res = await fetch('/api/sessions')
+          if (res.ok) {
+            const data = (await res.json()) as {
+              sessions?: Array<{
+                key?: string
+                friendlyId?: string
+                agentId?: string | null
+              }>
+            }
+            const list = Array.isArray(data.sessions) ? data.sessions : []
+            matchingSession = list.find(
+              (s) =>
+                s.agentId === targetAgentId ||
+                (s.friendlyId && s.friendlyId.includes(targetAgentId)) ||
+                (s.key && s.key.includes(targetAgentId)),
+            )
+          }
+        }
+
+        let resolvedKey =
+          matchingSession?.friendlyId || matchingSession?.key
+
+        // 4. If no session exists yet for this agent, create a new one linked to this agent
+        if (!resolvedKey && targetAgentId) {
+          const createRes = await fetch('/api/sessions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agentId: targetAgentId }),
+          })
+          if (createRes.ok) {
+            const createData = (await createRes.json()) as {
+              session?: { friendlyId?: string; key?: string; id?: string }
+              friendlyId?: string
+              sessionKey?: string
+            }
+            resolvedKey =
+              createData.session?.friendlyId ||
+              createData.session?.key ||
+              createData.session?.id ||
+              createData.friendlyId ||
+              createData.sessionKey
+
+            void queryClient?.invalidateQueries({
+              queryKey: chatQueryKeys.sessions,
+            })
+            void queryClient?.invalidateQueries({ queryKey: ['sessions'] })
+          }
+        }
+
+        // 5. Open the agent's chat session
+        if (resolvedKey) {
+          try {
+            localStorage.setItem('hermes-last-session', resolvedKey)
+          } catch {}
+          navigate({
+            to: '/chat/$sessionKey',
+            params: { sessionKey: resolvedKey },
+          }).catch(() => {
+            navigate({ to: '/chat' }).catch(() => {})
+          })
+        } else {
+          navigate({ to: '/chat' }).catch(() => {})
+        }
+      } catch {
         navigate({ to: '/chat' }).catch(() => {})
       }
     },
-    [propOnAgentClick, propOnViewOutput, navigate],
+    [
+      propOnAgentClick,
+      propOnViewOutput,
+      navigate,
+      queryClient,
+      resolveTargetAgentId,
+    ],
   )
 
   const handleZoneClick = useCallback(
