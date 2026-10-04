@@ -135,11 +135,47 @@ export async function createSession(opts?: {
   title?: string
   model?: string
 }): Promise<HermesSession> {
-  const resp = await hermesPost<{ session: HermesSession }>(
-    '/api/sessions',
-    opts || {},
-  )
-  return resp.session
+  try {
+    const resp = await hermesPost<{ session: HermesSession }>(
+      '/api/sessions',
+      opts || {},
+    )
+    return resp.session
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    // Hermes enforces unique session titles; retry with a unique time suffix or untitled if duplicate
+    if (
+      opts?.title &&
+      (msg.includes('invalid_title') || msg.includes('already in use'))
+    ) {
+      const timeSuffix = new Date().toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      })
+      try {
+        const resp = await hermesPost<{ session: HermesSession }>(
+          '/api/sessions',
+          {
+            ...opts,
+            title: `${opts.title} (${timeSuffix})`,
+          },
+        )
+        return resp.session
+      } catch {
+        const resp = await hermesPost<{ session: HermesSession }>(
+          '/api/sessions',
+          {
+            ...opts,
+            title: undefined,
+          },
+        )
+        return resp.session
+      }
+    }
+    throw err
+  }
 }
 
 export async function updateSession(
