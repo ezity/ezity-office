@@ -107,14 +107,18 @@ export function WorkspaceShell() {
     return -1
   }, [])
 
-  const isClient = typeof window !== 'undefined'
-  // Both SSR and client start with the same value to avoid hydration mismatch.
-  // The ConnectionStartupScreen overlay verifies the real status on mount.
+  const [mounted, setMounted] = useState(false)
+  // Both SSR and client start with the same initial render to avoid hydration mismatch.
+  // The ConnectionStartupScreen overlay mounts after hydration and verifies status.
   const [authStatus, setAuthStatus] = useState<AuthStatus | null>(null)
   const [connectionVerified, setConnectionVerified] = useState(false)
 
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const authState = {
-    checked: !isClient || connectionVerified,
+    checked: connectionVerified,
     authenticated: authStatus?.authenticated ?? true,
     authRequired: authStatus?.authRequired ?? false,
   }
@@ -410,7 +414,7 @@ export function WorkspaceShell() {
           />
         ) : null}
 
-        {!authState.checked ? (
+        {mounted && !authState.checked ? (
           <ConnectionStartupScreen onConnected={handleStartupConnected} />
         ) : null}
       </div>
