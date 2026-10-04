@@ -268,6 +268,7 @@ export function SvgOfficeDefs({ enableReducedMotion = false }: { enableReducedMo
               ? `
             .char-walking-bob, .char-left-leg-walk, .char-right-leg-walk,
             .char-arm-swing-l, .char-arm-swing-r,
+            .char-typing-arm-l, .char-typing-arm-r, .char-thinking-head, .char-sparkle-dot,
             .office-pulse-working, .office-pulse-alert {
               animation: none !important;
             }
@@ -294,6 +295,24 @@ export function SvgOfficeDefs({ enableReducedMotion = false }: { enableReducedMo
               0%, 100% { transform: rotate(-6deg); }
               50% { transform: rotate(6deg); }
             }
+            @keyframes typing-left-hand {
+              0%, 100% { transform: translateY(0px) rotate(2deg); }
+              50% { transform: translateY(-3px) rotate(-5deg); }
+            }
+            @keyframes typing-right-hand {
+              0%, 100% { transform: translateY(-3px) rotate(-5deg); }
+              50% { transform: translateY(0px) rotate(2deg); }
+            }
+            @keyframes thinking-tilt {
+              0%, 100% { transform: rotate(0deg) translateY(0); }
+              25% { transform: rotate(4deg) translateY(-1.5px); }
+              75% { transform: rotate(-3deg) translateY(-0.5px); }
+            }
+            @keyframes typing-sparkle {
+              0% { opacity: 0; transform: scale(0.6) translateY(0); }
+              50% { opacity: 1; transform: scale(1.1) translateY(-2px); }
+              100% { opacity: 0; transform: scale(0.8) translateY(-4px); }
+            }
             .char-walking-bob {
               animation: char-bob 0.35s infinite ease-in-out;
             }
@@ -312,6 +331,21 @@ export function SvgOfficeDefs({ enableReducedMotion = false }: { enableReducedMo
             .char-arm-swing-r {
               animation: arm-swing-right 0.35s infinite ease-in-out;
               transform-origin: center 0px;
+            }
+            .char-typing-arm-l {
+              animation: typing-left-hand 0.16s infinite ease-in-out;
+              transform-origin: -14px 0px;
+            }
+            .char-typing-arm-r {
+              animation: typing-right-hand 0.16s infinite ease-in-out;
+              transform-origin: 14px 0px;
+            }
+            .char-thinking-head {
+              animation: thinking-tilt 2.2s infinite ease-in-out;
+              transform-origin: 0px 8px;
+            }
+            .char-sparkle-dot {
+              animation: typing-sparkle 0.6s infinite ease-out;
             }
             @keyframes soft-pulse-active {
               0%, 100% { opacity: 0.85; }

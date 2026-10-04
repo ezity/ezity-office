@@ -20,6 +20,9 @@ export interface OfficeCharacterProps {
   isMoving?: boolean
   isSeated?: boolean
   isSelected?: boolean
+  isTyping?: boolean
+  isThinking?: boolean
+  isToolCalling?: boolean
   facing?: 'left' | 'right' | 'front'
   roleColor?: string
 }
@@ -84,6 +87,9 @@ export function OfficeCharacter({
   isMoving = false,
   isSeated = false,
   isSelected = false,
+  isTyping = false,
+  isThinking = false,
+  isToolCalling = false,
 }: OfficeCharacterProps) {
   const pal = getCharacterPalette(agent)
 
@@ -193,7 +199,15 @@ export function OfficeCharacter({
         )}
 
         {/* Arms */}
-        <g className={isMoving ? 'char-arm-swing-l' : ''}>
+        <g
+          className={
+            isMoving
+              ? 'char-arm-swing-l'
+              : isTyping || isToolCalling
+                ? 'char-typing-arm-l'
+                : ''
+          }
+        >
           <rect
             x="-20"
             y={isSeated ? -8 : -10}
@@ -201,12 +215,31 @@ export function OfficeCharacter({
             height="16"
             rx="3.5"
             fill={pal.outfitPrimary}
-            transform={isSeated ? 'rotate(20, -20, -8)' : 'rotate(5, -20, -10)'}
+            transform={
+              isTyping || isToolCalling
+                ? 'rotate(32, -20, -8)'
+                : isSeated
+                  ? 'rotate(20, -20, -8)'
+                  : 'rotate(5, -20, -10)'
+            }
           />
           {/* Hand */}
-          <circle cx={isSeated ? -14 : -17} cy={isSeated ? 8 : 8} r="3.5" fill={pal.skinTone} />
+          <circle
+            cx={isTyping || isToolCalling ? -11 : isSeated ? -14 : -17}
+            cy={isTyping || isToolCalling ? 6 : isSeated ? 8 : 8}
+            r="3.5"
+            fill={pal.skinTone}
+          />
         </g>
-        <g className={isMoving ? 'char-arm-swing-r' : ''}>
+        <g
+          className={
+            isMoving
+              ? 'char-arm-swing-r'
+              : isTyping || isToolCalling
+                ? 'char-typing-arm-r'
+                : ''
+          }
+        >
           <rect
             x="13"
             y={isSeated ? -8 : -10}
@@ -214,15 +247,64 @@ export function OfficeCharacter({
             height="16"
             rx="3.5"
             fill={pal.outfitPrimary}
-            transform={isSeated ? 'rotate(-20, 13, -8)' : 'rotate(-5, 13, -10)'}
+            transform={
+              isTyping || isToolCalling
+                ? 'rotate(-32, 13, -8)'
+                : isSeated
+                  ? 'rotate(-20, 13, -8)'
+                  : 'rotate(-5, 13, -10)'
+            }
           />
           {/* Hand */}
-          <circle cx={isSeated ? 14 : 17} cy={isSeated ? 8 : 8} r="3.5" fill={pal.skinTone} />
+          <circle
+            cx={isTyping || isToolCalling ? 11 : isSeated ? 14 : 17}
+            cy={isTyping || isToolCalling ? 6 : isSeated ? 8 : 8}
+            r="3.5"
+            fill={pal.skinTone}
+          />
         </g>
+
+        {/* Desk mini-keyboard & typing sparks when seated & typing/running tools */}
+        {isSeated && (isTyping || isToolCalling) && (
+          <g id="char-desk-typing-surface" transform="translate(0, 7)">
+            <rect
+              x="-11"
+              y="-1"
+              width="22"
+              height="6"
+              rx="1.5"
+              fill="#1e293b"
+              stroke={isToolCalling ? '#22d3ee' : '#34d399'}
+              strokeWidth="0.8"
+            />
+            <line x1="-8" y1="2" x2="-3" y2="2" stroke="#38bdf8" strokeWidth="1.2" strokeLinecap="round" />
+            <line x1="-1" y1="2" x2="3" y2="2" stroke="#38bdf8" strokeWidth="1.2" strokeLinecap="round" />
+            <line x1="5" y1="2" x2="8" y2="2" stroke="#38bdf8" strokeWidth="1.2" strokeLinecap="round" />
+            <circle cx="-5" cy="-3" r="1.2" fill="#38bdf8" className="char-sparkle-dot" />
+            <circle cx="5" cy="-3" r="1.2" fill="#34d399" className="char-sparkle-dot" />
+          </g>
+        )}
       </g>
 
       {/* ═══ HEAD & FACE ═══ */}
-      <g id="char-head" transform="translate(0, -20)">
+      <g
+        id="char-head"
+        transform="translate(0, -20)"
+        className={isThinking ? 'char-thinking-head' : ''}
+      >
+        {/* Thinking / Tool call floating badge */}
+        {isThinking && (
+          <g transform="translate(13, -10)" className="char-sparkle-dot">
+            <circle cx="0" cy="0" r="4.5" fill="#eef2ff" stroke="#818cf8" strokeWidth="0.8" />
+            <text x="0" y="2.8" textAnchor="middle" fontSize="6">💭</text>
+          </g>
+        )}
+        {isToolCalling && (
+          <g transform="translate(13, -10)" className="char-sparkle-dot">
+            <circle cx="0" cy="0" r="4.5" fill="#ecfeff" stroke="#06b6d4" strokeWidth="0.8" />
+            <text x="0" y="2.8" textAnchor="middle" fontSize="6">⚡</text>
+          </g>
+        )}
         {/* Neck */}
         <rect x="-4" y="10" width="8" height="7" fill={pal.skinTone} />
 

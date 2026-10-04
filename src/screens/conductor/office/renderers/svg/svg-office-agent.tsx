@@ -313,6 +313,9 @@ export function SvgOfficeAgent({
         isMoving={isMoving}
         isSeated={isSeated}
         isSelected={isSelected}
+        isTyping={isTyping}
+        isThinking={isThinking}
+        isToolCalling={isToolCalling}
       />
 
       {/* ═══ 3. Compact Name Badge ═══ */}
