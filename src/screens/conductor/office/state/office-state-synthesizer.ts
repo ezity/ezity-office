@@ -130,6 +130,22 @@ export interface SynthesizeOfficeStateParams {
   workItems?: Array<WorkItem>
   now?: number
   companyName?: string
+  liveActivities?: Record<
+    string,
+    {
+      activity:
+        | 'listening'
+        | 'thinking'
+        | 'tool_calling'
+        | 'typing'
+        | 'waiting_approval'
+        | 'error'
+        | null
+      text?: string
+      toolName?: string
+      sessionKey?: string
+    }
+  >
 }
 
 /**
@@ -812,7 +828,47 @@ export function synthesizeOfficeSceneState(
     }
   })
 
-  // 4. Construct Logical Rooms
+  // 4. Inject Real-Time Live Streaming Activities (Thinking / Tool Calling / Typing / Approval / Listening / Error)
+  if (params.liveActivities) {
+    agentNodes.forEach((node) => {
+      const liveInfo =
+        params.liveActivities![node.agentDefinitionId] ||
+        (node.sessionKey ? params.liveActivities![node.sessionKey] : undefined) ||
+        params.liveActivities![node.id]
+
+      if (liveInfo && liveInfo.activity) {
+        node.liveActivity = liveInfo.activity
+        node.liveActivityText = liveInfo.text
+        node.liveActivityToolName = liveInfo.toolName
+
+        if (liveInfo.activity === 'waiting_approval') {
+          node.status = 'working'
+          node.attentionState = 'waiting_approval'
+          node.lastActivityText = liveInfo.text || 'Needs your approval'
+        } else if (liveInfo.activity === 'error') {
+          node.status = 'error'
+          node.attentionState = 'error'
+          node.lastActivityText = liveInfo.text || 'Error occurred'
+        } else if (liveInfo.activity === 'listening') {
+          node.status = 'idle'
+          node.attentionState = 'nominal'
+          node.lastActivityText = liveInfo.text || 'Listening...'
+        } else {
+          node.status = 'working'
+          node.attentionState = 'working'
+          node.lastActivityText =
+            liveInfo.text ||
+            (liveInfo.activity === 'thinking'
+              ? 'Thinking...'
+              : liveInfo.activity === 'tool_calling'
+                ? `Running ${liveInfo.toolName || 'tool'}...`
+                : 'Answering in chat...')
+        }
+      }
+    })
+  }
+
+  // 5. Construct Logical Rooms
   const rooms: Array<OfficeRoomSceneNode> = Object.values(OFFICE_ZONES).map(
     (zone) => {
       const occupants = agentNodes.filter(

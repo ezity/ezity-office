@@ -290,8 +290,8 @@ describe('Phase I-D: PixiJS Game-Style Virtual Office Renderer Prototype', () =>
 
     it('provides valid URLs pointing to public/office asset files', () => {
       expect(OFFICE_ASSETS.floor_tile.url).toBe('/office/environment/floor_tile.svg')
-      expect(OFFICE_ASSETS.desk_finance.url).toBe('/office/furniture/desk_finance.svg')
-      expect(OFFICE_ASSETS.cos_idle.url).toBe('/office/characters/cos_idle.svg')
+      expect(OFFICE_ASSETS.desk_finance.url).toBe('/office/furniture/desk_finance.png')
+      expect(OFFICE_ASSETS.cos_idle.url).toBe('/office/characters/cos_idle.png')
     })
   })
 

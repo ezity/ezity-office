@@ -204,16 +204,78 @@ export function PixiOfficeRenderer({
       ───────────────────────────────────────────────────────────── */}
       <div ref={overlaysContainerRef} className="pointer-events-none absolute inset-0 overflow-hidden">
         {scene.agents.map((agent) => {
+          const isThinking = agent.liveActivity === 'thinking'
+          const isTyping = agent.liveActivity === 'typing'
+          const isToolCalling = agent.liveActivity === 'tool_calling'
+          const isWaitingApproval = agent.liveActivity === 'waiting_approval'
+          const isListening = agent.liveActivity === 'listening'
+          const isError = agent.liveActivity === 'error'
+          const isLiveStreaming = Boolean(agent.liveActivity)
+
           const statusText =
-            agent.movementReason === 'approval_required'
-              ? '⚠️ Reviewing Approval'
-              : agent.movementReason === 'mission_collaboration'
-                ? '⚡ Active Mission'
-                : agent.movementReason === 'needs_input'
-                  ? '💬 Needs Input'
-                  : agent.movementReason === 'paused'
-                    ? '☕ Coffee Break'
-                    : agent.currentTaskTitle || agent.roleTitle
+            isThinking
+              ? agent.liveActivityText || 'Thinking...'
+              : isTyping
+                ? agent.liveActivityText || 'Answering in chat...'
+                : isToolCalling
+                  ? agent.liveActivityText || 'Executing tool...'
+                  : isWaitingApproval
+                    ? agent.liveActivityText || 'Needs your approval'
+                    : isListening
+                      ? agent.liveActivityText || 'Listening...'
+                      : isError
+                        ? agent.liveActivityText || 'Error responding'
+                        : agent.movementReason === 'approval_required'
+                          ? '⚠️ Reviewing Approval'
+                          : agent.movementReason === 'mission_collaboration'
+                            ? '⚡ Active Mission'
+                            : agent.movementReason === 'needs_input'
+                              ? '💬 Needs Input'
+                              : agent.movementReason === 'paused'
+                                ? '☕ Coffee Break'
+                                : agent.currentTaskTitle || agent.roleTitle
+
+          const bubbleBorderClass = isThinking
+            ? 'border-indigo-400 bg-indigo-50/95 ring-2 ring-indigo-400/40 shadow-[0_4px_20px_rgba(99,102,241,0.25)]'
+            : isTyping
+              ? 'border-emerald-400 bg-emerald-50/95 ring-2 ring-emerald-400/40 shadow-[0_4px_20px_rgba(16,185,129,0.25)]'
+              : isToolCalling
+                ? 'border-cyan-400 bg-cyan-50/95 ring-2 ring-cyan-400/40 shadow-[0_4px_20px_rgba(6,182,212,0.25)]'
+                : isWaitingApproval
+                  ? 'border-amber-500 bg-amber-50/95 ring-2 ring-amber-400/50 shadow-[0_4px_20px_rgba(245,158,11,0.3)] animate-pulse'
+                  : isListening
+                    ? 'border-sky-400 bg-sky-50/95 ring-2 ring-sky-400/30 shadow-[0_4px_16px_rgba(56,189,248,0.2)]'
+                    : isError
+                      ? 'border-rose-400 bg-rose-50/95 ring-2 ring-rose-400/40 shadow-[0_4px_16px_rgba(244,63,94,0.2)]'
+                      : 'border-amber-900/15 bg-white/95 shadow-[0_4px_16px_rgba(92,74,46,0.18)] hover:border-amber-500/50'
+
+          const tailClass = isThinking
+            ? 'border-indigo-400 bg-indigo-50'
+            : isTyping
+              ? 'border-emerald-400 bg-emerald-50'
+              : isToolCalling
+                ? 'border-cyan-400 bg-cyan-50'
+                : isWaitingApproval
+                  ? 'border-amber-500 bg-amber-50'
+                  : isListening
+                    ? 'border-sky-400 bg-sky-50'
+                    : isError
+                      ? 'border-rose-400 bg-rose-50'
+                      : 'border-amber-900/15 bg-white'
+
+          const emoji = isThinking
+            ? '💭'
+            : isTyping
+              ? '💬'
+              : isToolCalling
+                ? '🔧'
+                : isWaitingApproval
+                  ? '⚠️'
+                  : isListening
+                    ? '👂'
+                    : isError
+                      ? '❌'
+                      : agent.emoji || '🤖'
 
           return (
             <div
@@ -235,25 +297,67 @@ export function PixiOfficeRenderer({
                 className="pointer-events-auto group relative flex cursor-pointer flex-col items-center"
               >
                 {/* Status bubble */}
-                <div className="relative mb-1 flex max-w-[190px] items-center gap-1.5 rounded-2xl border border-amber-900/15 bg-white/95 px-2.5 py-1 shadow-[0_4px_16px_rgba(92,74,46,0.18)] backdrop-blur-md transition hover:scale-105 hover:border-amber-500/50">
-                  <span className="text-xs">{agent.emoji || '🤖'}</span>
+                <div
+                  className={`relative mb-1 flex max-w-[220px] items-center gap-1.5 rounded-2xl border px-2.5 py-1 backdrop-blur-md transition hover:scale-105 ${bubbleBorderClass}`}
+                >
+                  <span className="text-xs">{emoji}</span>
                   <div className="min-w-0">
                     <div className="flex items-center gap-1">
                       <span className="truncate text-[11px] font-bold text-slate-800">
                         {agent.name}
                       </span>
-                      {agent.status === 'working' && (
+                      {isTyping && (
+                        <span className="flex items-center gap-0.5">
+                          <span className="size-1 rounded-full bg-emerald-500 animate-bounce [animation-delay:0ms]" />
+                          <span className="size-1 rounded-full bg-emerald-500 animate-bounce [animation-delay:150ms]" />
+                          <span className="size-1 rounded-full bg-emerald-500 animate-bounce [animation-delay:300ms]" />
+                        </span>
+                      )}
+                      {isThinking && (
+                        <span className="size-1.5 rounded-full bg-indigo-500 animate-ping" />
+                      )}
+                      {isToolCalling && (
+                        <span className="inline-block animate-spin text-[10px] leading-none">⚙️</span>
+                      )}
+                      {isWaitingApproval && (
+                        <span className="size-1.5 rounded-full bg-amber-500 animate-ping" />
+                      )}
+                      {isListening && (
+                        <span className="size-1.5 rounded-full bg-sky-500 animate-pulse" />
+                      )}
+                      {isError && (
+                        <span className="size-1.5 rounded-full bg-rose-500" />
+                      )}
+                      {!isLiveStreaming && agent.status === 'working' && (
                         <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       )}
                     </div>
-                    <p className="truncate text-[9px] font-medium text-slate-500">
+                    <p
+                      className={`truncate text-[9px] font-medium ${
+                        isThinking
+                          ? 'text-indigo-600 font-semibold'
+                          : isTyping
+                            ? 'text-emerald-700 font-semibold'
+                            : isToolCalling
+                              ? 'text-cyan-700 font-semibold'
+                              : isWaitingApproval
+                                ? 'text-amber-800 font-bold'
+                                : isListening
+                                  ? 'text-sky-700 font-semibold'
+                                  : isError
+                                    ? 'text-rose-700 font-semibold'
+                                    : 'text-slate-500'
+                      }`}
+                    >
                       {statusText}
                     </p>
                   </div>
                 </div>
 
                 {/* Speech bubble tail pointer */}
-                <div className="size-2 -translate-y-1.5 rotate-45 border-r border-b border-amber-900/15 bg-white" />
+                <div
+                  className={`size-2 -translate-y-1.5 rotate-45 border-r border-b ${tailClass}`}
+                />
               </div>
             </div>
           )

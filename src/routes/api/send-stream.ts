@@ -3,7 +3,10 @@ import { createFileRoute } from '@tanstack/react-router'
 import { resolveSessionKey } from '../../server/session-utils'
 import { isAuthenticated } from '../../server/auth-middleware'
 import { requireJsonContentType } from '../../server/rate-limit'
-import { publishChatEvent } from '../../server/chat-event-bus'
+import {
+  broadcastAgentActivity,
+  publishChatEvent,
+} from '../../server/chat-event-bus'
 import {
   registerActiveSendRun,
   unregisterActiveSendRun,
@@ -398,24 +401,29 @@ export const Route = createFileRoute('/api/send-stream')({
               controller.enqueue(encoder.encode(payload))
             }
 
-            closeStream = () => {
-              if (streamClosed) return
-              streamClosed = true
-              if (unregisterTimer) {
-                clearTimeout(unregisterTimer)
-                unregisterTimer = null
-              }
-              if (activeRunId) {
-                unregisterActiveSendRun(activeRunId)
-                activeRunId = null
-              }
-              abortController.abort()
-              try {
-                controller.close()
-              } catch {
-                // ignore
-              }
-            }
+        let resolvedTargetAgentId: string | null = null
+
+        closeStream = () => {
+          if (streamClosed) return
+          streamClosed = true
+          if (resolvedTargetAgentId) {
+            broadcastAgentActivity(resolvedTargetAgentId, sessionKey, 'idle')
+          }
+          if (unregisterTimer) {
+            clearTimeout(unregisterTimer)
+            unregisterTimer = null
+          }
+          if (activeRunId) {
+            unregisterActiveSendRun(activeRunId)
+            activeRunId = null
+          }
+          abortController.abort()
+          try {
+            controller.close()
+          } catch {
+            // ignore
+          }
+        }
 
             try {
               if (chatMode === 'portable') {
@@ -557,6 +565,28 @@ export const Route = createFileRoute('/api/send-stream')({
               // directly to useStreamingMessage. Skip publishChatEvent to prevent
               // useRealtimeChatHistory from creating duplicate message bubbles.
               const skipPublish = true
+
+              // Resolve target agent for live office animation broadcasting
+              resolvedTargetAgentId =
+                linkedAgent?.id ||
+                getSessionAgent(sessionKey) ||
+                (sessionKey.includes('fariz') || sessionKey.includes('accountant')
+                  ? 'ezity-accountant'
+                  : sessionKey.includes('salmanz') || sessionKey.includes('developer')
+                    ? 'ezity-developer'
+                    : sessionKey.includes('hafiz') || sessionKey.includes('chief-of-staff')
+                      ? 'ezity-chief-of-staff'
+                      : null)
+
+              if (resolvedTargetAgentId) {
+                broadcastAgentActivity(
+                  resolvedTargetAgentId,
+                  sessionKey,
+                  'thinking',
+                  'Thinking...',
+                )
+              }
+
               await streamChat(
                 sessionKey,
                 {
@@ -669,6 +699,14 @@ export const Route = createFileRoute('/api/send-stream')({
                       const delta =
                         typeof data.delta === 'string' ? data.delta : ''
                       if (!delta) return
+                      if (resolvedTargetAgentId) {
+                        broadcastAgentActivity(
+                          resolvedTargetAgentId,
+                          sessionKeyFromEvent,
+                          'typing',
+                          'Answering in chat...',
+                        )
+                      }
                       const translated = {
                         text: delta,
                         sessionKey: sessionKeyFromEvent,
@@ -690,6 +728,25 @@ export const Route = createFileRoute('/api/send-stream')({
                         typeof data.preview === 'string'
                           ? data.preview
                           : undefined
+
+                      if (resolvedTargetAgentId) {
+                        const cleanName = toolName
+                          ? toolName
+                              .replace(/^(mcp__|server__|tool__)/i, '')
+                              .replace(/_/g, ' ')
+                              .split(' ')
+                              .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+                              .join(' ')
+                          : 'Tool'
+                        broadcastAgentActivity(
+                          resolvedTargetAgentId,
+                          sessionKeyFromEvent,
+                          'tool_calling',
+                          `Using ${cleanName}...`,
+                          toolName,
+                        )
+                      }
+
                       const translated = {
                         phase:
                           event === 'tool.pending' || event === 'tool.started'
@@ -712,6 +769,14 @@ export const Route = createFileRoute('/api/send-stream')({
                       const toolName = getToolName(data)
                       if (toolName === '_thinking' || toolName === 'tool') {
                         if (!delta) return
+                        if (resolvedTargetAgentId) {
+                          broadcastAgentActivity(
+                            resolvedTargetAgentId,
+                            sessionKeyFromEvent,
+                            'thinking',
+                            'Thinking...',
+                          )
+                        }
                         const translated = {
                           text: delta,
                           sessionKey: sessionKeyFromEvent,
@@ -839,6 +904,14 @@ export const Route = createFileRoute('/api/send-stream')({
                       event === 'tool.approval' ||
                       event === 'exec.approval'
                     ) {
+                      if (resolvedTargetAgentId) {
+                        broadcastAgentActivity(
+                          resolvedTargetAgentId,
+                          sessionKeyFromEvent,
+                          'waiting_approval',
+                          'Needs your approval',
+                        )
+                      }
                       const approvalId =
                         readString(data.approval_id) ||
                         readString(data.approvalId) ||
@@ -878,6 +951,16 @@ export const Route = createFileRoute('/api/send-stream')({
                         ) ||
                         readString(data.message) ||
                         'Hermes stream error'
+
+                      if (resolvedTargetAgentId) {
+                        broadcastAgentActivity(
+                          resolvedTargetAgentId,
+                          sessionKeyFromEvent,
+                          'error',
+                          errorMessage || 'Stream error',
+                        )
+                      }
+
                       sendEvent('error', {
                         message: errorMessage,
                         sessionKey: sessionKeyFromEvent,

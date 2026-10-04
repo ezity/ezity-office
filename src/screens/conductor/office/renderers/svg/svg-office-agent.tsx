@@ -177,6 +177,72 @@ export function SvgOfficeAgent({
   // Character is considered seated when stationary at their desk
   const isSeated = !isMoving && !agent.targetZoneId
 
+  const isThinking = agent.liveActivity === 'thinking'
+  const isTyping = agent.liveActivity === 'typing'
+  const isToolCalling = agent.liveActivity === 'tool_calling'
+  const isWaitingApproval = agent.liveActivity === 'waiting_approval'
+  const isListening = agent.liveActivity === 'listening'
+  const isError = agent.liveActivity === 'error'
+  const isStreamingActivity = Boolean(agent.liveActivity)
+
+  const displayMonitorText = isThinking
+    ? (agent.liveActivityText || '💭 Thinking...')
+    : isTyping
+      ? (agent.liveActivityText || '💬 Answering...')
+      : isToolCalling
+        ? (agent.liveActivityText || '🔧 Running tool...')
+        : isWaitingApproval
+          ? (agent.liveActivityText || '⚠️ Needs approval')
+          : isListening
+            ? (agent.liveActivityText || '👂 Listening...')
+            : isError
+              ? (agent.liveActivityText || '❌ Error')
+              : monitorText
+
+  const bubbleBorder = isThinking
+    ? '#818cf8' // indigo-400
+    : isTyping
+      ? '#34d399' // emerald-400
+      : isToolCalling
+        ? '#22d3ee' // cyan-400
+        : isWaitingApproval || isAwaitingApproval
+          ? '#f59e0b' // amber-500
+          : isListening
+            ? '#38bdf8' // sky-400
+            : isError
+              ? '#f87171' // rose-400
+              : isWorking
+                ? '#6366f1'
+                : '#e2e8f0'
+
+  const bubbleBg = isThinking
+    ? '#eef2ff' // indigo-50
+    : isTyping
+      ? '#ecfdf5' // emerald-50
+      : isToolCalling
+        ? '#ecfeff' // cyan-50
+        : isWaitingApproval || isAwaitingApproval
+          ? '#fffbeb' // amber-50
+          : isListening
+            ? '#f0f9ff' // sky-50
+            : isError
+              ? '#fef2f2' // rose-50
+              : '#ffffff'
+
+  const bubbleDotColor = isThinking
+    ? '#6366f1'
+    : isTyping
+      ? '#10b981'
+      : isToolCalling
+        ? '#06b6d4'
+        : isWaitingApproval || isAwaitingApproval
+          ? '#f59e0b'
+          : isListening
+            ? '#0284c7'
+            : isError
+              ? '#ef4444'
+              : statusColor
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
@@ -206,38 +272,38 @@ export function SvgOfficeAgent({
           width="140"
           height="22"
           rx="11"
-          fill="#ffffff"
-          stroke={isAwaitingApproval ? '#f59e0b' : isWorking ? '#6366f1' : '#e2e8f0'}
-          strokeWidth={isWorking || isAwaitingApproval ? '1.5' : '1'}
+          fill={bubbleBg}
+          stroke={bubbleBorder}
+          strokeWidth={isStreamingActivity || isWorking || isAwaitingApproval ? '1.5' : '1'}
           filter="url(#badge-soft-shadow)"
         />
         {/* Speech bubble tail */}
         <polygon
           points="-4,8 4,8 0,13"
-          fill="#ffffff"
-          stroke={isAwaitingApproval ? '#f59e0b' : isWorking ? '#6366f1' : '#e2e8f0'}
+          fill={bubbleBg}
+          stroke={bubbleBorder}
           strokeWidth="1"
         />
         {/* Cover the tail top stroke with fill */}
-        <rect x="-5" y="5" width="10" height="4" fill="#ffffff" />
+        <rect x="-5" y="5" width="10" height="4" fill={bubbleBg} />
 
         {/* Status dot */}
         <circle
           cx="-58"
           cy="-3"
           r="3.5"
-          fill={statusColor}
-          className={isWorking ? 'office-pulse-working' : ''}
+          fill={bubbleDotColor}
+          className={isWorking || isStreamingActivity ? 'office-pulse-working' : ''}
         />
         {/* Task text */}
         <text
           x="-48"
           y="0"
-          fill={isWorking ? '#1e293b' : '#64748b'}
+          fill={isStreamingActivity ? (isThinking ? '#4338ca' : '#047857') : isWorking ? '#1e293b' : '#64748b'}
           fontSize="9"
-          fontWeight="600"
+          fontWeight={isStreamingActivity ? '700' : '600'}
         >
-          {monitorText.length > 28 ? `${monitorText.slice(0, 27)}…` : monitorText}
+          {displayMonitorText.length > 28 ? `${displayMonitorText.slice(0, 27)}…` : displayMonitorText}
         </text>
       </g>
 

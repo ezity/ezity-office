@@ -9,12 +9,14 @@ type AgentChatInputProps = {
   disabled?: boolean
   isSending?: boolean
   onSend: (message: string) => Promise<void> | void
+  onTyping?: (text: string) => void
 }
 
 export function AgentChatInput({
   disabled = false,
   isSending = false,
   onSend,
+  onTyping,
 }: AgentChatInputProps) {
   const [value, setValue] = useState('')
 
@@ -22,6 +24,7 @@ export function AgentChatInput({
     const message = value.trim()
     if (!message || disabled || isSending) return
     setValue('')
+    onTyping?.('')
     await onSend(message)
   }
 
@@ -53,7 +56,9 @@ export function AgentChatInput({
           placeholder="Message this agent..."
           disabled={disabled || isSending}
           onChange={function handleChange(event) {
-            setValue(event.target.value)
+            const next = event.target.value
+            setValue(next)
+            onTyping?.(next)
           }}
           onKeyDown={handleTextareaKeyDown}
           className={cn(

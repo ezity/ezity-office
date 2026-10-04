@@ -64,6 +64,16 @@ export type OfficeAgentSceneNode = {
   currentTaskTitle?: string
   lastActivityText?: string
   lastActivityAt?: number
+  liveActivity?:
+    | 'listening'
+    | 'thinking'
+    | 'tool_calling'
+    | 'typing'
+    | 'waiting_approval'
+    | 'error'
+    | null
+  liveActivityText?: string
+  liveActivityToolName?: string
 
   // Spatial / Navigation Mapping
   homeDeskId: string

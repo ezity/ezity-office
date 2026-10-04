@@ -7,10 +7,8 @@ import type { AgentChatMessage } from './AgentChatMessages'
 import type { ChatMessage } from '@/screens/chat/types'
 import { DialogContent, DialogRoot } from '@/components/ui/dialog'
 import {
-  getMessageTimestamp,
-  readError,
-  textFromMessage,
-} from '@/screens/chat/utils'
+import { getMessageTimestamp, readError, textFromMessage } from '@/screens/chat/utils'
+import { useAgentActivityStore } from '@/stores/agent-activity-store'
 
 type AgentChatModalProps = {
   open: boolean
@@ -249,6 +247,9 @@ export function AgentChatModal({
     setErrorMessage(null)
     typingExpectedAgentCountRef.current = agentMessageCount + 1
 
+    const rawTarget = sessionKey || agentName
+    useAgentActivityStore.getState().setActivity(rawTarget, 'thinking', 'Thinking...', sessionKey)
+
     if (isDemoMode) {
       setMessages(function markSent(previous) {
         return previous.map(function mapMessage(entry) {
@@ -300,6 +301,28 @@ export function AgentChatModal({
     setIsSending(false)
   }
 
+  function handleTyping(text: string) {
+    const rawTarget = sessionKey || agentName
+    if (text.trim().length > 0) {
+      useAgentActivityStore.getState().setActivity(rawTarget, 'listening', 'Listening...', sessionKey)
+    } else {
+      const current = useAgentActivityStore.getState().getActivity(rawTarget)
+      if (current?.activity === 'listening') {
+        useAgentActivityStore.getState().clearActivity(rawTarget)
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (!open) {
+      const rawTarget = sessionKey || agentName
+      const current = useAgentActivityStore.getState().getActivity(rawTarget)
+      if (current?.activity === 'listening') {
+        useAgentActivityStore.getState().clearActivity(rawTarget)
+      }
+    }
+  }, [open, sessionKey, agentName])
+
   return (
     <DialogRoot open={open} onOpenChange={onOpenChange}>
       <DialogContent className="h-[min(85vh,720px)] w-[min(860px,96vw)] overflow-hidden rounded-3xl border border-primary-300/70 bg-primary-100/55 p-0 backdrop-blur-xl max-md:bottom-0 max-md:left-0 max-md:h-[90dvh] max-md:w-screen max-md:translate-x-0 max-md:translate-y-0 max-md:rounded-b-none max-md:rounded-t-3xl max-md:top-auto z-50">
@@ -343,6 +366,7 @@ export function AgentChatModal({
             disabled={isLoadingHistory}
             isSending={isSending}
             onSend={handleSend}
+            onTyping={handleTyping}
           />
         </motion.div>
       </DialogContent>

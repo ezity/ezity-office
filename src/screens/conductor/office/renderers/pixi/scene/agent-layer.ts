@@ -29,12 +29,21 @@ interface AgentDisplayObject {
   chairSprite: Sprite
   shadow: Graphics
   selectionHalo: Graphics
+  activityAura: Graphics
   agentId: string
   sessionKey?: string
   lastAnimState: AgentAnimationState
   lastFacing: AgentFacing
   currentTextureKey: string
   screenPosition: ScreenPoint
+  liveActivity?:
+    | 'listening'
+    | 'thinking'
+    | 'tool_calling'
+    | 'typing'
+    | 'waiting_approval'
+    | 'error'
+    | null
 }
 
 export class AgentLayer extends Container {
@@ -73,6 +82,7 @@ export class AgentLayer extends Container {
       }
 
       obj.sessionKey = agent.sessionKey
+      obj.liveActivity = agent.liveActivity
 
       // Highlight halo if selected
       obj.selectionHalo.visible = selectedAgentId === agent.id
@@ -121,6 +131,60 @@ export class AgentLayer extends Container {
 
       obj.chairSprite.visible = isSeated
 
+      // ─────────────────────────────────────────────────────────────
+      // Dynamic Activity Aura on Canvas (Ground Glow Ring)
+      // ─────────────────────────────────────────────────────────────
+      if (obj.liveActivity) {
+        obj.activityAura.visible = true
+        obj.activityAura.clear()
+
+        if (obj.liveActivity === 'tool_calling') {
+          // Cyan high-tech pulsing data ring
+          const radiusX = 24 + Math.sin(t * 12) * 2.5
+          const radiusY = 11 + Math.sin(t * 12) * 1.2
+          obj.activityAura.ellipse(0, 0, radiusX, radiusY)
+          obj.activityAura.stroke({ color: 0x06b6d4, width: 2, alpha: 0.85 })
+          obj.activityAura.fill({ color: 0x06b6d4, alpha: 0.18 })
+        } else if (obj.liveActivity === 'waiting_approval') {
+          // Amber warning strobe beacon
+          const pulse = Math.abs(Math.sin(t * 9))
+          const radiusX = 26 + pulse * 4
+          const radiusY = 12 + pulse * 2
+          obj.activityAura.ellipse(0, 0, radiusX, radiusY)
+          obj.activityAura.stroke({ color: 0xf59e0b, width: 2.5, alpha: 0.6 + pulse * 0.4 })
+          obj.activityAura.fill({ color: 0xf59e0b, alpha: 0.15 + pulse * 0.2 })
+        } else if (obj.liveActivity === 'typing') {
+          // Emerald streaming ripple ring
+          const radiusX = 23 + Math.sin(t * 16) * 2
+          const radiusY = 10.5 + Math.sin(t * 16) * 1
+          obj.activityAura.ellipse(0, 0, radiusX, radiusY)
+          obj.activityAura.stroke({ color: 0x10b981, width: 2, alpha: 0.75 })
+          obj.activityAura.fill({ color: 0x10b981, alpha: 0.15 })
+        } else if (obj.liveActivity === 'thinking') {
+          // Indigo contemplation gentle halo
+          const radiusX = 22 + Math.sin(t * 2.5) * 2
+          const radiusY = 10 + Math.sin(t * 2.5) * 1
+          obj.activityAura.ellipse(0, 0, radiusX, radiusY)
+          obj.activityAura.stroke({ color: 0x818cf8, width: 2, alpha: 0.7 })
+          obj.activityAura.fill({ color: 0x818cf8, alpha: 0.16 })
+        } else if (obj.liveActivity === 'listening') {
+          // Sky blue attentive focus ring
+          const radiusX = 20 + Math.sin(t * 2.0) * 1.5
+          const radiusY = 9 + Math.sin(t * 2.0) * 0.8
+          obj.activityAura.ellipse(0, 0, radiusX, radiusY)
+          obj.activityAura.stroke({ color: 0x38bdf8, width: 1.8, alpha: 0.8 })
+          obj.activityAura.fill({ color: 0x38bdf8, alpha: 0.12 })
+        } else if (obj.liveActivity === 'error') {
+          // Red alert glitch ring
+          const jitter = (Math.random() - 0.5) * 2
+          obj.activityAura.ellipse(jitter, 0, 24, 11)
+          obj.activityAura.stroke({ color: 0xef4444, width: 2.2, alpha: 0.9 })
+          obj.activityAura.fill({ color: 0xef4444, alpha: 0.2 })
+        }
+      } else {
+        obj.activityAura.visible = false
+      }
+
       let bobY = 0
 
       if (moveState.isMoving || moveState.animationState === 'walk') {
@@ -148,7 +212,37 @@ export class AgentLayer extends Container {
         const breathScaleY = 1 + breath * 0.024
         const breathScaleX = 1 - breath * 0.012
 
-        if (moveState.animationState === 'meeting') {
+        if (obj.liveActivity === 'typing') {
+          // Instant live chat streaming typing burst!
+          this.updateAgentTexture(agentId, obj, 'work')
+          obj.sprite.position.y = Math.sin(t * 18) * 0.7
+          obj.sprite.rotation = (isFacingLeft ? -1 : 1) * (0.02 + Math.sin(t * 8) * 0.015)
+        } else if (obj.liveActivity === 'tool_calling') {
+          // Focused tool execution / inspection at desk
+          this.updateAgentTexture(agentId, obj, 'work')
+          obj.sprite.position.y = Math.sin(t * 14) * 0.8
+          obj.sprite.rotation = (isFacingLeft ? -1 : 1) * (0.04 + Math.sin(t * 6) * 0.02)
+        } else if (obj.liveActivity === 'waiting_approval') {
+          // Urgent jumping in seat for user attention/approval
+          this.updateAgentTexture(agentId, obj, 'sit')
+          obj.sprite.position.y = -Math.abs(Math.sin(t * 7)) * 3.5
+          obj.sprite.rotation = Math.sin(t * 9) * 0.06
+        } else if (obj.liveActivity === 'thinking') {
+          // Live chat streaming thinking / reflection pose
+          this.updateAgentTexture(agentId, obj, 'sit')
+          obj.sprite.position.y = Math.sin(t * 1.6) * 0.4
+          obj.sprite.rotation = (isFacingLeft ? -1 : 1) * (-0.035 + Math.sin(t * 1.2) * 0.012)
+        } else if (obj.liveActivity === 'listening') {
+          // Attentive listening posture, upright facing user
+          this.updateAgentTexture(agentId, obj, 'sit')
+          obj.sprite.position.y = -1.2 + Math.sin(t * 1.5) * 0.2
+          obj.sprite.rotation = (isFacingLeft ? -1 : 1) * 0.01
+        } else if (obj.liveActivity === 'error') {
+          this.updateAgentTexture(agentId, obj, 'sit')
+          obj.sprite.position.x = (Math.random() - 0.5) * 1.8
+          obj.sprite.position.y = (Math.random() - 0.5) * 1.4
+          obj.sprite.rotation = (Math.random() - 0.5) * 0.04
+        } else if (moveState.animationState === 'meeting') {
           this.updateAgentTexture(agentId, obj, 'meeting')
           obj.sprite.position.y = 0
           obj.sprite.rotation = (isFacingLeft ? -1 : 1) * Math.sin(t * 1.0) * 0.012
@@ -200,7 +294,31 @@ export class AgentLayer extends Container {
         obj.shadow.scale.set(1 + breath * 0.04, 1 + breath * 0.02)
         obj.shadow.alpha = 0.25 - breath * 0.03
 
-        this.updateAgentTexture(agentId, obj, 'idle')
+        if (obj.liveActivity === 'typing') {
+          this.updateAgentTexture(agentId, obj, 'work')
+          obj.sprite.position.y = Math.sin(t * 18) * 0.6
+        } else if (obj.liveActivity === 'tool_calling') {
+          this.updateAgentTexture(agentId, obj, 'work')
+          obj.sprite.position.y = Math.sin(t * 14) * 0.7
+          obj.sprite.rotation = (isFacingLeft ? -1 : 1) * 0.03
+        } else if (obj.liveActivity === 'waiting_approval') {
+          this.updateAgentTexture(agentId, obj, 'idle')
+          obj.sprite.position.y = -Math.abs(Math.sin(t * 7)) * 4.0
+          obj.sprite.rotation = Math.sin(t * 9) * 0.08
+        } else if (obj.liveActivity === 'thinking') {
+          this.updateAgentTexture(agentId, obj, 'idle')
+          obj.sprite.rotation = Math.sin(t * 1.2) * 0.04
+        } else if (obj.liveActivity === 'listening') {
+          this.updateAgentTexture(agentId, obj, 'idle')
+          obj.sprite.position.y = -1.0
+          obj.sprite.rotation = 0
+        } else if (obj.liveActivity === 'error') {
+          this.updateAgentTexture(agentId, obj, 'idle')
+          obj.sprite.position.x = (Math.random() - 0.5) * 1.8
+          obj.sprite.position.y = (Math.random() - 0.5) * 1.4
+        } else {
+          this.updateAgentTexture(agentId, obj, 'idle')
+        }
       }
 
       // Track last state
@@ -243,6 +361,11 @@ export class AgentLayer extends Container {
     shadow.ellipse(0, 2, 18, 6)
     shadow.fill({ color: 0x422006, alpha: 0.25 })
     container.addChild(shadow)
+
+    // Dynamic Activity Aura (Pulsing ground glow ring for live states)
+    const activityAura = new Graphics()
+    activityAura.visible = false
+    container.addChild(activityAura)
 
     // Selection Halo
     const halo = new Graphics()
@@ -290,6 +413,7 @@ export class AgentLayer extends Container {
       chairSprite,
       shadow,
       selectionHalo: halo,
+      activityAura,
       agentId: agent.id,
       sessionKey: agent.sessionKey,
       lastAnimState: 'sit',

@@ -142,7 +142,9 @@ describe('Phase I-A: Renderer-Neutral Office State Extraction', () => {
         },
       })
 
-      const worker = scene.agents.find((a) => a.id === 'worker-developer-build')
+      const worker = scene.agents.find(
+        (a) => a.id === 'worker-developer-build' || a.sessionKey === 'worker-developer-build',
+      )
       expect(worker).toBeDefined()
       expect(worker?.status).toBe('working')
       expect(worker?.attentionState).toBe('working')
@@ -290,7 +292,9 @@ describe('Phase I-A: Renderer-Neutral Office State Extraction', () => {
         },
       })
 
-      const agent = scene.agents.find((a) => a.id === 'worker-stale-1')
+      const agent = scene.agents.find(
+        (a) => a.id === 'worker-stale-1' || a.sessionKey === 'worker-stale-1',
+      )
       expect(agent?.status).toBe('error')
       expect(agent?.attentionState).toBe('error')
     })

@@ -13,6 +13,7 @@ import type { WorkItem } from '@/types/task'
 import type { OfficeSceneState } from '@/types/office-scene'
 import type { AgentWorkingRow } from '@/screens/conductor/components/office-view'
 import { useConductorGateway } from '@/screens/conductor/hooks/use-conductor-gateway'
+import { useAgentActivityStore } from '@/stores/agent-activity-store'
 import {
   synthesizeOfficeSceneState,
   toLegacyAgentWorkingRows,
@@ -39,6 +40,7 @@ export function useOfficeState(
   options?: UseOfficeStateOptions,
 ): UseOfficeStateResult {
   const conductor = options?.conductor
+  const liveActivities = useAgentActivityStore((s) => s.activities)
 
   // Query work items with TanStack Query (shares cache with Inbox and Dashboard)
   const { data: workItemsData } = useQuery({
@@ -69,8 +71,9 @@ export function useOfficeState(
       workItems: effectiveWorkItems,
       now,
       companyName: options?.companyName ?? 'EZity AI Office',
+      liveActivities,
     })
-  }, [conductor, effectiveWorkItems, now, options?.companyName])
+  }, [conductor, effectiveWorkItems, now, options?.companyName, liveActivities])
 
   // Legacy adapter for backward compatibility with OfficeView
   const legacyRows = useMemo<Array<AgentWorkingRow>>(() => {

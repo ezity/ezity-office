@@ -62,6 +62,50 @@ export function publishChatEvent(
   broadcast(event, data, seq)
 }
 
+export type AgentActivityBroadcastState =
+  | 'listening'
+  | 'thinking'
+  | 'tool_calling'
+  | 'typing'
+  | 'waiting_approval'
+  | 'error'
+  | 'idle'
+
+/**
+ * Broadcasts real-time agent activity states (thinking, tool_calling, typing, waiting_approval, listening, idle)
+ * directly to all virtual office and chat subscribers via SSE without send-run gating.
+ */
+export function broadcastAgentActivity(
+  agentId: string,
+  sessionKey: string,
+  activityState: AgentActivityBroadcastState,
+  text?: string,
+  toolName?: string,
+): void {
+  broadcast('agent.activity', {
+    agentId,
+    sessionKey,
+    activityState,
+    toolName,
+    text:
+      text ||
+      (activityState === 'thinking'
+        ? 'Thinking...'
+        : activityState === 'typing'
+          ? 'Answering...'
+          : activityState === 'tool_calling'
+            ? `Running ${toolName || 'tool'}...`
+            : activityState === 'waiting_approval'
+              ? 'Needs your approval'
+              : activityState === 'listening'
+                ? 'Listening...'
+                : activityState === 'error'
+                  ? 'Error occurred'
+                  : ''),
+    timestamp: Date.now(),
+  })
+}
+
 export async function ensureBusStarted(): Promise<void> {
   const bus = getBus()
   if (bus.started) return
