@@ -78,6 +78,7 @@ function authHeaders(): Record<string, string> {
 // ── Probing ───────────────────────────────────────────────────────
 
 async function probe(path: string): Promise<boolean> {
+  if (typeof window !== 'undefined') return false
   try {
     const res = await fetch(`${HERMES_API}${path}`, {
       headers: authHeaders(),
@@ -97,6 +98,7 @@ async function probe(path: string): Promise<boolean> {
  *  First tries a lightweight GET (405 = endpoint exists, just wrong method).
  *  This avoids creating real sessions on the gateway. */
 async function probeChatCompletions(): Promise<boolean> {
+  if (typeof window !== 'undefined') return false
   try {
     // Fast path: GET returns 405 Method Not Allowed = endpoint exists
     const getRes = await fetch(`${HERMES_API}/v1/chat/completions`, {
@@ -168,6 +170,9 @@ function logCapabilities(next: GatewayCapabilities): void {
 export async function probeGateway(options?: {
   force?: boolean
 }): Promise<GatewayCapabilities> {
+  if (typeof window !== 'undefined') {
+    return capabilities
+  }
   const force = options?.force === true
   if (!force && capabilities.probed) {
     return capabilities
@@ -323,4 +328,6 @@ export function isHermesConnected(): boolean {
   return capabilities.health
 }
 
-void ensureGatewayProbed()
+if (typeof window === 'undefined') {
+  void ensureGatewayProbed()
+}

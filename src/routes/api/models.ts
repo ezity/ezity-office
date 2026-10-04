@@ -8,6 +8,7 @@ import {
   ensureGatewayProbed,
   getGatewayCapabilities,
 } from '../../server/hermes-api'
+import { BEARER_TOKEN } from '../../server/gateway-capabilities'
 
 const HERMES_API_URL = process.env.HERMES_API_URL || 'http://127.0.0.1:8642'
 
@@ -109,8 +110,15 @@ function normalizeHermesModel(entry: unknown): ModelEntry | null {
   }
 }
 
+function authHeaders(): Record<string, string> {
+  return BEARER_TOKEN ? { Authorization: `Bearer ${BEARER_TOKEN}` } : {}
+}
+
 async function fetchHermesModels(): Promise<Array<ModelEntry>> {
-  const response = await fetch(`${HERMES_API_URL}/v1/models`)
+  const response = await fetch(`${HERMES_API_URL}/v1/models`, {
+    headers: authHeaders(),
+    signal: AbortSignal.timeout(5000),
+  })
   if (!response.ok)
     throw new Error(`Hermes models request failed (${response.status})`)
   const payload = asRecord(await response.json())
@@ -133,6 +141,25 @@ export const Route = createFileRoute('/api/models')({
         }
         await ensureGatewayProbed()
         if (!getGatewayCapabilities().models) {
+          const authModels = getAuthStoreModels()
+          if (authModels.length > 0) {
+            const configuredProviders = Array.from(
+              new Set(
+                authModels
+                  .map((model) =>
+                    typeof model.provider === 'string' ? model.provider : '',
+                  )
+                  .filter(Boolean),
+              ),
+            )
+            return json({
+              ok: true,
+              object: 'list',
+              data: authModels,
+              models: authModels,
+              configuredProviders,
+            })
+          }
           return json({
             ok: true,
             object: 'list',
@@ -170,6 +197,25 @@ export const Route = createFileRoute('/api/models')({
             configuredProviders,
           })
         } catch (err) {
+          const authModels = getAuthStoreModels()
+          if (authModels.length > 0) {
+            const configuredProviders = Array.from(
+              new Set(
+                authModels
+                  .map((model) =>
+                    typeof model.provider === 'string' ? model.provider : '',
+                  )
+                  .filter(Boolean),
+              ),
+            )
+            return json({
+              ok: true,
+              object: 'list',
+              data: authModels,
+              models: authModels,
+              configuredProviders,
+            })
+          }
           return json(
             {
               ok: false,

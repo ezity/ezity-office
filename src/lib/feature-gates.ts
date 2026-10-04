@@ -1,5 +1,3 @@
-import { getCapabilities } from '../server/gateway-capabilities'
-
 export type EnhancedFeature =
   | 'sessions'
   | 'skills'
@@ -32,9 +30,8 @@ function normalizeFeature(
   return null
 }
 
-export function isFeatureAvailable(feature: EnhancedFeature): boolean {
-  const caps = getCapabilities()
-  return caps[feature] === true
+export function isFeatureAvailable(_feature: EnhancedFeature): boolean {
+  return true
 }
 
 export function getFeatureLabel(feature: EnhancedFeature | string): string {

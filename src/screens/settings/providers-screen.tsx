@@ -25,8 +25,25 @@ import {
   getProviderInfo,
   normalizeProviderId,
 } from '@/lib/provider-catalog'
-import { getConfig, patchConfig } from '@/server/hermes-api'
 import { cn } from '@/lib/utils'
+
+async function fetchClientConfig(): Promise<Record<string, unknown>> {
+  const res = await fetch('/api/hermes-proxy/api/config')
+  if (!res.ok) throw new Error(`Failed to fetch config (${res.status})`)
+  return (await res.json()) as Record<string, unknown>
+}
+
+async function patchClientConfig(
+  patch: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const res = await fetch('/api/hermes-proxy/api/config', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch),
+  })
+  if (!res.ok) throw new Error(`Failed to update config (${res.status})`)
+  return (await res.json()) as Record<string, unknown>
+}
 
 /**
  * Strip the provider prefix that hermes-agent adds internally via litellm.
@@ -115,8 +132,6 @@ type SaveSettingPayload = {
   label: string
 }
 
-const HERMES_API_URL = process.env.HERMES_API_URL || 'http://127.0.0.1:8642'
-
 type HermesCatalogEntry =
   | string
   | {
@@ -137,7 +152,27 @@ async function fetchModels(): Promise<{
   models?: Array<ModelCatalogEntry>
   configuredProviders?: Array<string>
 }> {
-  const response = await fetch(`${HERMES_API_URL}/v1/models`)
+  try {
+    const res = await fetch('/api/models')
+    if (res.ok) {
+      const data = (await res.json()) as {
+        ok?: boolean
+        models?: Array<ModelCatalogEntry>
+        configuredProviders?: Array<string>
+      }
+      if (Array.isArray(data.models)) {
+        return {
+          ok: true,
+          models: data.models,
+          configuredProviders: data.configuredProviders || [],
+        }
+      }
+    }
+  } catch {
+    /* fallback to proxy */
+  }
+
+  const response = await fetch('/api/hermes-proxy/v1/models')
   if (!response.ok) {
     throw new Error(`Hermes models request failed (${response.status})`)
   }
@@ -1003,7 +1038,7 @@ function ActiveModelCard({
 
   const configQuery = useQuery({
     queryKey: ['hermes', 'active-config'],
-    queryFn: getConfig,
+    queryFn: fetchClientConfig,
   })
 
   const saveMutation = useMutation({
@@ -1043,7 +1078,7 @@ function ActiveModelCard({
           }
         : null
 
-      await patchConfig(patch)
+      await patchClientConfig(patch)
     },
     onSuccess: async () => {
       await Promise.all([

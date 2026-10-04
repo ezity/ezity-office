@@ -5,6 +5,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { json } from '@tanstack/react-start'
 import { isAuthenticated } from '../../server/auth-middleware'
 import {
+  BEARER_TOKEN,
   ensureGatewayProbed,
   getCapabilities,
 } from '../../server/gateway-capabilities'
@@ -348,7 +349,13 @@ function normalizeSkill(value: unknown): SkillSummary | null {
 }
 
 async function fetchHermesSkills(): Promise<Array<SkillSummary>> {
-  const response = await fetch(`${HERMES_API_URL}/api/skills`)
+  const headers: Record<string, string> = BEARER_TOKEN
+    ? { Authorization: `Bearer ${BEARER_TOKEN}` }
+    : {}
+  const response = await fetch(`${HERMES_API_URL}/api/skills`, {
+    headers,
+    signal: AbortSignal.timeout(5000),
+  })
   if (!response.ok) {
     const body = await response.text().catch(() => '')
     throw new Error(body || `Hermes skills request failed (${response.status})`)

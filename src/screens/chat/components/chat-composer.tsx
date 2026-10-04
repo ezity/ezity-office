@@ -118,8 +118,6 @@ type ModelSwitchNotice = {
   retryProvider?: string
 }
 
-const HERMES_API_URL = process.env.HERMES_API_URL || 'http://127.0.0.1:8642'
-
 function readModelText(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
 }
@@ -238,10 +236,31 @@ async function fetchModels(): Promise<{
       }
     }
   } catch {
-    // Fall back to /v1/models
+    /* fallback to /api/models */
   }
 
-  const response = await fetch(`${HERMES_API_URL}/v1/models`)
+  // Fall back to same-origin /api/models first
+  try {
+    const apiRes = await fetch('/api/models')
+    if (apiRes.ok) {
+      const apiData = (await apiRes.json()) as {
+        ok?: boolean
+        models?: Array<ModelCatalogEntry>
+        configuredProviders?: Array<string>
+      }
+      if (Array.isArray(apiData.models) && apiData.models.length > 0) {
+        return {
+          ok: true,
+          models: apiData.models,
+          configuredProviders: apiData.configuredProviders || [],
+        }
+      }
+    }
+  } catch {
+    /* fallback to proxy */
+  }
+
+  const response = await fetch('/api/hermes-proxy/v1/models')
   if (!response.ok) {
     throw new Error(`Hermes models request failed (${response.status})`)
   }
