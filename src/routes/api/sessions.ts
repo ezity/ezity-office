@@ -214,21 +214,36 @@ export const Route = createFileRoute('/api/sessions')({
         const csrfCheckPatch = requireJsonContentType(request)
         if (csrfCheckPatch) return csrfCheckPatch
         await ensureGatewayProbed()
-        if (!getGatewayCapabilities().sessions) {
-          const body = (await request.json().catch(() => ({}))) as Record<
-            string,
-            unknown
-          >
-          const rawSessionKey =
-            typeof body.sessionKey === 'string' ? body.sessionKey.trim() : ''
-          const rawFriendlyId =
-            typeof body.friendlyId === 'string' ? body.friendlyId.trim() : ''
-          const sessionKey = rawSessionKey || rawFriendlyId
-          const label =
-            typeof body.label === 'string' ? body.label.trim() : undefined
-          if (sessionKey && label) {
-            updateLocalSessionTitle(sessionKey, label)
+
+        const body = (await request.json().catch(() => ({}))) as Record<
+          string,
+          unknown
+        >
+
+        const rawSessionKey =
+          typeof body.sessionKey === 'string' ? body.sessionKey.trim() : ''
+        const rawFriendlyId =
+          typeof body.friendlyId === 'string' ? body.friendlyId.trim() : ''
+        const label =
+          typeof body.label === 'string' ? body.label.trim() : undefined
+        const sessionKey = rawSessionKey || rawFriendlyId
+
+        if (!sessionKey) {
+          return json(
+            { ok: false, error: 'sessionKey required' },
+            { status: 400 },
+          )
+        }
+
+        // Always update local session store first
+        if (label) {
+          updateLocalSessionTitle(sessionKey, label)
+          if (rawFriendlyId && rawFriendlyId !== sessionKey) {
+            updateLocalSessionTitle(rawFriendlyId, label)
           }
+        }
+
+        if (!getGatewayCapabilities().sessions) {
           return json({
             ok: true,
             sessionKey: sessionKey || rawFriendlyId,
@@ -237,27 +252,8 @@ export const Route = createFileRoute('/api/sessions')({
             source: 'local',
           })
         }
+
         try {
-          const body = (await request.json().catch(() => ({}))) as Record<
-            string,
-            unknown
-          >
-
-          const rawSessionKey =
-            typeof body.sessionKey === 'string' ? body.sessionKey.trim() : ''
-          const rawFriendlyId =
-            typeof body.friendlyId === 'string' ? body.friendlyId.trim() : ''
-          const label =
-            typeof body.label === 'string' ? body.label.trim() : undefined
-          const sessionKey = rawSessionKey || rawFriendlyId
-
-          if (!sessionKey) {
-            return json(
-              { ok: false, error: 'sessionKey required' },
-              { status: 400 },
-            )
-          }
-
           const session = await updateSession(sessionKey, {
             title: label,
           })
@@ -267,14 +263,16 @@ export const Route = createFileRoute('/api/sessions')({
             sessionKey,
             entry: toSessionSummary(session),
           })
-        } catch (err) {
-          return json(
-            {
-              ok: false,
-              error: err instanceof Error ? err.message : String(err),
-            },
-            { status: 500 },
-          )
+        } catch {
+          // If gateway update fails (e.g. local agent session not registered on gateway),
+          // local title was already updated, so return success gracefully.
+          return json({
+            ok: true,
+            sessionKey: sessionKey || rawFriendlyId,
+            friendlyId: rawFriendlyId || sessionKey,
+            updated: !!label,
+            source: 'local_fallback',
+          })
         }
       },
       DELETE: async ({ request }) => {
@@ -282,43 +280,43 @@ export const Route = createFileRoute('/api/sessions')({
           return json({ ok: false, error: 'Unauthorized' }, { status: 401 })
         }
         await ensureGatewayProbed()
+        const url = new URL(request.url)
+        const rawSessionKey = url.searchParams.get('sessionKey') ?? ''
+        const rawFriendlyId = url.searchParams.get('friendlyId') ?? ''
+        const sessionKey = rawSessionKey.trim() || rawFriendlyId.trim()
+
+        if (sessionKey) deleteLocalSession(sessionKey)
+        if (rawFriendlyId && rawFriendlyId !== sessionKey) {
+          deleteLocalSession(rawFriendlyId)
+        }
+
+        if (!sessionKey) {
+          return json(
+            { ok: false, error: 'sessionKey required' },
+            { status: 400 },
+          )
+        }
+
         if (!getGatewayCapabilities().sessions) {
-          const url = new URL(request.url)
-          const rawSessionKey = url.searchParams.get('sessionKey') ?? ''
-          const rawFriendlyId = url.searchParams.get('friendlyId') ?? ''
-          const sessionKey = rawSessionKey.trim() || rawFriendlyId.trim()
-          if (sessionKey) deleteLocalSession(sessionKey)
           return json({
             ok: true,
             sessionKey,
-            deleted: !!sessionKey,
+            deleted: true,
             source: 'local',
           })
         }
+
         try {
-          const url = new URL(request.url)
-          const rawSessionKey = url.searchParams.get('sessionKey') ?? ''
-          const rawFriendlyId = url.searchParams.get('friendlyId') ?? ''
-          const sessionKey = rawSessionKey.trim() || rawFriendlyId.trim()
-
-          if (!sessionKey) {
-            return json(
-              { ok: false, error: 'sessionKey required' },
-              { status: 400 },
-            )
-          }
-
           await deleteSession(sessionKey)
-
-          return json({ ok: true, sessionKey })
-        } catch (err) {
-          return json(
-            {
-              ok: false,
-              error: err instanceof Error ? err.message : String(err),
-            },
-            { status: 500 },
-          )
+          return json({ ok: true, sessionKey, deleted: true })
+        } catch {
+          // Local session was deleted, return ok if gateway didn't find the session
+          return json({
+            ok: true,
+            sessionKey,
+            deleted: true,
+            source: 'local_fallback',
+          })
         }
       },
     },
