@@ -12,6 +12,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useWorkspaceStore } from '@/stores/workspace-store'
 import { ConductorTopHud } from '@/screens/conductor/components/conductor-top-hud'
 import { ConductorCommandBar } from '@/screens/conductor/components/conductor-command-bar'
 import { ConductorAgentInspector } from '@/screens/conductor/components/conductor-agent-inspector'
@@ -179,16 +180,29 @@ describe('Conductor Command Center HUD Components', () => {
     )
   })
 
-  it('renders ConductorAgentInspector when an agent is selected', () => {
+  it('renders ConductorAgentInspector when an agent is selected and supports chat action', () => {
     const onClose = vi.fn()
+    const onOpenChat = vi.fn()
     const agent: OfficeAgentSceneNode = mockScene.agents[1]
 
-    render(<ConductorAgentInspector agent={agent} onClose={onClose} />)
+    render(
+      <ConductorAgentInspector
+        agent={agent}
+        onClose={onClose}
+        onOpenChat={onOpenChat}
+      />,
+    )
 
     expect(screen.getByText('Sage')).toBeDefined()
     expect(screen.getByText('Accountant')).toBeDefined()
     expect(screen.getByText('📍 Finance Wing')).toBeDefined()
     expect(screen.getByText('Reconciling Q3 ledger')).toBeDefined()
+
+    // Test Chat button
+    const chatBtn = screen.getByText('Chat with Sage')
+    expect(chatBtn).toBeDefined()
+    fireEvent.click(chatBtn)
+    expect(onOpenChat).toHaveBeenCalledWith(agent)
   })
 
   it('supports interactive zoom in, zoom out, and reset on the canvas', () => {
@@ -293,5 +307,33 @@ describe('Conductor Command Center HUD Components', () => {
 
     fireEvent.click(board)
     expect(onWorkItemClick).toHaveBeenCalledWith('inbox-root')
+  })
+
+  it('opens floating chat and invokes onAgentClick when an agent is clicked in OfficeRendererHost', async () => {
+    const onAgentClick = vi.fn()
+    window.innerWidth = 1200
+    useWorkspaceStore.setState({ chatPanelOpen: false })
+
+    render(
+      <OfficeRendererHost
+        scene={mockScene}
+        officeRenderer="svg"
+        onAgentClick={onAgentClick}
+      />,
+    )
+
+    // Find Sage's button on the SVG canvas (by role or title or label)
+    const agentBtn = screen.getAllByRole('button', { name: /Sage/i })[0]
+    expect(agentBtn).toBeDefined()
+
+    fireEvent.click(agentBtn)
+
+    // Verified onAgentClick was called
+    expect(onAgentClick).toHaveBeenCalledWith('agent-2', undefined)
+
+    // Verified floating chat panel was opened in workspace store
+    await vi.waitFor(() => {
+      expect(useWorkspaceStore.getState().chatPanelOpen).toBe(true)
+    })
   })
 })

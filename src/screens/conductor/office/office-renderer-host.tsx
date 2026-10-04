@@ -219,7 +219,6 @@ export function OfficeRendererHost({
       if (dragStartRef.current?.moved) return
       if (propOnAgentClick) {
         propOnAgentClick(agentId, sessionKey)
-        return
       }
       if (propOnViewOutput) {
         propOnViewOutput(agentId)

@@ -7,7 +7,7 @@
  */
 
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Cancel01Icon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon, Chat01Icon } from '@hugeicons/core-free-icons'
 import type { OfficeAgentSceneNode } from '@/types/office-scene'
 import { getOfficeModelLabel } from './office-view'
 import { cn } from '@/lib/utils'
@@ -15,11 +15,13 @@ import { cn } from '@/lib/utils'
 export interface ConductorAgentInspectorProps {
   agent: OfficeAgentSceneNode | null
   onClose: () => void
+  onOpenChat?: (agent: OfficeAgentSceneNode) => void
 }
 
 export function ConductorAgentInspector({
   agent,
   onClose,
+  onOpenChat,
 }: ConductorAgentInspectorProps) {
   if (!agent) return null
 
@@ -99,6 +101,18 @@ export function ConductorAgentInspector({
             </p>
           )}
         </div>
+
+        {/* Chat with Agent Action Button */}
+        {onOpenChat && (
+          <button
+            type="button"
+            onClick={() => onOpenChat(agent)}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--theme-accent)] px-3 py-2 text-xs font-semibold text-white shadow-md transition hover:opacity-90 active:scale-[0.98]"
+          >
+            <HugeiconsIcon icon={Chat01Icon} size={15} />
+            <span>Chat with {agent.name}</span>
+          </button>
+        )}
       </div>
     </div>
   )

@@ -17,6 +17,7 @@ import { ConductorAgentInspector } from './components/conductor-agent-inspector'
 import { ConductorHistoryDrawer } from './components/conductor-history-drawer'
 import { ConductorSettingsDrawer } from './components/conductor-settings'
 import { ConductorInboxDrawer } from './components/conductor-inbox-drawer'
+import { useWorkspaceStore } from '@/stores/workspace-store'
 import type { OfficeAgentSceneNode } from '@/types/office-scene'
 import type { OfficeRendererType } from './office/types'
 
@@ -84,12 +85,51 @@ export function ConductorScreen() {
 
   const handleAgentClick = useCallback(
     (agentId: string) => {
-      const found = officeScene.agents.find((a) => a.id === agentId)
+      const found = officeScene.agents.find(
+        (a) => a.id === agentId || a.agentDefinitionId === agentId,
+      )
       if (found) {
         setSelectedAgentNode(found)
       }
     },
     [officeScene.agents],
+  )
+
+  const handleOpenAgentChat = useCallback(
+    async (agent: OfficeAgentSceneNode) => {
+      if (
+        agent.sessionKey &&
+        agent.sessionKey !== 'conductor-placeholder-agent' &&
+        !agent.sessionKey.startsWith('placeholder-')
+      ) {
+        useWorkspaceStore.getState().openFloatingChat(agent.sessionKey)
+        return
+      }
+
+      const targetAgentId = agent.agentDefinitionId || agent.id
+      try {
+        const res = await fetch('/api/sessions')
+        if (res.ok) {
+          const data = (await res.json()) as {
+            sessions?: Array<{ key?: string; friendlyId?: string; agentId?: string | null }>
+          }
+          const list = Array.isArray(data.sessions) ? data.sessions : []
+          const found = list.find(
+            (s) =>
+              s.agentId === targetAgentId ||
+              (s.friendlyId && s.friendlyId.includes(targetAgentId)) ||
+              (s.key && s.key.includes(targetAgentId)),
+          )
+          if (found) {
+            useWorkspaceStore.getState().openFloatingChat(found.friendlyId || found.key)
+            return
+          }
+        }
+      } catch {}
+
+      useWorkspaceStore.getState().openFloatingChat()
+    },
+    [],
   )
 
   const updateSettings = (
@@ -189,6 +229,7 @@ export function ConductorScreen() {
       <ConductorAgentInspector
         agent={selectedAgentNode}
         onClose={() => setSelectedAgentNode(null)}
+        onOpenChat={handleOpenAgentChat}
       />
 
       {/* ─────────────────────────────────────────────────────────────
