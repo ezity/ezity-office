@@ -5,7 +5,7 @@
  * wires real application navigation handlers, and provides mobile responsive fallbacks.
  */
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import type { OfficeSceneState, OfficeZoneId } from '@/types/office-scene'
@@ -18,6 +18,8 @@ import { cn } from '@/lib/utils'
 
 export interface OfficeRendererHostProps extends Partial<OfficeRendererProps> {
   scene: OfficeSceneState
+  enableZoomPan?: boolean
+  showZoomControls?: boolean
 }
 
 function useOptionalQueryClient() {
@@ -42,6 +44,8 @@ export function OfficeRendererHost({
   onRendererChange,
   hideHeader = false,
   companyName = 'EZity Solutions',
+  enableZoomPan = true,
+  showZoomControls = true,
   onAgentClick: propOnAgentClick,
   onZoneClick: propOnZoneClick,
   onWorkItemClick: propOnWorkItemClick,
@@ -51,6 +55,86 @@ export function OfficeRendererHost({
 }: OfficeRendererHostProps) {
   const navigate = useNavigate()
   const queryClient = useOptionalQueryClient()
+
+  // Zoom & Pan State
+  const [zoom, setZoom] = useState(1)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const dragStartRef = useRef<{
+    x: number
+    y: number
+    panX: number
+    panY: number
+    moved: boolean
+  } | null>(null)
+  const desktopViewportRef = useRef<HTMLDivElement>(null)
+
+  const zoomIn = useCallback(
+    () => setZoom((z) => Math.min(2.5, +(z + 0.15).toFixed(2))),
+    [],
+  )
+  const zoomOut = useCallback(
+    () => setZoom((z) => Math.max(0.5, +(z - 0.15).toFixed(2))),
+    [],
+  )
+  const resetZoom = useCallback(() => {
+    setZoom(1)
+    setPan({ x: 0, y: 0 })
+  }, [])
+
+  // Non-passive wheel listener for smooth canvas zoom
+  useEffect(() => {
+    if (!enableZoomPan) return
+    const container = desktopViewportRef.current
+    if (!container) return
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const factor = e.deltaY < 0 ? 1.08 : 0.92
+      setZoom((z) => Math.max(0.5, Math.min(2.5, +(z * factor).toFixed(2))))
+    }
+
+    container.addEventListener('wheel', handleWheel, { passive: false })
+    return () => container.removeEventListener('wheel', handleWheel)
+  }, [enableZoomPan])
+
+  // Mouse drag / pan handlers
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (!enableZoomPan) return
+      // Only drag on left (0) or middle (1) click
+      if (e.button !== 0 && e.button !== 1) return
+      dragStartRef.current = {
+        x: e.clientX,
+        y: e.clientY,
+        panX: pan.x,
+        panY: pan.y,
+        moved: false,
+      }
+    },
+    [enableZoomPan, pan],
+  )
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!dragStartRef.current) return
+    const dx = e.clientX - dragStartRef.current.x
+    const dy = e.clientY - dragStartRef.current.y
+    if (!dragStartRef.current.moved && Math.hypot(dx, dy) > 4) {
+      dragStartRef.current.moved = true
+      setIsDragging(true)
+    }
+    if (dragStartRef.current.moved) {
+      setPan({
+        x: dragStartRef.current.panX + dx,
+        y: dragStartRef.current.panY + dy,
+      })
+    }
+  }, [])
+
+  const handleMouseUp = useCallback(() => {
+    dragStartRef.current = null
+    setIsDragging(false)
+  }, [])
 
   // Developer setting: active renderer ('svg' default/fallback vs 'pixi' experimental)
   const [rendererType, setRendererType] = useState<OfficeRendererType>(
@@ -132,6 +216,7 @@ export function OfficeRendererHost({
   // Smart agent click handler: open floating agent chat on desktop (or navigate on mobile)
   const handleAgentClick = useCallback(
     async (agentId: string, sessionKey?: string) => {
+      if (dragStartRef.current?.moved) return
       if (propOnAgentClick) {
         propOnAgentClick(agentId, sessionKey)
         return
@@ -266,6 +351,7 @@ export function OfficeRendererHost({
 
   const handleZoneClick = useCallback(
     (zoneId: OfficeZoneId) => {
+      if (dragStartRef.current?.moved) return
       if (propOnZoneClick) {
         propOnZoneClick(zoneId)
         return
@@ -291,6 +377,7 @@ export function OfficeRendererHost({
 
   const handleWorkItemClick = useCallback(
     (workItemId: string) => {
+      if (dragStartRef.current?.moved) return
       if (propOnWorkItemClick) {
         propOnWorkItemClick(workItemId)
         return
@@ -330,7 +417,58 @@ export function OfficeRendererHost({
       {/* ─────────────────────────────────────────────────────────────
           1. DESKTOP & TABLET VIEW: DUAL VIRTUAL OFFICE RENDERER
       ───────────────────────────────────────────────────────────── */}
-      <div className="relative hidden h-full w-full md:block">
+      <div
+        ref={desktopViewportRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        className={cn(
+          'relative hidden h-full w-full overflow-hidden md:block select-none',
+          enableZoomPan && (isDragging ? 'cursor-grabbing' : 'cursor-grab'),
+        )}
+      >
+        <div
+          style={{
+            transform: enableZoomPan
+              ? `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`
+              : undefined,
+            transformOrigin: 'center center',
+            transition: isDragging ? 'none' : 'transform 0.12s ease-out',
+          }}
+          className="h-full w-full"
+        >
+          {rendererType === 'pixi' ? (
+            <PixiOfficeRenderer
+              scene={scene}
+              enableReducedMotion={enableReducedMotion}
+              selectedAgentId={selectedAgentId}
+              selectedZoneId={selectedZoneId}
+              companyName={companyName}
+              onAgentClick={handleAgentClick}
+              onZoneClick={handleZoneClick}
+              onWorkItemClick={handleWorkItemClick}
+              onApprovalClick={handleApprovalClick}
+              onMissionClick={handleMissionClick}
+              onViewOutput={propOnViewOutput}
+              onFallbackToSvg={() => handleRendererChange('svg')}
+            />
+          ) : (
+            <SvgOfficeRenderer
+              scene={scene}
+              enableReducedMotion={enableReducedMotion}
+              selectedAgentId={selectedAgentId}
+              selectedZoneId={selectedZoneId}
+              companyName={companyName}
+              onAgentClick={handleAgentClick}
+              onZoneClick={handleZoneClick}
+              onWorkItemClick={handleWorkItemClick}
+              onApprovalClick={handleApprovalClick}
+              onMissionClick={handleMissionClick}
+              onViewOutput={propOnViewOutput}
+            />
+          )}
+        </div>
+
         {/* Developer Renderer Switcher Pill (Section 2 & 21) */}
         {!hideHeader && (
           <div className="absolute top-3 right-4 z-30 flex items-center gap-1 rounded-2xl border border-amber-900/15 bg-white/90 p-1 shadow-md backdrop-blur-md">
@@ -363,35 +501,54 @@ export function OfficeRendererHost({
           </div>
         )}
 
-        {rendererType === 'pixi' ? (
-          <PixiOfficeRenderer
-            scene={scene}
-            enableReducedMotion={enableReducedMotion}
-            selectedAgentId={selectedAgentId}
-            selectedZoneId={selectedZoneId}
-            companyName={companyName}
-            onAgentClick={handleAgentClick}
-            onZoneClick={handleZoneClick}
-            onWorkItemClick={handleWorkItemClick}
-            onApprovalClick={handleApprovalClick}
-            onMissionClick={handleMissionClick}
-            onViewOutput={propOnViewOutput}
-            onFallbackToSvg={() => handleRendererChange('svg')}
-          />
-        ) : (
-          <SvgOfficeRenderer
-            scene={scene}
-            enableReducedMotion={enableReducedMotion}
-            selectedAgentId={selectedAgentId}
-            selectedZoneId={selectedZoneId}
-            companyName={companyName}
-            onAgentClick={handleAgentClick}
-            onZoneClick={handleZoneClick}
-            onWorkItemClick={handleWorkItemClick}
-            onApprovalClick={handleApprovalClick}
-            onMissionClick={handleMissionClick}
-            onViewOutput={propOnViewOutput}
-          />
+        {/* Floating Zoom Controls Widget */}
+        {showZoomControls && enableZoomPan && (
+          <div
+            className="absolute bottom-4 right-4 z-30 flex items-center gap-1 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-card)]/90 p-1 shadow-lg backdrop-blur-md select-none"
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              data-testid="zoom-out-btn"
+              onClick={zoomOut}
+              disabled={zoom <= 0.5}
+              title="Zoom Out (−)"
+              className="flex size-7 items-center justify-center rounded-xl text-sm font-bold text-[var(--theme-muted)] transition hover:bg-[var(--theme-card2)] hover:text-[var(--theme-text)] disabled:opacity-40"
+            >
+              −
+            </button>
+            <button
+              type="button"
+              data-testid="zoom-reset-btn"
+              onClick={resetZoom}
+              title="Click to Reset Zoom (100%)"
+              className="rounded-xl px-2 py-0.5 text-xs font-semibold text-[var(--theme-text)] transition hover:bg-[var(--theme-card2)]"
+            >
+              {Math.round(zoom * 100)}%
+            </button>
+            <button
+              type="button"
+              data-testid="zoom-in-btn"
+              onClick={zoomIn}
+              disabled={zoom >= 2.5}
+              title="Zoom In (+)"
+              className="flex size-7 items-center justify-center rounded-xl text-sm font-bold text-[var(--theme-muted)] transition hover:bg-[var(--theme-card2)] hover:text-[var(--theme-text)] disabled:opacity-40"
+            >
+              +
+            </button>
+            {(zoom !== 1 || pan.x !== 0 || pan.y !== 0) && (
+              <button
+                type="button"
+                data-testid="zoom-recenter-btn"
+                onClick={resetZoom}
+                title="Reset Position & Zoom"
+                className="flex size-7 items-center justify-center rounded-xl text-xs text-[var(--theme-muted)] transition hover:bg-[var(--theme-card2)] hover:text-[var(--theme-text)]"
+              >
+                ⟲
+              </button>
+            )}
+          </div>
         )}
       </div>
 

@@ -14,7 +14,12 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { ConductorTopHud } from '@/screens/conductor/components/conductor-top-hud'
 import { ConductorCommandBar } from '@/screens/conductor/components/conductor-command-bar'
 import { ConductorAgentInspector } from '@/screens/conductor/components/conductor-agent-inspector'
+import { OfficeRendererHost } from '@/screens/conductor/office/office-renderer-host'
 import type { OfficeSceneState, OfficeAgentSceneNode } from '@/types/office-scene'
+
+vi.mock('@tanstack/react-router', () => ({
+  useNavigate: () => vi.fn().mockResolvedValue(undefined),
+}))
 
 const mockScene: OfficeSceneState = {
   companyName: 'EZity AI Office',
@@ -165,5 +170,25 @@ describe('Conductor Command Center HUD Components', () => {
     expect(screen.getByText('Accountant')).toBeDefined()
     expect(screen.getByText('📍 Finance Wing')).toBeDefined()
     expect(screen.getByText('Reconciling Q3 ledger')).toBeDefined()
+  })
+
+  it('supports interactive zoom in, zoom out, and reset on the canvas', () => {
+    render(<OfficeRendererHost scene={mockScene} officeRenderer="svg" />)
+
+    // Initial zoom is 100%
+    expect(screen.getByTestId('zoom-reset-btn').textContent).toBe('100%')
+
+    // Click Zoom In
+    fireEvent.click(screen.getByTestId('zoom-in-btn'))
+    expect(screen.getByTestId('zoom-reset-btn').textContent).toBe('115%')
+
+    // Click Zoom Out twice
+    fireEvent.click(screen.getByTestId('zoom-out-btn'))
+    fireEvent.click(screen.getByTestId('zoom-out-btn'))
+    expect(screen.getByTestId('zoom-reset-btn').textContent).toBe('85%')
+
+    // Reset zoom back to 100%
+    fireEvent.click(screen.getByTestId('zoom-reset-btn'))
+    expect(screen.getByTestId('zoom-reset-btn').textContent).toBe('100%')
   })
 })
