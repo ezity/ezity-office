@@ -1,0 +1,28 @@
+# Deploy with: docker compose -f docker-compose.antigravity-bridge.yml up -d --build
+# This is intentionally separate from the generic development compose file.
+services:
+  antigravity-bridge:
+    build:
+      context: .
+      dockerfile: docker/antigravity-bridge/Dockerfile
+    image: ezity-office-antigravity-bridge:local
+    restart: unless-stopped
+    environment:
+      ANTIGRAVITY_BRIDGE_TOKEN: ${ANTIGRAVITY_BRIDGE_TOKEN:?set a long random secret in .env.antigravity-bridge}
+    volumes:
+      # The dispatcher is maintained in the Hermes data volume. Read-only prevents bridge code changes.
+      - /volume3/docker/hermes:/opt/data:ro
+      # Required only because the existing dispatcher runs `docker exec antigravity ...`.
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      hermes_default:
+        aliases: [antigravity-bridge]
+      antigravity_bridge: {}
+    # No ports: only the ezity-office server can reach this on hermes_default.
+
+networks:
+  hermes_default:
+    external: true
+  antigravity_bridge:
+    external: true
+    name: bridge

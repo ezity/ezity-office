@@ -75,6 +75,7 @@ import { Route as ApiChatEventsRouteImport } from './routes/api/chat-events'
 import { Route as ApiBriefingsRouteImport } from './routes/api/briefings'
 import { Route as ApiAuthCheckRouteImport } from './routes/api/auth-check'
 import { Route as ApiAuthRouteImport } from './routes/api/auth'
+import { Route as ApiAntigravityDispatchRouteImport } from './routes/api/antigravity-dispatch'
 import { Route as ApiTasksIndexRouteImport } from './routes/api/tasks/index'
 import { Route as ApiOperationsIndexRouteImport } from './routes/api/operations/index'
 import { Route as ApiCrewsIndexRouteImport } from './routes/api/crews/index'
@@ -455,6 +456,11 @@ const ApiAuthRoute = ApiAuthRouteImport.update({
   path: '/api/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAntigravityDispatchRoute = ApiAntigravityDispatchRouteImport.update({
+  id: '/api/antigravity-dispatch',
+  path: '/api/antigravity-dispatch',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTasksIndexRoute = ApiTasksIndexRouteImport.update({
   id: '/api/tasks/',
   path: '/api/tasks/',
@@ -729,6 +735,7 @@ export interface FileRoutesByFullPath {
   '/skills': typeof SkillsRoute
   '/tasks': typeof TasksRoute
   '/terminal': typeof TerminalRoute
+  '/api/antigravity-dispatch': typeof ApiAntigravityDispatchRoute
   '/api/auth': typeof ApiAuthRoute
   '/api/auth-check': typeof ApiAuthCheckRoute
   '/api/briefings': typeof ApiBriefingsRouteWithChildren
@@ -845,6 +852,7 @@ export interface FileRoutesByTo {
   '/skills': typeof SkillsRoute
   '/tasks': typeof TasksRoute
   '/terminal': typeof TerminalRoute
+  '/api/antigravity-dispatch': typeof ApiAntigravityDispatchRoute
   '/api/auth': typeof ApiAuthRoute
   '/api/auth-check': typeof ApiAuthCheckRoute
   '/api/briefings': typeof ApiBriefingsRouteWithChildren
@@ -963,6 +971,7 @@ export interface FileRoutesById {
   '/skills': typeof SkillsRoute
   '/tasks': typeof TasksRoute
   '/terminal': typeof TerminalRoute
+  '/api/antigravity-dispatch': typeof ApiAntigravityDispatchRoute
   '/api/auth': typeof ApiAuthRoute
   '/api/auth-check': typeof ApiAuthCheckRoute
   '/api/briefings': typeof ApiBriefingsRouteWithChildren
@@ -1082,6 +1091,7 @@ export interface FileRouteTypes {
     | '/skills'
     | '/tasks'
     | '/terminal'
+    | '/api/antigravity-dispatch'
     | '/api/auth'
     | '/api/auth-check'
     | '/api/briefings'
@@ -1198,6 +1208,7 @@ export interface FileRouteTypes {
     | '/skills'
     | '/tasks'
     | '/terminal'
+    | '/api/antigravity-dispatch'
     | '/api/auth'
     | '/api/auth-check'
     | '/api/briefings'
@@ -1315,6 +1326,7 @@ export interface FileRouteTypes {
     | '/skills'
     | '/tasks'
     | '/terminal'
+    | '/api/antigravity-dispatch'
     | '/api/auth'
     | '/api/auth-check'
     | '/api/briefings'
@@ -1433,6 +1445,7 @@ export interface RootRouteChildren {
   SkillsRoute: typeof SkillsRoute
   TasksRoute: typeof TasksRoute
   TerminalRoute: typeof TerminalRoute
+  ApiAntigravityDispatchRoute: typeof ApiAntigravityDispatchRoute
   ApiAuthRoute: typeof ApiAuthRoute
   ApiAuthCheckRoute: typeof ApiAuthCheckRoute
   ApiBriefingsRoute: typeof ApiBriefingsRouteWithChildren
@@ -1968,6 +1981,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/antigravity-dispatch': {
+      id: '/api/antigravity-dispatch'
+      path: '/api/antigravity-dispatch'
+      fullPath: '/api/antigravity-dispatch'
+      preLoaderRoute: typeof ApiAntigravityDispatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/tasks/': {
       id: '/api/tasks/'
       path: '/api/tasks'
@@ -2485,6 +2505,7 @@ const rootRouteChildren: RootRouteChildren = {
   SkillsRoute: SkillsRoute,
   TasksRoute: TasksRoute,
   TerminalRoute: TerminalRoute,
+  ApiAntigravityDispatchRoute: ApiAntigravityDispatchRoute,
   ApiAuthRoute: ApiAuthRoute,
   ApiAuthCheckRoute: ApiAuthCheckRoute,
   ApiBriefingsRoute: ApiBriefingsRouteWithChildren,
