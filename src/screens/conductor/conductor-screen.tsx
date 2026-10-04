@@ -132,6 +132,14 @@ export function ConductorScreen() {
     [],
   )
 
+  const handleCanvasClick = useCallback(() => {
+    setSelectedAgentNode(null)
+    setMissionDrawerOpen(false)
+    setInboxOpen(false)
+    setHistoryOpen(false)
+    setSettingsOpen(false)
+  }, [])
+
   const updateSettings = (
     patch: Partial<typeof conductor.conductorSettings>,
   ) => {
@@ -142,6 +150,11 @@ export function ConductorScreen() {
     <div
       className="relative h-full w-full overflow-hidden select-none"
       style={{ background: 'var(--theme-bg)', color: 'var(--theme-text)' }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          handleCanvasClick()
+        }
+      }}
     >
       {/* ─────────────────────────────────────────────────────────────
           1. PERSISTENT MASTER STAGE: VIRTUAL OFFICE CANVAS (Never Unmounts)
@@ -155,6 +168,7 @@ export function ConductorScreen() {
           hideHeader
           onAgentClick={handleAgentClick}
           onWorkItemClick={() => setInboxOpen(true)}
+          onCanvasClick={handleCanvasClick}
           className="h-full w-full rounded-none border-none shadow-none"
         />
       </div>

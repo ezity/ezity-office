@@ -336,4 +336,67 @@ describe('Conductor Command Center HUD Components', () => {
       expect(useWorkspaceStore.getState().chatPanelOpen).toBe(true)
     })
   })
+
+  it('triggers onCanvasClick when clicking on the canvas floor/background to dismiss modals', () => {
+    const onCanvasClick = vi.fn()
+
+    const { container } = render(
+      <OfficeRendererHost
+        scene={mockScene}
+        officeRenderer="svg"
+        onCanvasClick={onCanvasClick}
+      />,
+    )
+
+    // The desktop viewport container wraps the SVG floor
+    const viewport = container.querySelector('.cursor-grab')
+    expect(viewport).toBeDefined()
+
+    // Click on the SVG floor/background
+    fireEvent.click(viewport!)
+    expect(onCanvasClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('does NOT trigger onCanvasClick when dragging/panning the canvas', () => {
+    const onCanvasClick = vi.fn()
+
+    const { container } = render(
+      <OfficeRendererHost
+        scene={mockScene}
+        officeRenderer="svg"
+        onCanvasClick={onCanvasClick}
+      />,
+    )
+
+    const viewport = container.querySelector('.cursor-grab')
+    expect(viewport).toBeDefined()
+
+    // Simulate drag gesture (mousedown -> mousemove > 4px -> mouseup -> click)
+    fireEvent.mouseDown(viewport!, { clientX: 100, clientY: 100, button: 0 })
+    fireEvent.mouseMove(viewport!, { clientX: 150, clientY: 150 })
+    fireEvent.mouseUp(viewport!)
+    fireEvent.click(viewport!)
+
+    expect(onCanvasClick).not.toHaveBeenCalled()
+  })
+
+  it('does NOT trigger onCanvasClick when clicking an agent button', () => {
+    const onCanvasClick = vi.fn()
+    const onAgentClick = vi.fn()
+
+    render(
+      <OfficeRendererHost
+        scene={mockScene}
+        officeRenderer="svg"
+        onCanvasClick={onCanvasClick}
+        onAgentClick={onAgentClick}
+      />,
+    )
+
+    const agentBtn = screen.getAllByRole('button', { name: /Sage/i })[0]
+    fireEvent.click(agentBtn)
+
+    expect(onAgentClick).toHaveBeenCalled()
+    expect(onCanvasClick).not.toHaveBeenCalled()
+  })
 })

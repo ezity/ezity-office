@@ -52,6 +52,7 @@ export function OfficeRendererHost({
   onApprovalClick: propOnApprovalClick,
   onMissionClick: propOnMissionClick,
   onViewOutput: propOnViewOutput,
+  onCanvasClick: propOnCanvasClick,
 }: OfficeRendererHostProps) {
   const navigate = useNavigate()
   const queryClient = useOptionalQueryClient()
@@ -60,6 +61,8 @@ export function OfficeRendererHost({
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
+  const wasDraggingRef = useRef(false)
+  const interactiveClickTimestampRef = useRef(0)
   const dragStartRef = useRef<{
     x: number
     y: number
@@ -104,6 +107,7 @@ export function OfficeRendererHost({
       if (!enableZoomPan) return
       // Only drag on left (0) or middle (1) click
       if (e.button !== 0 && e.button !== 1) return
+      wasDraggingRef.current = false
       dragStartRef.current = {
         x: e.clientX,
         y: e.clientY,
@@ -121,6 +125,7 @@ export function OfficeRendererHost({
     const dy = e.clientY - dragStartRef.current.y
     if (!dragStartRef.current.moved && Math.hypot(dx, dy) > 4) {
       dragStartRef.current.moved = true
+      wasDraggingRef.current = true
       setIsDragging(true)
     }
     if (dragStartRef.current.moved) {
@@ -135,6 +140,35 @@ export function OfficeRendererHost({
     dragStartRef.current = null
     setIsDragging(false)
   }, [])
+
+  const handleCanvasClick = useCallback(
+    (e: React.MouseEvent) => {
+      // If canvas was dragged / panned, do not dismiss
+      if (wasDraggingRef.current) {
+        wasDraggingRef.current = false
+        return
+      }
+
+      // If an interactive object (agent, zone, board) was clicked within the last 300ms, ignore
+      if (Date.now() - interactiveClickTimestampRef.current < 300) {
+        return
+      }
+
+      // Check if target was an interactive button or control
+      const target = e.target as HTMLElement | SVGElement | null
+      if (
+        target?.closest('button') ||
+        target?.closest('[role="button"]') ||
+        target?.closest('[data-agent-overlay]') ||
+        target?.closest('[data-ops-board-overlay]')
+      ) {
+        return
+      }
+
+      propOnCanvasClick?.()
+    },
+    [propOnCanvasClick],
+  )
 
   // Developer setting: active renderer ('svg' default/fallback vs 'pixi' experimental)
   const [rendererType, setRendererType] = useState<OfficeRendererType>(
@@ -217,6 +251,7 @@ export function OfficeRendererHost({
   const handleAgentClick = useCallback(
     async (agentId: string, sessionKey?: string) => {
       if (dragStartRef.current?.moved) return
+      interactiveClickTimestampRef.current = Date.now()
       if (propOnAgentClick) {
         propOnAgentClick(agentId, sessionKey)
       }
@@ -351,6 +386,7 @@ export function OfficeRendererHost({
   const handleZoneClick = useCallback(
     (zoneId: OfficeZoneId) => {
       if (dragStartRef.current?.moved) return
+      interactiveClickTimestampRef.current = Date.now()
       if (propOnZoneClick) {
         propOnZoneClick(zoneId)
         return
@@ -377,6 +413,7 @@ export function OfficeRendererHost({
   const handleWorkItemClick = useCallback(
     (workItemId: string) => {
       if (dragStartRef.current?.moved) return
+      interactiveClickTimestampRef.current = Date.now()
       if (propOnWorkItemClick) {
         propOnWorkItemClick(workItemId)
         return
@@ -388,6 +425,7 @@ export function OfficeRendererHost({
 
   const handleApprovalClick = useCallback(
     (approvalId?: string) => {
+      interactiveClickTimestampRef.current = Date.now()
       if (propOnApprovalClick) {
         propOnApprovalClick(approvalId)
         return
@@ -398,6 +436,7 @@ export function OfficeRendererHost({
   )
 
   const handleMissionClick = useCallback(() => {
+    interactiveClickTimestampRef.current = Date.now()
     if (propOnMissionClick) {
       propOnMissionClick()
       return
@@ -421,6 +460,7 @@ export function OfficeRendererHost({
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onClick={handleCanvasClick}
         className={cn(
           'relative hidden h-full w-full overflow-hidden md:block select-none',
           enableZoomPan && (isDragging ? 'cursor-grabbing' : 'cursor-grab'),
@@ -554,7 +594,10 @@ export function OfficeRendererHost({
       {/* ─────────────────────────────────────────────────────────────
           2. MOBILE VIEW (<768px): COMPACT RESPONSIVE AGENT LIST
       ───────────────────────────────────────────────────────────── */}
-      <div className="flex h-full w-full flex-col overflow-y-auto p-4 md:hidden">
+      <div
+        className="flex h-full w-full flex-col overflow-y-auto p-4 md:hidden"
+        onClick={handleCanvasClick}
+      >
         {/* Mobile Header Banner */}
         <div className="mb-3 flex items-center justify-between border-b border-[var(--theme-border)] pb-2">
           <div className="flex items-center gap-2">

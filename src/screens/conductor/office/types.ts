@@ -15,6 +15,7 @@ export interface OfficeInteractionHandlers {
   onApprovalClick?: (approvalId?: string) => void
   onMissionClick?: () => void
   onViewOutput?: (agentId: string) => void
+  onCanvasClick?: () => void
 }
 
 export interface OfficeRendererProps extends OfficeInteractionHandlers {
