@@ -172,4 +172,35 @@ describe('EzityHubClient', () => {
     expect(lastRecord.error).not.toContain('ez_agt_live_abcdef1234567890')
     expect(lastRecord.error).toContain('[REDACTED_TOKEN]')
   })
+  it("J. URL normalization: does not duplicate /api/v1 when apiUrl already includes /api/v1", async () => {
+    let capturedUrl = ""
+    const mockFetch = vi.fn().mockImplementation(async (url: string) => {
+      capturedUrl = url
+      return new Response(JSON.stringify({ success: true, count: 0, bank_accounts: [] }), { status: 200 })
+    })
+
+    const clientWithApiV1 = new EzityHubClient(
+      { apiUrl: "https://erp.ezitysolutions.com/api/v1", apiToken: dummyToken, timeoutMs: 1000 },
+      { fetchFn: mockFetch as any }
+    )
+    await clientWithApiV1.listBankAccounts()
+    expect(capturedUrl).toBe("https://erp.ezitysolutions.com/api/v1/finance/bank-accounts")
+    expect(capturedUrl).not.toContain("/api/v1/api/v1")
+  })
+
+  it("K. URL normalization: handles trailing slash with /api/v1/", async () => {
+    let capturedUrl = ""
+    const mockFetch = vi.fn().mockImplementation(async (url: string) => {
+      capturedUrl = url
+      return new Response(JSON.stringify({ success: true, count: 0, invoices: [] }), { status: 200 })
+    })
+
+    const clientTrailing = new EzityHubClient(
+      { apiUrl: "https://erp.ezitysolutions.com/api/v1/", apiToken: dummyToken, timeoutMs: 1000 },
+      { fetchFn: mockFetch as any }
+    )
+    await clientTrailing.listInvoices()
+    expect(capturedUrl).toBe("https://erp.ezitysolutions.com/api/v1/finance/invoices")
+    expect(capturedUrl).not.toContain("/api/v1/api/v1")
+  })
 })

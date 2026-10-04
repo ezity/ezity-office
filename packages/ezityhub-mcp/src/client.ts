@@ -133,7 +133,13 @@ export class EzityHubClient {
       throw err
     }
 
-    const url = new URL(`${this.config.apiUrl}${endpoint}`)
+    const base = this.config.apiUrl.replace(/\/+$/, "").replace(/\/api\/v1$/, "")
+    const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`
+    const finalPath =
+      cleanEndpoint.startsWith("/api/v1/") || cleanEndpoint === "/api/v1"
+        ? cleanEndpoint
+        : `/api/v1${cleanEndpoint}`
+    const url = new URL(`${base}${finalPath}`)
     if (query) {
       for (const [key, val] of Object.entries(query)) {
         if (val !== undefined && val !== null && val !== '') {

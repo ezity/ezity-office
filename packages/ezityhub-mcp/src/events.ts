@@ -52,7 +52,7 @@ export class EzityHubEventSubscriber {
   private currentOrgId: string | null = null
 
   constructor(options: EventSubscriberOptions) {
-    this.apiUrl = options.apiUrl.replace(/\/+$/, '')
+    this.apiUrl = options.apiUrl.replace(/\/+$/, '').replace(/\/api\/v1$/, '')
     this.apiToken = options.apiToken
     this.expectedOrgId = options.expectedOrgId
     this.lastEventId = options.lastEventId || null

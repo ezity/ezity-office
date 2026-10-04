@@ -11,9 +11,10 @@ export function maskToken(token: string | undefined): string {
 }
 
 export function loadConfig(): EzityHubConfig {
-  const apiUrl = (
+  let apiUrl = (
     process.env.EZITYHUB_API_URL || 'http://localhost:3000'
   ).replace(/\/+$/, '')
+  apiUrl = apiUrl.replace(/\/api\/v1$/, '')
   const apiToken = process.env.EZITYHUB_API_TOKEN || ''
   const timeoutMs = parseInt(process.env.EZITYHUB_TIMEOUT_MS || '15000', 10)
 
