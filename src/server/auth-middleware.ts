@@ -1,13 +1,18 @@
 import { randomBytes, timingSafeEqual } from 'node:crypto'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { getRedisClient, getRedisClientSync } from './redis-client'
 
 const TOKENS_KEY = 'hermes:studio:tokens'
 const TOKEN_USER_KEY = 'hermes:studio:token:user'
 const TOKEN_TTL_S = 30 * 24 * 60 * 60 // 30 days
 
+const DATA_DIR = join(process.cwd(), '.runtime')
+const TOKENS_FILE = join(DATA_DIR, 'auth-tokens.json')
+
 /**
  * In-memory session store — source of truth for the current process.
- * Backed by a Redis SET when REDIS_URL is set so tokens survive restarts.
+ * Backed by disk (.runtime/auth-tokens.json) and Redis SET when REDIS_URL is set so tokens survive restarts.
  */
 const validTokens = new Set<string>()
 
@@ -15,6 +20,41 @@ const validTokens = new Set<string>()
  * Map of token -> userId for user identity tracking.
  */
 const tokenToUserId = new Map<string, string>()
+
+function loadTokensFromDisk(): void {
+  try {
+    if (existsSync(TOKENS_FILE)) {
+      const raw = readFileSync(TOKENS_FILE, 'utf-8')
+      const data = JSON.parse(raw) as {
+        tokens?: Array<{ token: string; expiresAt?: number; userId?: string }>
+      }
+      const now = Date.now()
+      if (Array.isArray(data?.tokens)) {
+        for (const item of data.tokens) {
+          if (!item.expiresAt || item.expiresAt > now) {
+            validTokens.add(item.token)
+            if (item.userId) tokenToUserId.set(item.token, item.userId)
+          }
+        }
+      }
+    }
+  } catch {}
+}
+
+loadTokensFromDisk()
+
+function saveTokensToDisk(): void {
+  try {
+    if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true })
+    const now = Date.now()
+    const tokens = Array.from(validTokens).map((token) => ({
+      token,
+      userId: tokenToUserId.get(token),
+      expiresAt: now + TOKEN_TTL_S * 1000,
+    }))
+    writeFileSync(TOKENS_FILE, JSON.stringify({ tokens }, null, 2), 'utf-8')
+  } catch {}
+}
 
 // On startup load persisted tokens from Redis into the in-memory Set
 void getRedisClient().then(async (client) => {
@@ -49,6 +89,7 @@ export function storeSessionToken(token: string, userId?: string): void {
   if (userId) {
     tokenToUserId.set(token, userId)
   }
+  saveTokensToDisk()
   const client = getRedisClientSync()
   if (client) {
     void client
@@ -80,6 +121,7 @@ export function getUserIdFromToken(token: string): string | undefined {
 export function revokeSessionToken(token: string): void {
   validTokens.delete(token)
   tokenToUserId.delete(token)
+  saveTokensToDisk()
   const client = getRedisClientSync()
   if (client) {
     void client.srem(TOKENS_KEY, token)
@@ -138,6 +180,28 @@ export function getSessionTokenFromCookie(
   return null
 }
 
+/**
+ * Extract session token from request across cookies, custom header, or Bearer auth.
+ */
+export function extractAuthToken(request: Request): string | null {
+  // 1. Check Cookie header
+  const cookieHeader = request.headers.get('cookie')
+  const cookieToken = getSessionTokenFromCookie(cookieHeader)
+  if (cookieToken) return cookieToken
+
+  // 2. Check x-hermes-auth custom header (from client localStorage)
+  const customHeader = request.headers.get('x-hermes-auth')
+  if (customHeader) return customHeader.trim()
+
+  // 3. Check Authorization: Bearer <token>
+  const authHeader = request.headers.get('authorization')
+  if (authHeader && authHeader.toLowerCase().startsWith('bearer ')) {
+    return authHeader.slice(7).trim()
+  }
+
+  return null
+}
+
 function isLocalRequest(request: Request): boolean {
   const forwarded = request.headers.get('x-forwarded-for')
   const ip = forwarded?.split(',')[0]?.trim() || '127.0.0.1'
@@ -154,7 +218,7 @@ function isLocalRequest(request: Request): boolean {
  * Check if the request is authenticated.
  * Returns true if:
  * - Password protection is disabled, OR
- * - Request has a valid session token
+ * - Request has a valid session token (via cookie, x-hermes-auth, or bearer token)
  */
 export function isAuthenticated(request: Request): boolean {
   // No password configured? No auth needed
@@ -162,10 +226,7 @@ export function isAuthenticated(request: Request): boolean {
     return true
   }
 
-  // Check for valid session token
-  const cookieHeader = request.headers.get('cookie')
-  const token = getSessionTokenFromCookie(cookieHeader)
-
+  const token = extractAuthToken(request)
   if (!token) {
     return false
   }
@@ -186,9 +247,7 @@ export function requireLocalOrAuth(request: Request): boolean {
  * First checks session token mapping, then falls back to HERMES_USER_ID environment variable.
  */
 export function getUserIdFromRequest(request: Request): string | undefined {
-  const cookieHeader = request.headers.get('cookie')
-  const token = getSessionTokenFromCookie(cookieHeader)
-
+  const token = extractAuthToken(request)
   if (token) {
     const userId = getUserIdFromToken(token)
     if (userId) return userId
@@ -200,12 +259,10 @@ export function getUserIdFromRequest(request: Request): string | undefined {
 
 /**
  * Create a Set-Cookie header for the session token.
+ * Defaults to 30 days when rememberMe is true, or session cookie when false.
+ * Uses SameSite=Lax for reliable auto-login across navigations.
  */
-export function createSessionCookie(token: string): string {
-  // httpOnly: prevents JS access
-  // secure: HTTPS only (disabled for local dev)
-  // sameSite=strict: CSRF protection
-  // path=/: available everywhere
-  // maxAge: 30 days
-  return `hermes-auth=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${30 * 24 * 60 * 60}`
+export function createSessionCookie(token: string, rememberMe = true): string {
+  const maxAge = rememberMe ? `; Max-Age=${TOKEN_TTL_S}` : ''
+  return `hermes-auth=${token}; HttpOnly; SameSite=Strict; Path=/${maxAge}`
 }
