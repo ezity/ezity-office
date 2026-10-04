@@ -26,6 +26,7 @@ import {
   updateSessionLastMessage,
 } from './chat-queries'
 import { ChatHeader } from './components/chat-header'
+import { DelegateTaskModal } from './components/delegate-task-modal'
 import { ChatMessageList } from './components/chat-message-list'
 import { ChatEmptyState } from './components/chat-empty-state'
 import { ChatComposer } from './components/chat-composer'
@@ -534,6 +535,7 @@ export function ChatScreen({
   )
   const { renameSession, renaming: renamingSessionTitle } = useRenameSession()
   const sseConnectionState = useChatStore((s) => s.connectionState)
+  const [isDelegateModalOpen, setIsDelegateModalOpen] = useState(false)
 
   const {
     sessionsQuery,
@@ -2541,6 +2543,7 @@ export function ChatScreen({
               onToggleFocusMode={handleToggleFocusMode}
               onUndo={undefined}
               onClear={undefined}
+              onOpenDelegateTask={() => setIsDelegateModalOpen(true)}
             />
           )}
 
@@ -2705,6 +2708,20 @@ export function ChatScreen({
         onClose={dismissAlert}
         threshold={alertThreshold}
         contextPercent={alertPercent}
+      />
+
+      <DelegateTaskModal
+        open={isDelegateModalOpen}
+        onOpenChange={setIsDelegateModalOpen}
+        sourceSessionKey={
+          activeSession?.key || activeSessionKey || activeFriendlyId
+        }
+        onDelegationSuccess={(result) => {
+          void navigate({
+            to: '/chat/$sessionKey',
+            params: { sessionKey: result.friendlyId },
+          })
+        }}
       />
 
       <ErrorToastContainer />

@@ -199,7 +199,9 @@ export function normalizeToWorkItem(task: HermesTask): WorkItem {
   const source: 'ezityhub' | 'hermes' | 'system' | 'manual' =
     task.sourceType === 'finance'
       ? 'ezityhub'
-      : task.sourceType === 'approval' || task.sourceType === 'conductor'
+      : task.sourceType === 'approval' ||
+          task.sourceType === 'conductor' ||
+          task.sourceType === 'delegation'
         ? 'hermes'
         : task.sourceType === 'system'
           ? 'system'

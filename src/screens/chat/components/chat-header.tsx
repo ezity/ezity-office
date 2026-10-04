@@ -110,6 +110,7 @@ type ChatHeaderProps = {
   onToggleFocusMode?: () => void
   onUndo?: () => void
   onClear?: () => void
+  onOpenDelegateTask?: () => void
 }
 
 function ChatHeaderComponent({
@@ -137,6 +138,7 @@ function ChatHeaderComponent({
   onToggleFocusMode,
   onUndo,
   onClear,
+  onOpenDelegateTask,
 }: ChatHeaderProps) {
   const [clearConfirm, setClearConfirm] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -181,6 +183,16 @@ function ChatHeaderComponent({
   void activeToolName
   void isFocusMode
   void onToggleFocusMode // kept for prop compat
+  const isFariz =
+    activeSession?.agentId === 'ezity-accountant' ||
+    Boolean(
+      activeSession?.agentName &&
+        activeSession.agentName.toLowerCase().includes('fariz'),
+    ) ||
+    Boolean(activeTitle && activeTitle.toLowerCase().includes('fariz')) ||
+    Boolean(
+      activeFriendlyId && activeFriendlyId.toLowerCase().includes('fariz'),
+    )
   const showThinkingIndicator = thinkingLevel === 'adaptive'
 
   const handleRefresh = useCallback(() => {
@@ -318,6 +330,18 @@ function ChatHeaderComponent({
           <div className="flex-1" />
 
           <div className="shrink-0 flex items-center gap-1">
+            {isFariz && onOpenDelegateTask && (
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                onClick={onOpenDelegateTask}
+                className="text-emerald-600 dark:text-emerald-400"
+                aria-label="Delegate to Salmanz"
+                title="Delegate to Salmanz (Developer)"
+              >
+                <span className="text-sm">💻</span>
+              </Button>
+            )}
             <InspectorToggleButton />
           </div>
         </div>
@@ -504,6 +528,30 @@ function ChatHeaderComponent({
             aria-label="Saving session name"
           />
         ) : null}
+        {isFariz && onOpenDelegateTask && (
+          <TooltipProvider>
+            <TooltipRoot>
+              <TooltipTrigger
+                onClick={onOpenDelegateTask}
+                render={
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mr-2 inline-flex items-center gap-1.5 border-emerald-500/30 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500/40 dark:text-emerald-400 dark:hover:bg-emerald-950/30 font-medium text-xs px-2.5 h-7"
+                    aria-label="Delegate to Salmanz"
+                  >
+                    <span>💻</span>
+                    <span className="hidden lg:inline">Delegate to Salmanz</span>
+                    <span className="lg:hidden">Delegate</span>
+                  </Button>
+                }
+              />
+              <TooltipContent side="bottom">
+                Hand off task to Salmanz (Lead Developer)
+              </TooltipContent>
+            </TooltipRoot>
+          </TooltipProvider>
+        )}
         {showThinkingIndicator ? (
           <TooltipProvider>
             <TooltipRoot>

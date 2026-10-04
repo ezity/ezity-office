@@ -6,7 +6,6 @@ import { AgentChatMessages } from './AgentChatMessages'
 import type { AgentChatMessage } from './AgentChatMessages'
 import type { ChatMessage } from '@/screens/chat/types'
 import { DialogContent, DialogRoot } from '@/components/ui/dialog'
-import {
 import { getMessageTimestamp, readError, textFromMessage } from '@/screens/chat/utils'
 import { useAgentActivityStore } from '@/stores/agent-activity-store'
 

@@ -76,6 +76,7 @@ import { Route as ApiBriefingsRouteImport } from './routes/api/briefings'
 import { Route as ApiAuthCheckRouteImport } from './routes/api/auth-check'
 import { Route as ApiAuthRouteImport } from './routes/api/auth'
 import { Route as ApiAntigravityDispatchRouteImport } from './routes/api/antigravity-dispatch'
+import { Route as ApiAgentDelegateRouteImport } from './routes/api/agent-delegate'
 import { Route as ApiTasksIndexRouteImport } from './routes/api/tasks/index'
 import { Route as ApiOperationsIndexRouteImport } from './routes/api/operations/index'
 import { Route as ApiCrewsIndexRouteImport } from './routes/api/crews/index'
@@ -461,6 +462,11 @@ const ApiAntigravityDispatchRoute = ApiAntigravityDispatchRouteImport.update({
   path: '/api/antigravity-dispatch',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAgentDelegateRoute = ApiAgentDelegateRouteImport.update({
+  id: '/api/agent-delegate',
+  path: '/api/agent-delegate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTasksIndexRoute = ApiTasksIndexRouteImport.update({
   id: '/api/tasks/',
   path: '/api/tasks/',
@@ -735,6 +741,7 @@ export interface FileRoutesByFullPath {
   '/skills': typeof SkillsRoute
   '/tasks': typeof TasksRoute
   '/terminal': typeof TerminalRoute
+  '/api/agent-delegate': typeof ApiAgentDelegateRoute
   '/api/antigravity-dispatch': typeof ApiAntigravityDispatchRoute
   '/api/auth': typeof ApiAuthRoute
   '/api/auth-check': typeof ApiAuthCheckRoute
@@ -852,6 +859,7 @@ export interface FileRoutesByTo {
   '/skills': typeof SkillsRoute
   '/tasks': typeof TasksRoute
   '/terminal': typeof TerminalRoute
+  '/api/agent-delegate': typeof ApiAgentDelegateRoute
   '/api/antigravity-dispatch': typeof ApiAntigravityDispatchRoute
   '/api/auth': typeof ApiAuthRoute
   '/api/auth-check': typeof ApiAuthCheckRoute
@@ -971,6 +979,7 @@ export interface FileRoutesById {
   '/skills': typeof SkillsRoute
   '/tasks': typeof TasksRoute
   '/terminal': typeof TerminalRoute
+  '/api/agent-delegate': typeof ApiAgentDelegateRoute
   '/api/antigravity-dispatch': typeof ApiAntigravityDispatchRoute
   '/api/auth': typeof ApiAuthRoute
   '/api/auth-check': typeof ApiAuthCheckRoute
@@ -1091,6 +1100,7 @@ export interface FileRouteTypes {
     | '/skills'
     | '/tasks'
     | '/terminal'
+    | '/api/agent-delegate'
     | '/api/antigravity-dispatch'
     | '/api/auth'
     | '/api/auth-check'
@@ -1208,6 +1218,7 @@ export interface FileRouteTypes {
     | '/skills'
     | '/tasks'
     | '/terminal'
+    | '/api/agent-delegate'
     | '/api/antigravity-dispatch'
     | '/api/auth'
     | '/api/auth-check'
@@ -1326,6 +1337,7 @@ export interface FileRouteTypes {
     | '/skills'
     | '/tasks'
     | '/terminal'
+    | '/api/agent-delegate'
     | '/api/antigravity-dispatch'
     | '/api/auth'
     | '/api/auth-check'
@@ -1445,6 +1457,7 @@ export interface RootRouteChildren {
   SkillsRoute: typeof SkillsRoute
   TasksRoute: typeof TasksRoute
   TerminalRoute: typeof TerminalRoute
+  ApiAgentDelegateRoute: typeof ApiAgentDelegateRoute
   ApiAntigravityDispatchRoute: typeof ApiAntigravityDispatchRoute
   ApiAuthRoute: typeof ApiAuthRoute
   ApiAuthCheckRoute: typeof ApiAuthCheckRoute
@@ -1988,6 +2001,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAntigravityDispatchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/agent-delegate': {
+      id: '/api/agent-delegate'
+      path: '/api/agent-delegate'
+      fullPath: '/api/agent-delegate'
+      preLoaderRoute: typeof ApiAgentDelegateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/tasks/': {
       id: '/api/tasks/'
       path: '/api/tasks'
@@ -2505,6 +2525,7 @@ const rootRouteChildren: RootRouteChildren = {
   SkillsRoute: SkillsRoute,
   TasksRoute: TasksRoute,
   TerminalRoute: TerminalRoute,
+  ApiAgentDelegateRoute: ApiAgentDelegateRoute,
   ApiAntigravityDispatchRoute: ApiAntigravityDispatchRoute,
   ApiAuthRoute: ApiAuthRoute,
   ApiAuthCheckRoute: ApiAuthCheckRoute,
