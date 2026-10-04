@@ -26,18 +26,18 @@ describe('Phase B: Built-in EZity Staff Definitions', () => {
 
     const cos = getAgent('ezity-chief-of-staff')
     expect(cos).toBeDefined()
-    expect(cos?.name).toBe('Chief of Staff')
+    expect(cos?.name).toBe('En.Hafiz')
     expect(cos?.emoji).toBe('👔')
-    expect(cos?.roleLabel).toBe('Workforce & Operations Lead')
-    expect(cos?.systemPrompt).toContain('Chief of Staff')
+    expect(cos?.roleLabel).toBe('Chief of Staff')
+    expect(cos?.systemPrompt).toContain('En.Hafiz')
     expect(cos?.isBuiltIn).toBe(true)
 
     const accountant = getAgent('ezity-accountant')
     expect(accountant).toBeDefined()
-    expect(accountant?.name).toBe('Accountant')
+    expect(accountant?.name).toBe('Fariz')
     expect(accountant?.emoji).toBe('📊')
-    expect(accountant?.roleLabel).toBe('Financial & Accounting Specialist')
-    expect(accountant?.systemPrompt).toContain('Accountant')
+    expect(accountant?.roleLabel).toBe('Accountant')
+    expect(accountant?.systemPrompt).toContain('Fariz')
     expect(accountant?.systemPrompt).toContain(
       'EzityHub is the sole authoritative source',
     )
@@ -60,10 +60,10 @@ describe('Phase B: Built-in EZity Staff Definitions', () => {
 
     const developer = getAgent('ezity-developer')
     expect(developer).toBeDefined()
-    expect(developer?.name).toBe('Developer')
+    expect(developer?.name).toBe('Salmanz')
     expect(developer?.emoji).toBe('💻')
-    expect(developer?.roleLabel).toBe('Lead Software Engineer')
-    expect(developer?.systemPrompt).toContain('Developer')
+    expect(developer?.roleLabel).toBe('Lead Developer')
+    expect(developer?.systemPrompt).toContain('Salmanz')
     expect(developer?.isBuiltIn).toBe(true)
 
     const all = listAgents()
@@ -131,9 +131,9 @@ describe('Phase A: Session ↔ Agent Persistence & Decoration', () => {
     )
     expect(staffSession).toBeDefined()
     expect(staffSession.agentId).toBe('ezity-chief-of-staff')
-    expect(staffSession.agentName).toBe('Chief of Staff')
+    expect(staffSession.agentName).toBe('En.Hafiz')
     expect(staffSession.agentEmoji).toBe('👔')
-    expect(staffSession.agentRole).toBe('Workforce & Operations Lead')
+    expect(staffSession.agentRole).toBe('Chief of Staff')
 
     // Generic session remains unchanged without agent metadata
     const genericSession = json.sessions.find(
@@ -189,7 +189,7 @@ describe('Phase A: Session ↔ Agent Persistence & Decoration', () => {
 
     expect(json.ok).toBe(true)
     expect(json.session).toBeDefined()
-    expect(createdOpts.title).toMatch(/^📊 Accountant — agent-accountant-[a-f0-9]{8}$/)
+    expect(createdOpts.title).toMatch(/^📊 Fariz — agent-fariz-[a-f0-9]{8}$/)
     expect(getSessionAgent(json.session.id)).toBe('ezity-accountant')
   })
 })

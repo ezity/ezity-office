@@ -240,9 +240,9 @@ describe('Phase I: Daily Chief of Staff Briefing', () => {
     })
 
     expect(brief.agentDefinitionId).toBe('ezity-chief-of-staff')
-    expect(brief.agentName).toBe('Chief of Staff')
+    expect(brief.agentName).toBe('En.Hafiz')
     expect(brief.agentEmoji).toBe('👔')
-    expect(brief.markdown).toContain('Chief of Staff')
+    expect(brief.markdown).toContain('En.Hafiz')
     expect(brief.markdown).toContain('👔')
   })
 

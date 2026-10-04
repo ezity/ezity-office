@@ -315,10 +315,12 @@ export class AgentLayer extends Container {
     const id = agentId.toLowerCase()
     let prefix = 'developer'
 
-    if (id.includes('chief') || id.includes('staff')) {
+    if (id.includes('chief') || id.includes('staff') || id.includes('hafiz')) {
       prefix = 'cos'
-    } else if (id.includes('accountant') || id.includes('finance')) {
+    } else if (id.includes('accountant') || id.includes('finance') || id.includes('fariz')) {
       prefix = 'accountant'
+    } else if (id.includes('developer') || id.includes('salmanz')) {
+      prefix = 'developer'
     }
 
     return `${prefix}_${pose}`

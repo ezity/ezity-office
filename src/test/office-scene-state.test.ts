@@ -337,27 +337,27 @@ describe('Phase I-A: Renderer-Neutral Office State Extraction', () => {
 
       expect(legacyRows[0]).toMatchObject({
         id: 'ezity-chief-of-staff',
-        name: 'Chief of Staff',
+        name: 'En.Hafiz',
         emoji: '👔',
         status: 'idle',
-        lastLine: 'Ready to coordinate missions...',
-        roleDescription: 'Executive Orchestrator',
+        lastLine: 'En.Hafiz is ready to coordinate missions...',
+        roleDescription: 'Chief of Staff',
       })
 
       expect(legacyRows[1]).toMatchObject({
         id: 'ezity-accountant',
-        name: 'Accountant',
+        name: 'Fariz',
         emoji: '📊',
         status: 'idle',
-        roleDescription: 'Financial Analysis & Planning',
+        roleDescription: 'Accountant',
       })
 
       expect(legacyRows[2]).toMatchObject({
         id: 'ezity-developer',
-        name: 'Developer',
+        name: 'Salmanz',
         emoji: '💻',
         status: 'idle',
-        roleDescription: 'Engineering & Automation',
+        roleDescription: 'Developer',
       })
     })
 

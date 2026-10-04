@@ -25,36 +25,36 @@ import { deriveAgentOfficeLocation } from './office-movement-rules'
 export const CANONICAL_STAFF_DEFS = {
   'ezity-chief-of-staff': {
     agentDefinitionId: 'ezity-chief-of-staff',
-    name: 'Chief of Staff',
-    roleTitle: 'Executive Orchestrator',
+    name: 'En.Hafiz',
+    roleTitle: 'Chief of Staff',
     department: 'executive' as const,
     emoji: '👔',
     colorHex: '#a855f7',
     homeDeskId: 'desk-chief-of-staff',
     homeZoneId: 'executive' as const,
-    defaultIdleLine: 'Ready to coordinate missions...',
+    defaultIdleLine: 'En.Hafiz is ready to coordinate missions...',
   },
   'ezity-accountant': {
     agentDefinitionId: 'ezity-accountant',
-    name: 'Accountant',
-    roleTitle: 'Financial Analysis & Planning',
+    name: 'Fariz',
+    roleTitle: 'Accountant',
     department: 'finance' as const,
     emoji: '📊',
     colorHex: '#10b981',
     homeDeskId: 'desk-accountant',
     homeZoneId: 'finance' as const,
-    defaultIdleLine: 'Standing by for finance and reporting...',
+    defaultIdleLine: 'Fariz is standing by for finance and reporting...',
   },
   'ezity-developer': {
     agentDefinitionId: 'ezity-developer',
-    name: 'Developer',
-    roleTitle: 'Engineering & Automation',
+    name: 'Salmanz',
+    roleTitle: 'Developer',
     department: 'engineering' as const,
     emoji: '💻',
     colorHex: '#38bdf8',
     homeDeskId: 'desk-developer',
     homeZoneId: 'engineering' as const,
-    defaultIdleLine: 'Standing by for engineering tasks...',
+    defaultIdleLine: 'Salmanz is standing by for engineering tasks...',
   },
 } as const
 
@@ -146,7 +146,10 @@ export function mapDepartment(
   if (
     normalizedId === 'ezity-chief-of-staff' ||
     normalizedId.includes('chief-of-staff') ||
+    normalizedId.includes('hafiz') ||
     normalizedId.includes('conductor') ||
+    normalizedRole.includes('chief of staff') ||
+    normalizedRole.includes('hafiz') ||
     normalizedRole.includes('executive') ||
     normalizedRole.includes('orchestrator')
   ) {
@@ -156,7 +159,10 @@ export function mapDepartment(
   if (
     normalizedId === 'ezity-accountant' ||
     normalizedId.includes('accountant') ||
+    normalizedId.includes('fariz') ||
     normalizedId.includes('finance') ||
+    normalizedRole.includes('accountant') ||
+    normalizedRole.includes('fariz') ||
     normalizedRole.includes('accounting') ||
     normalizedRole.includes('financial') ||
     normalizedRole.includes('bookkeeping') ||
@@ -170,8 +176,10 @@ export function mapDepartment(
   if (
     normalizedId === 'ezity-developer' ||
     normalizedId.includes('developer') ||
+    normalizedId.includes('salmanz') ||
     normalizedId.includes('engineer') ||
     normalizedRole.includes('developer') ||
+    normalizedRole.includes('salmanz') ||
     normalizedRole.includes('engineering') ||
     normalizedRole.includes('software')
   ) {
@@ -272,11 +280,11 @@ export function synthesizeOfficeSceneState(
         const persona = getAgentPersona(index)
         const agentId =
           worker.agentId ||
-          (worker.key.includes('accountant')
+          (worker.key.includes('accountant') || worker.key.includes('fariz')
             ? 'ezity-accountant'
-            : worker.key.includes('developer')
+            : worker.key.includes('developer') || worker.key.includes('salmanz')
               ? 'ezity-developer'
-              : worker.key.includes('chief-of-staff')
+              : worker.key.includes('chief-of-staff') || worker.key.includes('hafiz')
                 ? 'ezity-chief-of-staff'
                 : `worker-${index}`)
 
@@ -318,11 +326,11 @@ export function synthesizeOfficeSceneState(
 
         const baseAgentId =
           worker.agentId ||
-          (worker.key.includes('accountant')
+          (worker.key.includes('accountant') || worker.key.includes('fariz')
             ? 'ezity-accountant'
-            : worker.key.includes('developer')
+            : worker.key.includes('developer') || worker.key.includes('salmanz')
               ? 'ezity-developer'
-              : worker.key.includes('chief-of-staff')
+              : worker.key.includes('chief-of-staff') || worker.key.includes('hafiz')
                 ? 'ezity-chief-of-staff'
                 : (index === 0 ? 'ezity-developer' : index === 1 ? 'ezity-accountant' : `worker-${index}`))
 
@@ -381,8 +389,8 @@ export function synthesizeOfficeSceneState(
             lastActivityText: isPaused
               ? 'Paused'
               : conductor.streamText
-                ? 'Chief of Staff coordinating mission...'
-                : 'Chief of Staff leading mission...',
+                ? 'En.Hafiz coordinating mission...'
+                : 'En.Hafiz leading mission...',
             homeDeskId: cosDef.homeDeskId,
             currentZoneId: cosDef.homeZoneId,
             targetZoneId: 'meeting_room',
@@ -460,8 +468,8 @@ export function synthesizeOfficeSceneState(
           lastActivityText: isPaused
             ? 'Paused'
             : conductor.streamText
-              ? 'Chief of Staff analyzing mission...'
-              : 'Chief of Staff preparing staff team...',
+              ? 'En.Hafiz analyzing mission...'
+              : 'En.Hafiz preparing staff team...',
           homeDeskId: cosDef.homeDeskId,
           currentZoneId: cosDef.homeZoneId,
           targetZoneId: 'meeting_room',
@@ -661,11 +669,11 @@ export function synthesizeOfficeSceneState(
 
         const agentId =
           s.agentId ||
-          (s.key?.includes('accountant')
+          (s.key?.includes('accountant') || s.key?.includes('fariz')
             ? 'ezity-accountant'
-            : s.key?.includes('developer')
+            : s.key?.includes('developer') || s.key?.includes('salmanz')
               ? 'ezity-developer'
-              : s.key?.includes('chief-of-staff')
+              : s.key?.includes('chief-of-staff') || s.key?.includes('hafiz')
                 ? 'ezity-chief-of-staff'
                 : `session-agent-${i}`)
 
@@ -714,15 +722,24 @@ export function synthesizeOfficeSceneState(
       if (node.department === 'finance') {
         return (
           assigned.includes('accountant') ||
+          assigned.includes('fariz') ||
           assigned.includes('finance') ||
           item.type === 'finance_event'
         )
       }
       if (node.department === 'engineering') {
-        return assigned.includes('developer') || assigned.includes('engineer')
+        return (
+          assigned.includes('developer') ||
+          assigned.includes('salmanz') ||
+          assigned.includes('engineer')
+        )
       }
       if (node.department === 'executive') {
-        return assigned.includes('chief-of-staff') || assigned.includes('conductor')
+        return (
+          assigned.includes('chief-of-staff') ||
+          assigned.includes('hafiz') ||
+          assigned.includes('conductor')
+        )
       }
       return false
     })

@@ -22,17 +22,17 @@ import { cn } from '@/lib/utils'
 
 const AGENT_MAP: Record<string, { name: string; emoji: string; color: string }> = {
   'ezity-accountant': {
-    name: 'Accountant',
+    name: 'Fariz (Accountant)',
     emoji: '📊',
     color: 'text-emerald-400 border-emerald-800/40 bg-emerald-950/20',
   },
   'ezity-developer': {
-    name: 'Developer',
+    name: 'Salmanz (Developer)',
     emoji: '💻',
     color: 'text-sky-400 border-sky-800/40 bg-sky-950/20',
   },
   'ezity-chief-of-staff': {
-    name: 'Chief of Staff',
+    name: 'En.Hafiz (Chief of Staff)',
     emoji: '🧑',
     color: 'text-indigo-400 border-indigo-800/40 bg-indigo-950/20',
   },
@@ -272,9 +272,9 @@ export function InboxScreen() {
             className="h-8 rounded-md border border-[var(--theme-border)] bg-[var(--theme-card)] px-2 text-xs text-[var(--theme-text)] focus:outline-none"
           >
             <option value="all">All Staff</option>
-            <option value="ezity-accountant">📊 Accountant</option>
-            <option value="ezity-developer">💻 Developer</option>
-            <option value="ezity-chief-of-staff">🧑 Chief of Staff</option>
+            <option value="ezity-accountant">📊 Fariz (Accountant)</option>
+            <option value="ezity-developer">💻 Salmanz (Developer)</option>
+            <option value="ezity-chief-of-staff">🧑 En.Hafiz (Chief of Staff)</option>
           </select>
         </div>
       </div>

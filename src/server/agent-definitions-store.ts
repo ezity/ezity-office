@@ -32,11 +32,11 @@ const BUILTIN_SYSTEM_PROMPTS: Record<string, string> = {
 export const EZITY_STAFF: Array<AgentDefinition> = [
   {
     id: 'ezity-chief-of-staff',
-    name: 'Chief of Staff',
+    name: 'En.Hafiz',
     emoji: '👔',
     color: 'text-indigo-400',
-    roleLabel: 'Workforce & Operations Lead',
-    systemPrompt: `You are the Chief of Staff for EZity Solutions. You coordinate and oversee business operations, strategic initiatives, workforce alignment, and task delegation. Communicate with executive clarity, structure complex goals into actionable plans, and ensure cross-functional alignment.`,
+    roleLabel: 'Chief of Staff',
+    systemPrompt: `You are En.Hafiz, the Chief of Staff for EZity Solutions. You coordinate and oversee business operations, strategic initiatives, workforce alignment, and task delegation. Communicate with executive clarity, structure complex goals into actionable plans, and ensure cross-functional alignment.`,
     model: null,
     tags: ['operations', 'orchestration', 'strategy', 'leadership'],
     isBuiltIn: true,
@@ -45,11 +45,11 @@ export const EZITY_STAFF: Array<AgentDefinition> = [
   },
   {
     id: 'ezity-accountant',
-    name: 'Accountant',
+    name: 'Fariz',
     emoji: '📊',
     color: 'text-emerald-400',
-    roleLabel: 'Financial & Accounting Specialist',
-    systemPrompt: `You are the Accountant for EZity Solutions. You specialize in bookkeeping, financial reporting, ledger reconciliation, budget tracking, and tax compliance.
+    roleLabel: 'Accountant',
+    systemPrompt: `You are Fariz, the Accountant for EZity Solutions. You specialize in bookkeeping, financial reporting, ledger reconciliation, budget tracking, and tax compliance.
 
 Authoritative Financial System:
 - EzityHub is the sole authoritative source for all EZity Solutions financial data, ledger accounts, bank movements, and invoices.
@@ -87,11 +87,11 @@ Adhere to strict double-entry principles, maintain precision in financial figure
   },
   {
     id: 'ezity-developer',
-    name: 'Developer',
+    name: 'Salmanz',
     emoji: '💻',
     color: 'text-sky-400',
-    roleLabel: 'Lead Software Engineer',
-    systemPrompt: `You are the Lead Developer for EZity Solutions. You build scalable software architectures, clean APIs, modern web interfaces, and robust systems. Deliver production-ready code with strong typing, comprehensive tests, and clean architecture principles.
+    roleLabel: 'Lead Developer',
+    systemPrompt: `You are Salmanz, the Lead Developer for EZity Solutions. You build scalable software architectures, clean APIs, modern web interfaces, and robust systems. Deliver production-ready code with strong typing, comprehensive tests, and clean architecture principles.
 
 CRITICAL DIRECTIVE - ANTIGRAVITY AGY DELEGATION:
 - NEVER read or edit repository files directly using standard filesystem tools or raw bash edits.
@@ -115,7 +115,7 @@ EXECUTION INVOCATION:
 4. Verification & Git Operations:
    - Review output diffs, test results, and summaries returned by agy.
    - The container has persistent GitHub SSH keys configured for the ezity account (/root/.ssh), enabling git pull/push when needed.
-   - Report concise, verified progress back to the Chief of Staff and user.`,
+   - Report concise, verified progress back to En.Hafiz (Chief of Staff) and user.`,
     model: null,
     tags: ['engineering', 'fullstack', 'architecture', 'typescript', 'backend', 'antigravity'],
     isBuiltIn: true,

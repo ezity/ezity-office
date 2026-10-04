@@ -121,7 +121,7 @@ export async function generateDailyBrief(options?: {
   // Resolve Chief of Staff
   const cosAgent = getAgent('ezity-chief-of-staff')
   const agentDefinitionId = cosAgent?.id || 'ezity-chief-of-staff'
-  const agentName = cosAgent?.name || 'Chief of Staff'
+  const agentName = cosAgent?.name || 'En.Hafiz'
   const agentEmoji = cosAgent?.emoji || '👔'
 
   // Source 1: Work Inbox Data
@@ -487,7 +487,7 @@ export async function generateDailyBrief(options?: {
 
   // --- 6. Today ---
   sections.push(`## Today`)
-  sections.push(`**Priorities suggested by Chief of Staff:**`)
+  sections.push(`**Priorities suggested by ${agentName} (Chief of Staff):**`)
   let priorityNum = 1
   if (needsAttentionItems.length > 0) {
     sections.push(`${priorityNum++}. Resolve the ${needsAttentionItems.length} item(s) flagged under Needs Your Attention.`)
@@ -498,7 +498,7 @@ export async function generateDailyBrief(options?: {
   if (waitingItems.length > 0) {
     sections.push(`${priorityNum++}. Monitor supervisor resolution for ${waitingItems.length} item(s) in Waiting state.`)
   }
-  sections.push(`${priorityNum++}. Maintain steady coordination between Accountant and Developer departments.`)
+  sections.push(`${priorityNum++}. Maintain steady coordination between Fariz (Accountant) and Salmanz (Developer) departments.`)
   sections.push('')
 
   const markdown = sections.join('\n')
@@ -594,7 +594,7 @@ export async function syncHermesDailyBriefJob(): Promise<{
         name: 'Ezity Daily Brief',
         schedule: cronSchedule,
         prompt:
-          'You are the Ezity Chief of Staff. Generate the authoritative daily operations executive briefing.',
+          'You are En.Hafiz, the Ezity Chief of Staff. Generate the authoritative daily operations executive briefing.',
         deliver: ['local'],
       }),
     })

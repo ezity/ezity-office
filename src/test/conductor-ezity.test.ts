@@ -47,7 +47,7 @@ describe('Phase C: Conductor EZity Staff Integration', () => {
         },
       )
 
-      expect(prompt).toContain('You are Chief of Staff')
+      expect(prompt).toContain('You are En.Hafiz')
       expect(prompt).toContain(cos.systemPrompt)
       expect(prompt).toContain('Goal: Prepare Q3 corporate summary')
       expect(prompt).toContain(
@@ -100,10 +100,10 @@ describe('Phase C: Conductor EZity Staff Integration', () => {
 
       expect(prompt).toContain('## Available Staff Roster')
       expect(prompt).toContain(
-        '**Accountant** (`ezity-accountant`) — Financial & Accounting Specialist',
+        '**Fariz** (`ezity-accountant`) — Accountant',
       )
       expect(prompt).toContain(
-        '**Developer** (`ezity-developer`) — Lead Software Engineer',
+        '**Salmanz** (`ezity-developer`) — Lead Developer',
       )
       expect(prompt).toContain('Supervised mode is enabled')
     })
@@ -118,19 +118,29 @@ describe('Phase C: Conductor EZity Staff Integration', () => {
         { key: 'session-acct-1', label: 'worker-accountant-audit' },
         { key: 'session-dev-1', label: 'worker-developer-api-refactor' },
         { key: 'session-generic-1', label: 'worker-research-market' },
+        { key: 'session-fariz-1', label: 'worker-fariz-q3-ledger' },
+        { key: 'session-salmanz-1', label: 'worker-salmanz-antigravity' },
       ]
 
       const decorated = rawSessions.map((s) => decorateWithAgent(s))
 
       const acctSession = decorated.find((s) => s.key === 'session-acct-1')
       expect(acctSession?.agentId).toBe('ezity-accountant')
-      expect(acctSession?.agentName).toBe('Accountant')
+      expect(acctSession?.agentName).toBe('Fariz')
       expect(acctSession?.agentEmoji).toBe('📊')
 
       const devSession = decorated.find((s) => s.key === 'session-dev-1')
       expect(devSession?.agentId).toBe('ezity-developer')
-      expect(devSession?.agentName).toBe('Developer')
+      expect(devSession?.agentName).toBe('Salmanz')
       expect(devSession?.agentEmoji).toBe('💻')
+
+      const farizSession = decorated.find((s) => s.key === 'session-fariz-1')
+      expect(farizSession?.agentId).toBe('ezity-accountant')
+      expect(farizSession?.agentName).toBe('Fariz')
+
+      const salmanzSession = decorated.find((s) => s.key === 'session-salmanz-1')
+      expect(salmanzSession?.agentId).toBe('ezity-developer')
+      expect(salmanzSession?.agentName).toBe('Salmanz')
 
       const genSession = decorated.find((s) => s.key === 'session-generic-1')
       expect(genSession?.agentId).toBeUndefined()
@@ -138,6 +148,8 @@ describe('Phase C: Conductor EZity Staff Integration', () => {
       // Also verifies persistent store was populated
       expect(getSessionAgent('session-acct-1')).toBe('ezity-accountant')
       expect(getSessionAgent('session-dev-1')).toBe('ezity-developer')
+      expect(getSessionAgent('session-fariz-1')).toBe('ezity-accountant')
+      expect(getSessionAgent('session-salmanz-1')).toBe('ezity-developer')
       expect(getSessionAgent('session-generic-1')).toBeNull()
     })
   })
@@ -173,7 +185,7 @@ describe('Phase C: Conductor EZity Staff Integration', () => {
         "**Persona & Model Propagation**: Embed the staff member's role and core responsibilities directly into each worker prompt",
       )
       expect(prompt).toContain(
-        '**Final Synthesis**: As Chief of Staff, synthesize all worker findings into an executive briefing for leadership',
+        '**Final Synthesis**: As Chief of Staff (En.Hafiz), synthesize all worker findings into an executive briefing for leadership',
       )
     })
   })
@@ -222,7 +234,7 @@ describe('Phase C: Conductor EZity Staff Integration', () => {
         },
       )
 
-      expect(prompt).toContain('You are Chief of Staff')
+      expect(prompt).toContain('You are En.Hafiz')
       expect(prompt).toContain(
         '(No specialized staff defined; spawn general workers as needed)',
       )

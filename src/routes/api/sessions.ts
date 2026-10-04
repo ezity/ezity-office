@@ -48,16 +48,28 @@ export function decorateWithAgent(
 
     if (
       label.startsWith('worker-accountant') ||
-      searchTarget.includes('accountant')
+      label.startsWith('worker-fariz') ||
+      searchTarget.includes('accountant') ||
+      searchTarget.includes('fariz')
     ) {
       agentId = 'ezity-accountant'
       setSessionAgent(key, 'ezity-accountant')
     } else if (
       label.startsWith('worker-developer') ||
-      searchTarget.includes('developer')
+      label.startsWith('worker-salmanz') ||
+      searchTarget.includes('developer') ||
+      searchTarget.includes('salmanz')
     ) {
       agentId = 'ezity-developer'
       setSessionAgent(key, 'ezity-developer')
+    } else if (
+      label.startsWith('worker-chief-of-staff') ||
+      label.startsWith('worker-hafiz') ||
+      searchTarget.includes('chief-of-staff') ||
+      searchTarget.includes('hafiz')
+    ) {
+      agentId = 'ezity-chief-of-staff'
+      setSessionAgent(key, 'ezity-chief-of-staff')
     }
   }
 

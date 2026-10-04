@@ -358,7 +358,7 @@ export function ConductorSettingsDrawer({
                 EZity Staff Orchestration
               </span>
               <p className="text-xs" style={{ color: 'var(--theme-muted)' }}>
-                Use Chief of Staff to delegate work to Accountant and Developer.
+                Use En.Hafiz (Chief of Staff) to delegate work to Fariz (Accountant) and Salmanz (Developer).
               </p>
             </div>
             <button

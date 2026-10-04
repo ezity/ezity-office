@@ -115,10 +115,11 @@ export function OfficeRendererHost({
   // Normalize agent ID to canonical definition ID
   const resolveTargetAgentId = useCallback((rawId: string): string => {
     const id = rawId.toLowerCase()
-    if (id.includes('accountant')) return 'ezity-accountant'
-    if (id.includes('developer')) return 'ezity-developer'
+    if (id.includes('accountant') || id.includes('fariz')) return 'ezity-accountant'
+    if (id.includes('developer') || id.includes('salmanz')) return 'ezity-developer'
     if (
       id.includes('chief-of-staff') ||
+      id.includes('hafiz') ||
       id.includes('cos') ||
       id.includes('orchestrator')
     ) {
