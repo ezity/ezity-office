@@ -25,7 +25,12 @@ const VALID_COLUMNS: Array<TaskColumn> = [
   'done',
 ]
 const VALID_PRIORITIES: Array<TaskPriority> = ['high', 'medium', 'low']
-const VALID_SOURCES: Array<TaskSourceType> = ['manual', 'conductor', 'crew']
+const VALID_SOURCES: Array<TaskSourceType> = [
+  'manual',
+  'conductor',
+  'crew',
+  'delegation',
+]
 
 export const Route = createFileRoute('/api/tasks/')({
   server: {

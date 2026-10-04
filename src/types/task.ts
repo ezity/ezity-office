@@ -11,6 +11,7 @@ export type TaskSourceType =
   | 'finance'
   | 'approval'
   | 'system'
+  | 'delegation'
 
 export type WorkItemStatus =
   | 'needs_attention'
