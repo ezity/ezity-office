@@ -189,7 +189,7 @@ describe('Phase A: Session ↔ Agent Persistence & Decoration', () => {
 
     expect(json.ok).toBe(true)
     expect(json.session).toBeDefined()
-    expect(createdOpts.title).toBe('📊 Accountant')
+    expect(createdOpts.title).toMatch(/^📊 Accountant — agent-accountant-[a-f0-9]{8}$/)
     expect(getSessionAgent(json.session.id)).toBe('ezity-accountant')
   })
 })

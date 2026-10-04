@@ -174,7 +174,9 @@ export const Route = createFileRoute('/api/sessions')({
         try {
           const session = await createSession({
             id: friendlyId || randomUUID(),
-            title: label,
+            // Hermes requires globally unique titles. Keep the agent name visible
+            // while binding each new agent chat to its unique friendly session ID.
+            title: linkedAgent && label ? label + ' — ' + friendlyId : label,
             model,
           })
 
