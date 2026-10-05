@@ -189,55 +189,73 @@ export class FurnitureLayer extends Container {
 
     // ─────────────────────────────────────────────────────────────
     // Permanent Desk & Conference Task Chairs
+    // Fixed orientation, layering (Chair < Agent < Desk), and accurate sprite locations
     // ─────────────────────────────────────────────────────────────
     interface ChairFurnitureDef {
       id: string
       name: string
       worldPos: WorldPoint
-      facingLeft?: boolean
+      assetKey: 'chair_office_right' | 'chair_office_left'
+      targetWidth?: number
+      targetHeight?: number
+      offsetX?: number
+      offsetY?: number
     }
 
     const deskChairs: ChairFurnitureDef[] = [
-      // 1. Executive Desk Chair
+      // 1. Executive Desk Chair (Facing down-right towards desk surface)
       {
         id: 'chair_exec',
         name: 'Executive Task Chair',
         worldPos: ZONE_DEFINITIONS.executive.primaryAnchor,
-        facingLeft: false,
+        assetKey: 'chair_office_right',
+        offsetX: -10,
+        offsetY: 4,
       },
-      // 2. Finance Desk Chair
+      // 2. Finance Desk Chair (Facing down-right towards desk surface)
       {
         id: 'chair_fin',
         name: 'Finance Task Chair',
         worldPos: ZONE_DEFINITIONS.finance.primaryAnchor,
-        facingLeft: false,
+        assetKey: 'chair_office_right',
+        offsetX: -10,
+        offsetY: 4,
       },
-      // 3. Engineering Bay Workstation Chair
+      // 3. Engineering Bay Workstation Chair (Facing down-right towards dual monitors)
       {
         id: 'chair_eng',
         name: 'Engineering Bay Task Chair',
         worldPos: ZONE_DEFINITIONS.engineering.primaryAnchor,
-        facingLeft: false,
+        assetKey: 'chair_office_right',
+        offsetX: -10,
+        offsetY: 4,
       },
-      // 4. Review Station Chair
+      // 4. Review Station Chair (Facing down-right towards counter terminal)
       {
         id: 'chair_rev',
         name: 'Review Station Task Chair',
         worldPos: ZONE_DEFINITIONS.review_station.primaryAnchor,
-        facingLeft: false,
+        assetKey: 'chair_office_right',
+        offsetX: -10,
+        offsetY: 4,
       },
-      // 5. Strategic Conference Table Chairs
+      // 5. Strategic Conference Table - Primary Attendee Seat (North-West, facing down-right into table)
       {
         id: 'chair_conf_primary',
         name: 'Conference Room Chair 1',
         worldPos: ZONE_DEFINITIONS.meeting_room.primaryAnchor,
-        facingLeft: false,
+        assetKey: 'chair_office_right',
+        offsetX: -10,
+        offsetY: -4,
       },
+      // 6. Strategic Conference Table - Secondary Attendee Seat (North-East, facing down-left into table)
       {
-        id: 'chair_conf_top',
+        id: 'chair_conf_secondary',
         name: 'Conference Room Chair 2',
         worldPos: { x: -3.2, y: -7.5 },
-        facingLeft: false,
+        assetKey: 'chair_office_left',
+        offsetX: 10,
+        offsetY: 4,
       },
     ]
 
@@ -247,23 +265,29 @@ export class FurnitureLayer extends Container {
       chairContainer.position.set(screenPos.x, screenPos.y)
       chairContainer.scale.set(camera.zoom)
       // Depth sorting: chair renders slightly underneath agent seated at the same spot (screenPos.y - 0.5)
-      // but in front of any objects further back.
+      // and behind the desk (which is positioned at deskScreenPos.y > screenPos.y).
       chairContainer.zIndex = screenPos.y - 0.5
 
-      // Subtle ground contact shadow for the chair base
+      const offsetX = chairDef.offsetX || 0
+      const offsetY = chairDef.offsetY || 0
+
+      // Ground contact shadow for the 5-star caster wheelbase
       const chairShadow = new Graphics()
-      chairShadow.ellipse(0, 0, 14, 5)
+      chairShadow.ellipse(0, 0, 16, 6)
       chairShadow.fill({ color: 0x422006, alpha: 0.22 })
+      chairShadow.position.set(offsetX, offsetY)
       chairContainer.addChild(chairShadow)
 
-      // Ergonomic Chair Sprite
-      const chairTexture = getOfficeTexture('chair_office', this.app)
+      // High-res AI Ergonomic Chair Sprite
+      const chairTexture = getOfficeTexture(chairDef.assetKey, this.app)
       const chairSprite = new Sprite(chairTexture)
-      chairSprite.anchor.set(0.5, 0.88)
-      chairSprite.position.set(chairDef.facingLeft ? 4 : -4, -6)
-      if (chairDef.facingLeft) {
-        chairSprite.scale.x = -1
-      }
+      chairSprite.anchor.set(0.5, 0.94)
+      const targetHeight = chairDef.targetHeight || 88
+      const targetWidth =
+        chairDef.targetWidth || (chairDef.assetKey === 'chair_office_left' ? 53 : 49)
+      chairSprite.width = targetWidth
+      chairSprite.height = targetHeight
+      chairSprite.position.set(offsetX, offsetY)
       chairContainer.addChild(chairSprite)
 
       chairContainer.eventMode = 'none'
