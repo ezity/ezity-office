@@ -209,7 +209,7 @@ export class FurnitureLayer extends Container {
         name: 'Executive Task Chair',
         worldPos: ZONE_DEFINITIONS.executive.primaryAnchor,
         assetKey: 'chair_office_right',
-        offsetX: -5,
+        offsetX: -10,
         offsetY: 20,
       },
       // 2. Finance Desk Chair (Facing down-right towards desk surface)
@@ -218,7 +218,7 @@ export class FurnitureLayer extends Container {
         name: 'Finance Task Chair',
         worldPos: ZONE_DEFINITIONS.finance.primaryAnchor,
         assetKey: 'chair_office_right',
-        offsetX: -5,
+        offsetX: -10,
         offsetY: 20,
       },
       // 3. Engineering Bay Workstation Chair (Facing down-right towards dual monitors)
@@ -227,7 +227,7 @@ export class FurnitureLayer extends Container {
         name: 'Engineering Bay Task Chair',
         worldPos: ZONE_DEFINITIONS.engineering.primaryAnchor,
         assetKey: 'chair_office_right',
-        offsetX: -5,
+        offsetX: -10,
         offsetY: 20,
       },
       // 4. Review Station Chair (Facing down-right towards counter terminal)
@@ -236,7 +236,7 @@ export class FurnitureLayer extends Container {
         name: 'Review Station Task Chair',
         worldPos: ZONE_DEFINITIONS.review_station.primaryAnchor,
         assetKey: 'chair_office_right',
-        offsetX: -5,
+        offsetX: -10,
         offsetY: 20,
       },
       // 5. Strategic Conference Table - Primary Attendee Seat (North-West, facing down-right into table)
@@ -245,7 +245,7 @@ export class FurnitureLayer extends Container {
         name: 'Conference Room Chair 1',
         worldPos: ZONE_DEFINITIONS.meeting_room.primaryAnchor,
         assetKey: 'chair_office_right',
-        offsetX: -5,
+        offsetX: -10,
         offsetY: 20,
       },
       // 6. Strategic Conference Table - Secondary Attendee Seat (North-East, facing down-left into table)
@@ -254,7 +254,7 @@ export class FurnitureLayer extends Container {
         name: 'Conference Room Chair 2',
         worldPos: { x: -3.2, y: -7.5 },
         assetKey: 'chair_office_left',
-        offsetX: 5,
+        offsetX: 0,
         offsetY: 0,
       },
     ]
