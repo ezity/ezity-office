@@ -186,6 +186,91 @@ export class FurnitureLayer extends Container {
       this.items.set(def.id, zoneContainer)
       host.addChild(zoneContainer)
     }
+
+    // ─────────────────────────────────────────────────────────────
+    // Permanent Desk & Conference Task Chairs
+    // ─────────────────────────────────────────────────────────────
+    interface ChairFurnitureDef {
+      id: string
+      name: string
+      worldPos: WorldPoint
+      facingLeft?: boolean
+    }
+
+    const deskChairs: ChairFurnitureDef[] = [
+      // 1. Executive Desk Chair
+      {
+        id: 'chair_exec',
+        name: 'Executive Task Chair',
+        worldPos: ZONE_DEFINITIONS.executive.primaryAnchor,
+        facingLeft: false,
+      },
+      // 2. Finance Desk Chair
+      {
+        id: 'chair_fin',
+        name: 'Finance Task Chair',
+        worldPos: ZONE_DEFINITIONS.finance.primaryAnchor,
+        facingLeft: false,
+      },
+      // 3. Engineering Bay Workstation Chair
+      {
+        id: 'chair_eng',
+        name: 'Engineering Bay Task Chair',
+        worldPos: ZONE_DEFINITIONS.engineering.primaryAnchor,
+        facingLeft: false,
+      },
+      // 4. Review Station Chair
+      {
+        id: 'chair_rev',
+        name: 'Review Station Task Chair',
+        worldPos: ZONE_DEFINITIONS.review_station.primaryAnchor,
+        facingLeft: false,
+      },
+      // 5. Strategic Conference Table Chairs
+      {
+        id: 'chair_conf_primary',
+        name: 'Conference Room Chair 1',
+        worldPos: ZONE_DEFINITIONS.meeting_room.primaryAnchor,
+        facingLeft: false,
+      },
+      {
+        id: 'chair_conf_top',
+        name: 'Conference Room Chair 2',
+        worldPos: { x: -3.2, y: -7.5 },
+        facingLeft: false,
+      },
+    ]
+
+    for (const chairDef of deskChairs) {
+      const chairContainer = new Container()
+      const screenPos = worldToScreen(chairDef.worldPos.x, chairDef.worldPos.y, 0, camera)
+      chairContainer.position.set(screenPos.x, screenPos.y)
+      chairContainer.scale.set(camera.zoom)
+      // Depth sorting: chair renders slightly underneath agent seated at the same spot (screenPos.y - 0.5)
+      // but in front of any objects further back.
+      chairContainer.zIndex = screenPos.y - 0.5
+
+      // Subtle ground contact shadow for the chair base
+      const chairShadow = new Graphics()
+      chairShadow.ellipse(0, 0, 14, 5)
+      chairShadow.fill({ color: 0x422006, alpha: 0.22 })
+      chairContainer.addChild(chairShadow)
+
+      // Ergonomic Chair Sprite
+      const chairTexture = getOfficeTexture('chair_office', this.app)
+      const chairSprite = new Sprite(chairTexture)
+      chairSprite.anchor.set(0.5, 0.88)
+      chairSprite.position.set(chairDef.facingLeft ? 4 : -4, -6)
+      if (chairDef.facingLeft) {
+        chairSprite.scale.x = -1
+      }
+      chairContainer.addChild(chairSprite)
+
+      chairContainer.eventMode = 'none'
+
+      this.items.set(chairDef.id, chairContainer)
+      host.addChild(chairContainer)
+    }
   }
 
   public updateHandlers(handlers: FurnitureClickHandlers): void {

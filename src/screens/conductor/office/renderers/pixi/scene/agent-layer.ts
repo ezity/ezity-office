@@ -26,7 +26,6 @@ export interface AgentLayerHandlers {
 interface AgentDisplayObject {
   container: Container
   sprite: Sprite
-  chairSprite: Sprite
   shadow: Graphics
   selectionHalo: Graphics
   activityAura: Graphics
@@ -129,8 +128,6 @@ export class AgentLayer extends Container {
         moveState.animationState === 'meeting' ||
         moveState.animationState === 'review'
 
-      obj.chairSprite.visible = isSeated
-
       // ─────────────────────────────────────────────────────────────
       // Dynamic Activity Aura on Canvas (Ground Glow Ring)
       // ─────────────────────────────────────────────────────────────
@@ -201,12 +198,6 @@ export class AgentLayer extends Container {
 
         this.updateAgentTexture(agentId, obj, 'walk')
       } else if (isSeated) {
-        // Match chair orientation with agent's facing direction
-        obj.chairSprite.scale.x = isFacingLeft
-          ? -Math.abs(obj.chairSprite.scale.x)
-          : Math.abs(obj.chairSprite.scale.x)
-        obj.chairSprite.position.set(isFacingLeft ? 4 : -4, -6)
-
         // Seated gentle breathing (squash & stretch from the hips/waist)
         const breath = Math.sin(t * 2.2)
         const breathScaleY = 1 + breath * 0.024
@@ -375,14 +366,6 @@ export class AgentLayer extends Container {
     halo.visible = false
     container.addChild(halo)
 
-    // Ergonomic Chair (rendered underneath character sprite)
-    const chairTexture = getOfficeTexture('chair_office', this.app)
-    const chairSprite = new Sprite(chairTexture)
-    chairSprite.anchor.set(0.5, 0.88)
-    chairSprite.position.set(-4, -6)
-    chairSprite.visible = true
-    container.addChild(chairSprite)
-
     // Sprite
     const textureKey = this.getTextureKeyForRole(agent.id, 'sit')
     const texture = getOfficeTexture(textureKey, this.app)
@@ -410,7 +393,6 @@ export class AgentLayer extends Container {
     return {
       container,
       sprite,
-      chairSprite,
       shadow,
       selectionHalo: halo,
       activityAura,
