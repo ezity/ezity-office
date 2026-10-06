@@ -181,7 +181,7 @@ export const ZONE_DEFINITIONS: Record<OfficeZoneId, ZoneLayoutDefinition> = {
     doorway: { x: 1.0, y: -5.0 },
     rugAsset: 'board_operations',
     bounds: { minX: 1.5, maxX: 4.8, minY: -9.5, maxY: -6.5 },
-    primaryAnchor: { x: 2.75, y: -8.25 },
+    primaryAnchor: { x: 3.8, y: -8.8 },
     facing: 'down-right',
     contextualPose: 'sit',
   },
