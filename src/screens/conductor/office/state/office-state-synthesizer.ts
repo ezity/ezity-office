@@ -256,9 +256,11 @@ export function synthesizeOfficeSceneState(
   } = params
 
   const isMissionActive =
-    conductor.phase === 'decomposing' ||
-    conductor.phase === 'running' ||
-    (conductor.workers && conductor.workers.length > 0)
+    conductor.phase === 'decomposing' || conductor.phase === 'running'
+  const isMissionComplete = conductor.phase === 'complete'
+  const hasWorkers = Boolean(conductor.workers && conductor.workers.length > 0)
+  const shouldRenderMissionWorkers =
+    isMissionActive || (isMissionComplete && hasWorkers)
 
   // 1. Process Work Items & Summaries
   const activeWorkItems = workItems.filter(
@@ -288,7 +290,7 @@ export function synthesizeOfficeSceneState(
   // 2. Build Agent Nodes
   const agentNodes: Array<OfficeAgentSceneNode> = []
 
-  if (isMissionActive) {
+  if (shouldRenderMissionWorkers) {
     const workers = conductor.workers ?? []
     if (workers.length > 0) {
       // Map active workers
@@ -324,7 +326,7 @@ export function synthesizeOfficeSceneState(
           status = 'idle'
           attentionState = 'nominal'
           targetZoneId = 'lounge_break'
-        } else if (worker.status === 'complete') {
+        } else if (worker.status === 'complete' || isMissionComplete) {
           status = 'idle'
           attentionState = 'nominal'
         } else if (worker.status === 'stale') {
@@ -365,8 +367,16 @@ export function synthesizeOfficeSceneState(
           modelId: worker.model || 'auto',
           status,
           attentionState,
-          currentTaskTitle: isWorkerPaused ? 'Paused' : currentRunningTask?.title,
-          lastActivityText: isWorkerPaused ? 'Paused' : lastLine || undefined,
+          currentTaskTitle: isWorkerPaused
+            ? 'Paused'
+            : isMissionComplete
+              ? 'Mission Complete'
+              : currentRunningTask?.title,
+          lastActivityText: isWorkerPaused
+            ? 'Paused'
+            : isMissionComplete
+              ? 'Completed assigned tasks'
+              : lastLine || undefined,
           lastActivityAt: updatedAt,
           homeDeskId: deskId,
           currentZoneId: zoneId,
@@ -399,18 +409,22 @@ export function synthesizeOfficeSceneState(
             emoji: cosDef.emoji,
             colorHex: cosDef.colorHex,
             modelId: conductor.conductorSettings?.orchestratorModel || 'auto',
-            status: isPaused ? 'idle' : 'working',
-            attentionState: isPaused ? 'nominal' : 'working',
-            currentTaskTitle: conductor.goal || 'Coordinating mission...',
+            status: isPaused || isMissionComplete ? 'idle' : 'working',
+            attentionState: isPaused || isMissionComplete ? 'nominal' : 'working',
+            currentTaskTitle: isMissionComplete
+              ? 'Mission Complete'
+              : conductor.goal || 'Coordinating mission...',
             lastActivityText: isPaused
               ? 'Paused'
-              : conductor.streamText
-                ? 'En.Hafiz coordinating mission...'
-                : 'En.Hafiz leading mission...',
+              : isMissionComplete
+                ? 'Mission completed successfully'
+                : conductor.streamText
+                  ? 'En.Hafiz coordinating mission...'
+                  : 'En.Hafiz leading mission...',
             homeDeskId: cosDef.homeDeskId,
             currentZoneId: cosDef.homeZoneId,
-            targetZoneId: 'meeting_room',
-            isMoving: true,
+            targetZoneId: isMissionComplete ? undefined : 'meeting_room',
+            isMoving: isMissionComplete ? false : true,
             sessionKey:
               conductor.orchestratorSessionKey || 'conductor-chief-of-staff',
             pendingApprovalIds: [],

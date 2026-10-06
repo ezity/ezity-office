@@ -34,6 +34,7 @@ export interface WorldPoint {
 export interface ScreenPoint {
   x: number
   y: number
+  zoom?: number
 }
 
 /**
@@ -176,13 +177,13 @@ export const ZONE_DEFINITIONS: Record<OfficeZoneId, ZoneLayoutDefinition> = {
     zoneId: 'inbox_board',
     name: 'Operations Board',
     label: 'OPERATIONS',
-    center: { x: 2.56, y: -11.56 },
+    center: { x: 3.2, y: -7.8 },
     doorway: { x: 1.0, y: -5.0 },
     rugAsset: 'board_operations',
-    bounds: { minX: 0.5, maxX: 5.5, minY: -14.0, maxY: -9.0 },
-    primaryAnchor: { x: 2.56, y: -11.56 },
-    facing: 'down-left',
-    contextualPose: 'work',
+    bounds: { minX: 1.5, maxX: 4.8, minY: -9.5, maxY: -6.5 },
+    primaryAnchor: { x: 2.75, y: -8.25 },
+    facing: 'down-right',
+    contextualPose: 'sit',
   },
   lounge_break: {
     zoneId: 'lounge_break',
@@ -322,8 +323,9 @@ function getNearestJunction(zone: OfficeZoneId): WorldPoint {
     case 'engineering':
       return HALLWAY_WAYPOINTS.eastJunction
     case 'review_station':
-    case 'inbox_board':
       return HALLWAY_WAYPOINTS.southJunction
+    case 'inbox_board':
+      return HALLWAY_WAYPOINTS.northEastJunction
     case 'lounge_break':
       return HALLWAY_WAYPOINTS.loungeCorridor
     default:

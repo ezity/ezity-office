@@ -188,6 +188,7 @@ export function ConductorScreen() {
         onInboxOpen={() => setInboxOpen((open) => !open)}
         missionDrawerOpen={missionDrawerOpen}
         onToggleMissionDrawer={() => setMissionDrawerOpen((open) => !open)}
+        onNewMission={handleNewMission}
       />
 
       {/* ─────────────────────────────────────────────────────────────
@@ -213,13 +214,18 @@ export function ConductorScreen() {
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          4. FLOATING COMMAND BAR (Idle Phase)
+          4. FLOATING COMMAND BAR (Idle or Complete Phase)
       ───────────────────────────────────────────────────────────── */}
-      {conductor.phase === 'idle' && (
+      {(conductor.phase === 'idle' || conductor.phase === 'complete') && (
         <ConductorCommandBar
           goalDraft={goalDraft}
           setGoalDraft={setGoalDraft}
-          onSubmit={handleSubmit}
+          onSubmit={async () => {
+            if (conductor.phase === 'complete') {
+              conductor.resetMission()
+            }
+            await handleSubmit()
+          }}
           isSending={conductor.isSending}
           hasPersistedMission={conductor.hasPersistedMission}
           onResumeMission={handleResumeMission}

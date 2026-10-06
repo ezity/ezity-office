@@ -270,8 +270,15 @@ export class OfficeScene {
       // 3. Emit updated screen positions for DOM overlay
       if (this.onOverlayPositionsUpdate) {
         const positions = this.agentLayer.getAgentScreenPositions()
-        const opsPos = worldToScreen(2.56, -11.56, 0, this.camera)
-        positions.set('ops_board', opsPos)
+        // Exact top-left corner of the corkboard on the wall in 1376x768 space:
+        // Inner face starts at (1092, 158) relative to center (688, 384)
+        const boardScreenX = this.camera.x + (1092 - 688) * this.camera.zoom
+        const boardScreenY = this.camera.y + (158 - 384) * this.camera.zoom
+        positions.set('ops_board', {
+          x: boardScreenX,
+          y: boardScreenY,
+          zoom: this.camera.zoom,
+        })
         this.onOverlayPositionsUpdate(positions)
       }
     })

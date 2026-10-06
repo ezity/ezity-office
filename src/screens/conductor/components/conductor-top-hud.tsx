@@ -29,6 +29,7 @@ export interface ConductorTopHudProps {
   onSettingsOpen: () => void
   missionDrawerOpen: boolean
   onToggleMissionDrawer: () => void
+  onNewMission?: () => void
   inboxOpen?: boolean
   onInboxOpen?: () => void
 }
@@ -63,6 +64,7 @@ export function ConductorTopHud({
   onSettingsOpen,
   missionDrawerOpen,
   onToggleMissionDrawer,
+  onNewMission,
   inboxOpen = false,
   onInboxOpen,
 }: ConductorTopHudProps) {
@@ -150,6 +152,18 @@ export function ConductorTopHud({
               {totalTokens.toLocaleString()} tok &middot;{' '}
               {formatUsd(estimateTokenCost(totalTokens))}
             </span>
+            {onNewMission && (
+              <>
+                <span className="h-3 w-px bg-[var(--theme-border)]" />
+                <button
+                  type="button"
+                  onClick={onNewMission}
+                  className="rounded-xl bg-[var(--theme-accent)] px-2.5 py-1 text-xs font-semibold text-white shadow-sm transition hover:bg-[var(--theme-accent-strong)] active:scale-95"
+                >
+                  New Mission
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>

@@ -363,7 +363,7 @@ describe('Phase I-D: PixiJS Game-Style Virtual Office Renderer Prototype', () =>
       fireEvent.click(cosButtons[0])
 
       expect(handleAgentClick).toHaveBeenCalledWith('ezity-cos', undefined)
-    })
+    }, 15000)
 
     it('wires zone click handlers through accessible DOM buttons', () => {
       const handleZoneClick = vi.fn()

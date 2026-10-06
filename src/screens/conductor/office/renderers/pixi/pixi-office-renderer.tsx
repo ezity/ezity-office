@@ -84,8 +84,10 @@ export function PixiOfficeRenderer({
       if (!opsPos || (opsPos.x === 0 && opsPos.y === 0)) {
         opsEl.style.opacity = '0'
       } else {
+        const zoom = opsPos.zoom || 1
         opsEl.style.opacity = '1'
-        opsEl.style.transform = `translate3d(${Math.round(opsPos.x)}px, ${Math.round(opsPos.y - 120)}px, 0) translate(-50%, -100%)`
+        opsEl.style.transformOrigin = '0 0'
+        opsEl.style.transform = `translate3d(${Math.round(opsPos.x)}px, ${Math.round(opsPos.y)}px, 0) scale(${zoom}) skewY(26.565deg)`
       }
     }
   }, [])
@@ -385,46 +387,59 @@ export function PixiOfficeRenderer({
             role="button"
             tabIndex={0}
             onClick={() => onWorkItemClick?.('inbox_board')}
-            className="group relative flex cursor-pointer flex-col items-center select-none"
+            className="group relative flex cursor-pointer flex-col select-none rounded-[3px] border border-amber-800/30 bg-amber-950/10 p-1 backdrop-blur-[0.5px] transition-all hover:bg-amber-900/20 hover:ring-1 hover:ring-amber-400/50"
+            style={{ width: 96, height: 72 }}
             title="Open Operations Work Inbox"
           >
-            {/* Header Badge */}
-            <div className="flex items-center gap-1.5 rounded-xl border border-amber-900/15 bg-white/95 px-2.5 py-1 shadow-md backdrop-blur-md transition hover:scale-105 hover:border-amber-500/50">
-              <span className="text-xs">📌</span>
-              <span className="text-[10px] font-bold text-slate-800">
-                Operations Inbox
+            {/* Header Title */}
+            <div className="flex items-center justify-between px-0.5 pb-0.5">
+              <span className="text-[7px] font-black uppercase tracking-wider text-slate-800/90 drop-shadow-sm">
+                📌 OPERATIONS
               </span>
-              <span className="rounded-full bg-amber-500/15 px-1.5 py-0.2 text-[9px] font-bold text-amber-700">
+              <span className="rounded-full bg-amber-500/25 px-1 py-0 text-[6.5px] font-extrabold text-amber-900">
                 {scene.workItems.length}
               </span>
             </div>
 
-            {/* Mini Sticky Notes Grid matching the 3 columns in the screenshot */}
-            <div className="mt-1 flex items-center gap-1">
-              <div className="flex flex-col items-center justify-center rounded-md border border-orange-400 bg-orange-100/90 p-1 shadow-sm transition hover:scale-105 w-10 text-center">
-                <span className="text-[9px] font-bold text-orange-800">
+            {/* 3 Columns of Isometric Sticky Notes Conforming to Board Columns */}
+            <div className="grid grid-cols-3 gap-1 pt-0.5">
+              {/* Column 1: Urgent (Orange / Amber) */}
+              <div className="group/note flex flex-col items-center justify-between rounded-[2.5px] border border-amber-400/80 bg-gradient-to-b from-amber-100/95 to-amber-200/95 p-0.5 shadow-[0_1px_3px_rgba(217,119,6,0.25)] transition-transform hover:-translate-y-0.5 hover:shadow-md">
+                <span className="size-1 rounded-full bg-rose-500 shadow-sm" />
+                <span className="my-0.5 text-[10px] font-black leading-none text-amber-900">
                   {scene.workItems.filter((i) => i.status === 'needs_attention').length}
                 </span>
-                <span className="text-[7px] font-bold uppercase text-orange-700">
+                <span className="text-[6.5px] font-extrabold uppercase tracking-tighter text-amber-800">
                   Urgent
                 </span>
               </div>
-              <div className="flex flex-col items-center justify-center rounded-md border border-sky-400 bg-sky-100/90 p-1 shadow-sm transition hover:scale-105 w-10 text-center">
-                <span className="text-[9px] font-bold text-sky-800">
+
+              {/* Column 2: Active (Sky / Cyan) */}
+              <div className="group/note flex flex-col items-center justify-between rounded-[2.5px] border border-sky-400/80 bg-gradient-to-b from-sky-100/95 to-sky-200/95 p-0.5 shadow-[0_1px_3px_rgba(14,165,233,0.25)] transition-transform hover:-translate-y-0.5 hover:shadow-md">
+                <span className="size-1 rounded-full bg-sky-500 shadow-sm" />
+                <span className="my-0.5 text-[10px] font-black leading-none text-sky-900">
                   {scene.workItems.filter((i) => i.status === 'in_progress').length}
                 </span>
-                <span className="text-[7px] font-bold uppercase text-sky-700">
+                <span className="text-[6.5px] font-extrabold uppercase tracking-tighter text-sky-800">
                   Active
                 </span>
               </div>
-              <div className="flex flex-col items-center justify-center rounded-md border border-emerald-400 bg-emerald-100/90 p-1 shadow-sm transition hover:scale-105 w-10 text-center">
-                <span className="text-[9px] font-bold text-emerald-800">
+
+              {/* Column 3: Review / Done (Emerald / Mint) */}
+              <div className="group/note flex flex-col items-center justify-between rounded-[2.5px] border border-emerald-400/80 bg-gradient-to-b from-emerald-100/95 to-emerald-200/95 p-0.5 shadow-[0_1px_3px_rgba(16,185,129,0.25)] transition-transform hover:-translate-y-0.5 hover:shadow-md">
+                <span className="size-1 rounded-full bg-emerald-500 shadow-sm" />
+                <span className="my-0.5 text-[10px] font-black leading-none text-emerald-900">
                   {scene.workItems.filter((i) => i.status === 'waiting' || i.status === 'completed').length}
                 </span>
-                <span className="text-[7px] font-bold uppercase text-emerald-700">
+                <span className="text-[6.5px] font-extrabold uppercase tracking-tighter text-emerald-800">
                   Review
                 </span>
               </div>
+            </div>
+
+            {/* Hover Tooltip */}
+            <div className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 opacity-0 transition-opacity duration-150 group-hover:opacity-100 whitespace-nowrap rounded-md bg-slate-900/90 px-1.5 py-0.5 text-[9px] font-medium text-amber-200 shadow-lg backdrop-blur-sm">
+              Operations Board &bull; {scene.workItems.length} items
             </div>
           </div>
         </div>

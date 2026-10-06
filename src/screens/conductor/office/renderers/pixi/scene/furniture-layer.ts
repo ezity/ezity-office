@@ -257,6 +257,15 @@ export class FurnitureLayer extends Container {
         offsetX: 0,
         offsetY: 0,
       },
+      // 7. Operations Workstation Task Chair (Facing down-right towards desk)
+      {
+        id: 'chair_ops',
+        name: 'Operations Workstation Chair',
+        worldPos: ZONE_DEFINITIONS.inbox_board.primaryAnchor,
+        assetKey: 'chair_office_right',
+        offsetX: -10,
+        offsetY: 20,
+      },
     ]
 
     for (const chairDef of deskChairs) {

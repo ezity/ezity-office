@@ -204,6 +204,34 @@ describe('Phase I-A: Renderer-Neutral Office State Extraction', () => {
       expect(cos.status).toBe('working')
       expect(cos.currentTaskTitle).toBe('Audit security rules')
     })
+
+    it('marks mission as not running and agents nominal when conductor phase is complete', () => {
+      const scene = synthesizeOfficeSceneState({
+        conductor: {
+          phase: 'complete',
+          goal: 'Deploy smart contract',
+          isEZityStaff: true,
+          workers: [
+            {
+              key: 'worker-developer-1',
+              displayName: 'Developer',
+              agentId: 'ezity-developer',
+              status: 'complete',
+            },
+          ],
+        },
+      })
+
+      expect(scene.missionRunning).toBe(false)
+      const cos = scene.agents.find((a) => a.agentDefinitionId === 'ezity-chief-of-staff')
+      expect(cos?.status).toBe('idle')
+      expect(cos?.currentTaskTitle).toBe('Mission Complete')
+      expect(cos?.movementReason).not.toBe('mission_collaboration')
+
+      const dev = scene.agents.find((a) => a.agentDefinitionId === 'ezity-developer')
+      expect(dev?.status).toBe('idle')
+      expect(dev?.movementReason).not.toBe('mission_collaboration')
+    })
   })
 
   describe('E. Work Inbox items attach to correct agents', () => {
